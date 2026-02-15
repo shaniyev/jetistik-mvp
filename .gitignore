@@ -1,0 +1,26 @@
+.DS_Store
+*.log
+*.sqlite3
+db.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Environments
+.env
+.env.prod
+.venv/
+venv/
+
+# Django static/media
+media/
+staticfiles/
+
+# Frontend dependencies/build cache
+frontend/**/node_modules/
+frontend/**/.vite/
+
+# IDE
+.idea/
+.vscode/
