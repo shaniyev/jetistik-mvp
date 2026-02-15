@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Верификация{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-3">Проверка сертификата</h4>
+
+        {% if status == "NOT_FOUND" %}
+          <div class="alert alert-danger">NOT_FOUND: сертификат не найден.</div>
+        {% elif status == "REVOKED" %}
+          <div class="alert alert-danger">REVOKED: сертификат отозван. Причина: {{ cert.revoked_reason|default:"—" }}</div>
+        {% else %}
+          <div class="alert alert-success">VALID: сертификат действителен.</div>
+        {% endif %}
+
+        {% if cert %}
+          <dl class="row mb-0">
+            <dt class="col-sm-4">ФИО</dt><dd class="col-sm-8">{{ cert.name }}</dd>
+            <dt class="col-sm-4">ИИН</dt><dd class="col-sm-8">{{ masked_iin }}</dd>
+
+            {% if payload.organization_name %}<dt class="col-sm-4">Организация</dt><dd class="col-sm-8">{{ payload.organization_name }}</dd>{% endif %}
+            <dt class="col-sm-4">Событие</dt><dd class="col-sm-8">{{ cert.event.title }}</dd>
+            {% if payload.event_city %}<dt class="col-sm-4">Город</dt><dd class="col-sm-8">{{ payload.event_city }}</dd>{% endif %}
+            {% if payload.event_date %}<dt class="col-sm-4">Дата события</dt><dd class="col-sm-8">{{ payload.event_date }}</dd>{% endif %}
+
+            {% if payload.nomination %}<dt class="col-sm-4">Номинация</dt><dd class="col-sm-8">{{ payload.nomination }}</dd>{% endif %}
+            {% if payload.place %}<dt class="col-sm-4">Степень/место</dt><dd class="col-sm-8">{{ payload.place }}</dd>{% endif %}
+            {% if payload.school %}<dt class="col-sm-4">Школа</dt><dd class="col-sm-8">{{ payload.school }}</dd>{% endif %}
+            {% if payload.class %}<dt class="col-sm-4">Класс</dt><dd class="col-sm-8">{{ payload.class }}</dd>{% endif %}
+            {% if payload.teacher %}<dt class="col-sm-4">Учитель</dt><dd class="col-sm-8">{{ payload.teacher }}</dd>{% endif %}
+
+            <dt class="col-sm-4">Сгенерировано</dt><dd class="col-sm-8">{{ cert.created_at|date:"d.m.Y H:i" }}</dd>
+          </dl>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

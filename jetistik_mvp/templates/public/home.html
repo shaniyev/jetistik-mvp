@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Jetistik — Поиск{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Введите ИИН</h5>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ form.iin.label_tag }}
+            {{ form.iin }}
+            {% for e in form.iin.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+          </div>
+          <button class="btn btn-primary w-100">Показать сертификаты</button>
+        </form>
+        <div class="text-muted small mt-3">
+          Ограничение: 10 запросов/мин на IP.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Generate — Batch #{{ batch.id }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-1">Generate: Batch #{{ batch.id }}</h4>
+    <div class="text-muted">Status: {{ batch.status }}</div>
+  </div>
+  <a class="btn btn-outline-secondary" href="{% url 'staff_batch_mapping' batch.id %}">← Mapping</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="mb-3">
+      <div class="fw-semibold">Прогресс</div>
+      <div class="text-muted small">Total: {{ total }} · OK: {{ ok }} · Failed: {{ failed }}</div>
+      <div class="progress mt-2" role="progressbar" aria-valuenow="{{ ok|add:failed }}" aria-valuemin="0" aria-valuemax="{{ total }}">
+        {% if total %}
+          <div class="progress-bar" style="width: {{ ok|add:failed|floatformat:0 }}%;"></div>
+        {% else %}
+          <div class="progress-bar" style="width: 0%;"></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-primary" {% if batch.status == "generating" %}disabled{% endif %}>Запустить генерацию</button>
+      <a class="btn btn-outline-secondary" href="" title="Просто обнови страницу">Обновить</a>
+    </form>
+
+    <div class="text-muted small mt-3">
+      Примечание: в MVP прогресс обновляется при перезагрузке страницы.
+    </div>
+  </div>
+</div>
+{% endblock %}

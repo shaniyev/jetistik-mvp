@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+
+  web:
+    build: .
+    restart: always
+    env_file:
+      - .env.prod
+    command: /app/scripts/start-web.sh
+    ports:
+      - "8000:8000"
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: .
+    restart: always
+    env_file:
+      - .env.prod
+    command: celery -A config worker -l info
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Мои сертификаты{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h4 class="mb-0">Мои сертификаты</h4>
+    <div class="text-muted">ИИН: {{ iin|slice:":4" }}******{{ iin|slice:"-2:" }}</div>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="/">Сменить ИИН</a>
+    <a class="btn btn-outline-primary" href="{% url 'my_certificates_download' %}">Скачать все</a>
+  </div>
+</div>
+
+{% if certificates %}
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Организация</th>
+            <th>Событие</th>
+            <th>Номинация</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in certificates %}
+            <tr>
+              <td class="text-muted small">{{ c.payload_json.organization_name|default:"" }}</td>
+              <td class="fw-semibold">{{ c.event.title }}</td>
+              <td class="text-muted small">
+                {{ c.payload_json.nomination|default:"" }}
+                {% if c.payload_json.place %} · {{ c.payload_json.place }}{% endif %}
+              </td>
+              <td>
+                <span class="badge {% if c.status == 'revoked' %}bg-danger{% else %}bg-success{% endif %}">{{ c.status|upper }}</span>
+              </td>
+              <td class="text-muted small">{{ c.created_at|date:"d.m.Y H:i" }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-primary" href="{% url 'download_certificate' c.code %}">PDF</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'verify' c.code %}" target="_blank">Проверить</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info">По этому ИИН сертификаты не найдены.</div>
+{% endif %}
+{% endblock %}
