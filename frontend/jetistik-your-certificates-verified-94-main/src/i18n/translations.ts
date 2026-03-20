@@ -162,7 +162,7 @@ export const translations = {
     ru: "Оставьте заявку — мы свяжемся с вами для подключения к Jetistik",
   },
   "admin.fullName": { kz: "Аты-жөні", ru: "ФИО" },
-  "admin.fullNamePlaceholder": { kz: "Иванов Иван Иванович", ru: "Иванов Иван Иванович" },
+  "admin.fullNamePlaceholder": { kz: "Омаров Омар Омарұлы", ru: "Омаров Омар Омарұлы" },
   "admin.organization": { kz: "Ұйым", ru: "Организация" },
   "admin.organizationPlaceholder": { kz: "Ұйым атауы", ru: "Название организации" },
   "admin.phone": { kz: "Телефон", ru: "Телефон" },

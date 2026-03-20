@@ -3,8 +3,8 @@ import os
 import io
 import json
 import zipfile
+from functools import wraps
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
@@ -18,8 +18,13 @@ from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 
-# from ratelimit.decorators import ratelimit
-from django_ratelimit.decorators import ratelimit
+try:
+    from django_ratelimit.decorators import ratelimit
+except ModuleNotFoundError:
+    def ratelimit(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
 
 from .forms import IINSearchForm, EventForm, TemplateUploadForm, ImportUploadForm, MappingForm, BatchEditForm, CertificateEditForm, TeacherAddStudentForm, RegistrationForm, ProfileIINForm, OrganizationRegistrationForm
 from .models import Event, Template, ImportBatch, ParticipantRow, Certificate, AuditLog, UserProfile, TeacherStudent, Organization, OrganizationUser
@@ -154,6 +159,21 @@ def _get_org_for_user(user):
     membership = OrganizationUser.objects.filter(user=user).select_related("organization").first()
     return membership.organization if membership else None
 
+def _get_staff_event_queryset(user):
+    org = _get_org_for_user(user)
+    if not org:
+        return Event.objects.none()
+    return Event.objects.filter(organization=org, created_by=user)
+
+def staff_portal_required(view_func):
+    @wraps(view_func)
+    @login_required(login_url="/accounts/login/")
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_staff:
+            return HttpResponseForbidden("Нет доступа к staff-разделу.")
+        return view_func(request, *args, **kwargs)
+    return _wrapped
+
 @login_required
 def profile(request):
     profile = UserProfile.objects.filter(user=request.user).first()
@@ -177,6 +197,16 @@ def _in_group(user, group_name: str) -> bool:
 
 def _require_group(group_name: str):
     return user_passes_test(lambda u: _in_group(u, group_name))
+
+@login_required
+def account_profile_redirect(request):
+    if request.user.is_staff:
+        return redirect("staff_events")
+    if _in_group(request.user, "user_teacher"):
+        return redirect("teacher_dashboard")
+    if _in_group(request.user, "user_student"):
+        return redirect("student_dashboard")
+    return redirect("profile")
 
 @login_required
 @_require_group("user_student")
@@ -293,17 +323,18 @@ def verify(request, code: str):
 
 # ----------------------- Staff MVP Dashboard -----------------------
 
-@staff_member_required
+@staff_portal_required
 def staff_events(request):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    events = Event.objects.filter(organization=org).order_by("-created_at")
+    events = _get_staff_event_queryset(request.user).order_by("-created_at")
     if request.method == "POST":
         form = EventForm(request.POST)
         if form.is_valid():
             ev = form.save(commit=False)
             ev.organization = org
+            ev.created_by = request.user
             ev.save()
             AuditLog.objects.create(actor=request.user, action="create_event", object_type="Event", object_id=str(ev.pk))
             return redirect("staff_events")
@@ -311,12 +342,12 @@ def staff_events(request):
         form = EventForm()
     return render(request, "staff/events.html", {"events": events, "form": form})
 
-@staff_member_required
+@staff_portal_required
 def staff_event_detail(request, event_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    event = get_object_or_404(Event, pk=event_id, organization=org)
+    event = get_object_or_404(_get_staff_event_queryset(request.user), pk=event_id)
     latest_template = Template.objects.filter(event=event).order_by("-created_at").first()
     batches = ImportBatch.objects.filter(event=event).order_by("-created_at")[:20]
 
@@ -355,11 +386,11 @@ def staff_event_detail(request, event_id: int):
         "iform": iform,
     })
 
-@staff_member_required
+@staff_portal_required
 def staff_event_delete(request, event_id: int):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
-    event = get_object_or_404(Event, pk=event_id)
+    event = get_object_or_404(_get_staff_event_queryset(request.user), pk=event_id)
     AuditLog.objects.create(actor=request.user, action="delete_event", object_type="Event", object_id=str(event.pk))
     event.delete()
     messages.success(request, "Событие удалено.")
@@ -396,12 +427,12 @@ def _parse_batch_file(batch: ImportBatch, event: Event) -> None:
                 error="" if (iin and name) else "Missing iin/name",
             )
 
-@staff_member_required
+@staff_portal_required
 def staff_batch_mapping(request, batch_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org)
+    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org, event__created_by=request.user)
     report = batch.report_json or {}
     columns = report.get("columns", [])
     mapping = batch.mapping_json or {}
@@ -474,12 +505,12 @@ def staff_batch_mapping(request, batch_id: int):
 
     return render(request, "staff/mapping.html", {"batch": batch, "form": form, "report": report})
 
-@staff_member_required
+@staff_portal_required
 def staff_batch_edit(request, batch_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org)
+    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org, event__created_by=request.user)
     if request.method == "POST":
         form = BatchEditForm(request.POST, request.FILES, instance=batch)
         if form.is_valid():
@@ -492,31 +523,35 @@ def staff_batch_edit(request, batch_id: int):
         form = BatchEditForm(instance=batch)
     return render(request, "staff/batch_edit.html", {"batch": batch, "form": form})
 
-@staff_member_required
+@staff_portal_required
 def staff_batch_delete(request, batch_id: int):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org)
+    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org, event__created_by=request.user)
     AuditLog.objects.create(actor=request.user, action="batch_delete", object_type="ImportBatch", object_id=str(batch.pk))
     batch.delete()
     messages.success(request, "Batch удалён.")
     return redirect("staff_event_detail", event_id=batch.event_id)
 
-@staff_member_required
+@staff_portal_required
 def staff_batch_generate(request, batch_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org)
+    batch = get_object_or_404(ImportBatch, pk=batch_id, event__organization=org, event__created_by=request.user)
     if request.method == "POST":
         # start celery task
         batch.status = "generating"
         batch.save(update_fields=["status"])
-        generate_batch.delay(batch.pk)
-        messages.success(request, "Генерация запущена. Обновляй страницу для прогресса.")
+        if hasattr(generate_batch, "delay"):
+            generate_batch.delay(batch.pk)
+            messages.success(request, "Генерация запущена. Обновляй страницу для прогресса.")
+        else:
+            generate_batch(batch.pk)
+            messages.success(request, "Генерация выполнена синхронно в веб-процессе.")
         return redirect("staff_batch_generate", batch_id=batch.pk)
 
     # progress
@@ -531,22 +566,22 @@ def staff_batch_generate(request, batch_id: int):
             percent = 100
     return render(request, "staff/generate.html", {"batch": batch, "total": total, "ok": ok, "failed": failed, "percent": percent})
 
-@staff_member_required
+@staff_portal_required
 def staff_event_certificates(request, event_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    event = get_object_or_404(Event, pk=event_id, organization=org)
+    event = get_object_or_404(_get_staff_event_queryset(request.user), pk=event_id)
     certs = Certificate.objects.filter(event=event).order_by("-created_at")
     total = certs.count()
     return render(request, "staff/certificates.html", {"event": event, "certificates": certs, "total": total})
 
-@staff_member_required
+@staff_portal_required
 def staff_event_certificates_download(request, event_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    event = get_object_or_404(Event, pk=event_id, organization=org)
+    event = get_object_or_404(_get_staff_event_queryset(request.user), pk=event_id)
     certs = Certificate.objects.filter(event=event).order_by("-created_at")
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -564,12 +599,12 @@ def staff_event_certificates_download(request, event_id: int):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
 
-@staff_member_required
+@staff_portal_required
 def staff_certificate_download(request, cert_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    cert = get_object_or_404(Certificate, pk=cert_id, organization=org)
+    cert = get_object_or_404(Certificate, pk=cert_id, organization=org, event__created_by=request.user)
     if not cert.pdf:
         raise Http404()
     event_part = slugify(cert.event.title) or "event"
@@ -577,12 +612,12 @@ def staff_certificate_download(request, cert_id: int):
     filename = f"{event_part}_{iin_part}.pdf"
     return FileResponse(cert.pdf.open("rb"), as_attachment=True, filename=filename)
 
-@staff_member_required
+@staff_portal_required
 def staff_certificate_edit(request, cert_id: int):
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    cert = get_object_or_404(Certificate, pk=cert_id, organization=org)
+    cert = get_object_or_404(Certificate, pk=cert_id, organization=org, event__created_by=request.user)
     # limit editable tokens
     desired_tokens = {"name", "school", "class", "teacher", "text", "id"}
     tpl = Template.objects.filter(event=cert.event).order_by("-created_at").first()
@@ -622,14 +657,14 @@ def staff_certificate_edit(request, cert_id: int):
         form = CertificateEditForm(instance=cert, tokens=tokens, payload=cert.payload_json or {})
     return render(request, "staff/certificate_edit.html", {"cert": cert, "form": form})
 
-@staff_member_required
+@staff_portal_required
 def staff_certificate_delete(request, cert_id: int):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
     org = _get_org_for_user(request.user)
     if not org:
         return HttpResponseForbidden("Нет доступа: пользователь не привязан к организации.")
-    cert = get_object_or_404(Certificate, pk=cert_id, organization=org)
+    cert = get_object_or_404(Certificate, pk=cert_id, organization=org, event__created_by=request.user)
     event_id = cert.event_id
     AuditLog.objects.create(actor=request.user, action="certificate_delete", object_type="Certificate", object_id=str(cert.pk))
     cert.delete()

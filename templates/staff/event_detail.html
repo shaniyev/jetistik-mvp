@@ -5,9 +5,14 @@
   <div>
     <h4 class="mb-1">{{ event.title }}</h4>
     <div class="text-muted">{{ event.city }}{% if event.date %} · {{ event.date }}{% endif %}</div>
+    <div class="text-muted small mt-1">Текущий логин: {{ user.username }}</div>
   </div>
   <div class="d-flex gap-2">
     <a class="btn btn-outline-secondary" href="{% url 'staff_events' %}">← Events</a>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button class="btn btn-outline-secondary" type="submit">Logout</button>
+    </form>
     <form method="post" action="{% url 'staff_event_delete' event.id %}" onsubmit="return confirm('Удалить событие? Все шаблоны, batch и сертификаты будут удалены.');">
       {% csrf_token %}
       <button class="btn btn-outline-danger" type="submit">Удалить</button>

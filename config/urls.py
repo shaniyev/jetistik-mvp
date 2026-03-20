@@ -9,6 +9,7 @@ from core import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
+    path("accounts/profile/", views.account_profile_redirect, name="account_profile_redirect"),
 
     # Public
     path("", views.landing, name="landing"),

@@ -12,8 +12,14 @@
     <a class="navbar-brand fw-bold" href="/">Jetistik</a>
     <div class="ms-auto">
       {% if user.is_authenticated %}
+        <span class="text-muted small me-2">Login: {{ user.username }}</span>
         {% if is_student %}<a class="btn btn-sm btn-outline-primary" href="/student/">Student</a>{% endif %}
         {% if is_teacher %}<a class="btn btn-sm btn-outline-primary" href="/teacher/">Teacher</a>{% endif %}
+        {% if user.is_staff %}<a class="btn btn-sm btn-outline-primary" href="/staff/events/">Staff</a>{% endif %}
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-secondary" type="submit">Logout</button>
+        </form>
       {% else %}
         <a class="btn btn-sm btn-outline-secondary" href="/register/">Register</a>
         <a class="btn btn-sm btn-outline-secondary" href="/accounts/login/">Login</a>

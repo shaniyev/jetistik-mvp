@@ -23,6 +23,7 @@ class OrganizationUser(models.Model):
 
 class Event(models.Model):
     organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL, related_name="events")
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="created_events")
     title = models.CharField(max_length=255)
     date = models.DateField(null=True, blank=True)
     city = models.CharField(max_length=128, blank=True, default="")

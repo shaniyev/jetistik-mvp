@@ -5,8 +5,16 @@ import uuid
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import transaction
-from celery import shared_task
 from pptx import Presentation
+
+try:
+    from celery import shared_task
+except ModuleNotFoundError:
+    def shared_task(*args, **kwargs):
+        def decorator(func):
+            func.delay = func
+            return func
+        return decorator
 
 from .models import ImportBatch, ParticipantRow, Certificate, Template, AuditLog
 from .utils import read_table, default_mapping, generate_certificate_pdf
