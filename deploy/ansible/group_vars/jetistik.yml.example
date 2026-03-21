@@ -1,0 +1,23 @@
+---
+# Application
+app_dir: /opt/jetistik
+app_user: jetistik
+domain: jetistik.example.com
+
+# Django
+secret_key: "CHANGE-ME-generate-with-python-c-import-secrets-secrets.token_urlsafe-50"
+
+# PostgreSQL
+postgres_db: jetistik
+postgres_user: jetistik
+postgres_password: "CHANGE-ME-strong-db-password"
+
+# Email (optional)
+email_host: smtp.gmail.com
+email_port: 587
+email_host_user: ""
+email_host_password: ""
+organizer_email: "yerzhan@blackboard.kz"
+
+# Certbot
+certbot_email: "admin@jetistik.example.com"

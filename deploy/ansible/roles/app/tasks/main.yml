@@ -1,0 +1,68 @@
+---
+- name: Create app directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
+- name: Sync project files to server
+  synchronize:
+    src: "{{ playbook_dir }}/../../"
+    dest: "{{ app_dir }}/"
+    delete: true
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.env"
+      - "--exclude=.env.prod"
+      - "--exclude=db.sqlite3"
+      - "--exclude=media/"
+      - "--exclude=staticfiles/"
+      - "--exclude=__pycache__"
+      - "--exclude=*.pyc"
+      - "--exclude=node_modules"
+      - "--exclude=deploy/terraform/.terraform"
+      - "--exclude=deploy/terraform/terraform.tfstate*"
+      - "--exclude=deploy/terraform/terraform.tfvars"
+      - "--exclude=.venv"
+      - "--exclude=venv"
+
+- name: Copy .env.prod to server
+  template:
+    src: env.prod.j2
+    dest: "{{ app_dir }}/.env.prod"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0600"
+
+- name: Set ownership of app directory
+  file:
+    path: "{{ app_dir }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    recurse: true
+
+- name: Make start-web.sh executable
+  file:
+    path: "{{ app_dir }}/scripts/start-web.sh"
+    mode: "0755"
+
+- name: Build and start containers with docker compose
+  shell: |
+    cd {{ app_dir }}
+    docker compose -f docker-compose.prod.yml build
+    docker compose -f docker-compose.prod.yml up -d
+  environment:
+    POSTGRES_DB: "{{ postgres_db }}"
+    POSTGRES_USER: "{{ postgres_user }}"
+    POSTGRES_PASSWORD: "{{ postgres_password }}"
+
+- name: Wait for web container to be healthy
+  shell: docker compose -f docker-compose.prod.yml ps
+  args:
+    chdir: "{{ app_dir }}"
+  register: compose_ps
+  retries: 5
+  delay: 10
+  until: compose_ps.rc == 0

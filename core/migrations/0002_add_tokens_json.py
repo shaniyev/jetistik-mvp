@@ -8,10 +8,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="importbatch",
-            name="tokens_json",
-            field=models.JSONField(blank=True, default=list),
-        ),
+        # Field already exists in 0001_initial — this migration is a no-op.
     ]
 
