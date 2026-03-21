@@ -4,7 +4,27 @@
     name: nginx
     state: present
 
-- name: Deploy Nginx config
+- name: Install certbot and cloudflare plugin
+  pip:
+    name:
+      - certbot
+      - certbot-nginx
+      - certbot-dns-cloudflare
+    state: present
+
+- name: Create cloudflare credentials directory
+  file:
+    path: /root/.secrets
+    state: directory
+    mode: "0700"
+
+- name: Write cloudflare credentials file
+  copy:
+    dest: /root/.secrets/cloudflare.ini
+    content: "dns_cloudflare_api_token = {{ cloudflare_api_token }}"
+    mode: "0600"
+
+- name: Deploy Nginx HTTP config (pre-SSL)
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/conf.d/jetistik.conf
@@ -29,3 +49,29 @@
     state: true
     persistent: true
   ignore_errors: true
+
+- name: Obtain SSL certificate via Cloudflare DNS validation
+  command: >
+    /usr/local/bin/certbot certonly
+    --dns-cloudflare
+    --dns-cloudflare-credentials /root/.secrets/cloudflare.ini
+    -d {{ domain }}
+    --non-interactive
+    --agree-tos
+    --email {{ certbot_email }}
+  args:
+    creates: /etc/letsencrypt/live/{{ domain }}/fullchain.pem
+
+- name: Deploy Nginx SSL config
+  template:
+    src: nginx-ssl.conf.j2
+    dest: /etc/nginx/conf.d/jetistik.conf
+    mode: "0644"
+  notify: Reload Nginx
+
+- name: Add certbot renewal cron
+  cron:
+    name: "certbot renew"
+    minute: "30"
+    hour: "3"
+    job: "/usr/local/bin/certbot renew --quiet --post-hook 'systemctl reload nginx'"

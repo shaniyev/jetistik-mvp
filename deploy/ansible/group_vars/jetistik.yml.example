@@ -19,5 +19,6 @@ email_host_user: ""
 email_host_password: ""
 organizer_email: "yerzhan@blackboard.kz"
 
-# Certbot
-certbot_email: "admin@jetistik.example.com"
+# Certbot / Cloudflare
+certbot_email: "your-email@example.com"
+cloudflare_api_token: "CHANGE-ME-cloudflare-api-token"

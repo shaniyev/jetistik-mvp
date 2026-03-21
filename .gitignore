@@ -22,9 +22,10 @@ staticfiles/
 frontend/**/node_modules/
 frontend/**/.vite/
 
-# IDE
+# IDE / tools
 .idea/
 .vscode/
+.claude/
 
 # Terraform
 deploy/terraform/.terraform/
