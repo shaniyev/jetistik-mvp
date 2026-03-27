@@ -351,6 +351,9 @@ def staff_event_detail(request, event_id: int):
     latest_template = Template.objects.filter(event=event).order_by("-created_at").first()
     batches = ImportBatch.objects.filter(event=event).order_by("-created_at")[:20]
 
+    tform = TemplateUploadForm()
+    iform = ImportUploadForm()
+
     if request.method == "POST":
         if "upload_template" in request.POST:
             tform = TemplateUploadForm(request.POST, request.FILES)
@@ -373,10 +376,6 @@ def staff_event_detail(request, event_id: int):
 
                 messages.success(request, "Данные загружены. Проверь mapping и запускай Generate.")
                 return redirect("staff_batch_mapping", batch_id=batch.pk)
-
-    else:
-        tform = TemplateUploadForm()
-        iform = ImportUploadForm()
 
     return render(request, "staff/event_detail.html", {
         "event": event,
@@ -418,13 +417,23 @@ def _parse_batch_file(batch: ImportBatch, event: Event) -> None:
         for r in rows:
             iin = (r.get("iin") or "").strip()
             name = (r.get("name") or "").strip()
+            iin_valid = iin.isdigit() and len(iin) == 12
+            if iin and not iin_valid:
+                error = f"Неверный ИИН: {iin}"
+                status = "failed"
+            elif not iin or not name:
+                error = "Missing iin/name"
+                status = "failed"
+            else:
+                error = ""
+                status = "pending"
             ParticipantRow.objects.create(
                 batch=batch,
-                iin=iin,
+                iin=iin[:12],
                 name=name,
                 payload_json=r,
-                status="pending" if (iin and name) else "failed",
-                error="" if (iin and name) else "Missing iin/name",
+                status=status,
+                error=error,
             )
 
 @staff_portal_required

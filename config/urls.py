@@ -45,8 +45,11 @@ urlpatterns = [
     path("staff/certificates/<int:cert_id>/delete/", views.staff_certificate_delete, name="staff_certificate_delete"),
 ]
 
+urlpatterns += [
+    path("media/<path:path>", static_serve, {"document_root": settings.MEDIA_ROOT}),
+]
+
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += [
         path("assets/<path:path>", static_serve, {"document_root": settings.BASE_DIR / "static/landing/assets"}),
         path("favicon.ico", static_serve, {"document_root": settings.BASE_DIR / "static/landing", "path": "favicon.ico"}),
