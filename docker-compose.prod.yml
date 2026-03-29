@@ -1,0 +1,74 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file: .env.prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jetistik"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    restart: always
+    command: server /data
+    env_file: .env.prod
+    volumes:
+      - minio_data:/data
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    restart: always
+
+  backend:
+    build: ./backend
+    restart: always
+    env_file: .env.prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      gotenberg:
+        condition: service_started
+
+  worker:
+    build: ./backend
+    restart: always
+    command: /app/server --worker
+    env_file: .env.prod
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      gotenberg:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "3001:3000"
+
+volumes:
+  postgres_data:
+  minio_data:
