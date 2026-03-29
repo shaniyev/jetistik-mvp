@@ -14,16 +14,22 @@ import (
 	tmpl "jetistik/internal/template"
 )
 
+// TaskEnqueuer defines the interface for enqueuing async tasks.
+type TaskEnqueuer interface {
+	EnqueueGenerateBatch(batchID int64) error
+}
+
 // Handler holds batch HTTP handlers.
 type Handler struct {
 	svc      *Service
 	tmplSvc  *tmpl.Service
 	auditSvc *audit.Service
+	enqueuer TaskEnqueuer
 }
 
 // NewHandler creates a new batch handler.
-func NewHandler(svc *Service, tmplSvc *tmpl.Service, auditSvc *audit.Service) *Handler {
-	return &Handler{svc: svc, tmplSvc: tmplSvc, auditSvc: auditSvc}
+func NewHandler(svc *Service, tmplSvc *tmpl.Service, auditSvc *audit.Service, enqueuer TaskEnqueuer) *Handler {
+	return &Handler{svc: svc, tmplSvc: tmplSvc, auditSvc: auditSvc, enqueuer: enqueuer}
 }
 
 // Upload handles POST /api/v1/staff/events/{id}/batches
@@ -118,6 +124,58 @@ func (h *Handler) UpdateMapping(w http.ResponseWriter, r *http.Request) {
 
 	h.auditSvc.Log(r.Context(), uc.UserID, audit.ActionBatchMapping, "batch", strconv.FormatInt(id, 10), nil)
 	response.JSON(w, http.StatusOK, batchResp)
+}
+
+// Generate handles POST /api/v1/staff/batches/{id}/generate
+func (h *Handler) Generate(w http.ResponseWriter, r *http.Request) {
+	uc := middleware.MustGetUser(r.Context())
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "INVALID_ID", "invalid batch id")
+		return
+	}
+
+	batchResp, err := h.svc.GetByID(r.Context(), id)
+	if err != nil {
+		response.Error(w, http.StatusNotFound, "NOT_FOUND", "batch not found")
+		return
+	}
+
+	// Validate batch has mapping
+	if len(batchResp.Mapping) == 0 {
+		response.Error(w, http.StatusBadRequest, "NO_MAPPING", "batch mapping is required before generation")
+		return
+	}
+
+	// Validate template exists for this event
+	_, err = h.tmplSvc.GetByEventID(r.Context(), batchResp.EventID)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "NO_TEMPLATE", "event template is required before generation")
+		return
+	}
+
+	// Check batch is not already generating or done
+	if batchResp.Status == "generating" {
+		response.Error(w, http.StatusConflict, "ALREADY_GENERATING", "batch is already being generated")
+		return
+	}
+
+	// Enqueue the task
+	if h.enqueuer == nil {
+		response.Error(w, http.StatusServiceUnavailable, "WORKER_UNAVAILABLE", "worker is not configured")
+		return
+	}
+	if err := h.enqueuer.EnqueueGenerateBatch(id); err != nil {
+		response.Error(w, http.StatusInternalServerError, "ENQUEUE_FAILED", "failed to enqueue generation task")
+		return
+	}
+
+	h.auditSvc.Log(r.Context(), uc.UserID, audit.ActionBatchGenerate, "batch", strconv.FormatInt(id, 10), map[string]interface{}{
+		"event_id":   batchResp.EventID,
+		"rows_total": batchResp.RowsTotal,
+	})
+
+	response.JSON(w, http.StatusAccepted, map[string]string{"status": "queued"})
 }
 
 // Delete handles DELETE /api/v1/staff/batches/{id}

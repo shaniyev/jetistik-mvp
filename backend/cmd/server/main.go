@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -26,6 +27,7 @@ import (
 	"jetistik/internal/storage"
 	tmpl "jetistik/internal/template"
 	"jetistik/internal/user"
+	"jetistik/internal/worker"
 )
 
 func main() {
@@ -36,6 +38,9 @@ func main() {
 }
 
 func run() error {
+	workerMode := flag.Bool("worker", false, "run as async worker instead of HTTP server")
+	flag.Parse()
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
@@ -72,6 +77,41 @@ func run() error {
 	}
 	slog.Info("connected to MinIO", "bucket", cfg.MinioBucket)
 
+	// Worker mode: run Asynq worker server
+	if *workerMode {
+		srv, err := worker.NewServer(pool, storageClient, cfg)
+		if err != nil {
+			return fmt.Errorf("create worker: %w", err)
+		}
+
+		go func() {
+			<-ctx.Done()
+			slog.Info("shutting down worker")
+			srv.Shutdown()
+		}()
+
+		return srv.Run()
+	}
+
+	// HTTP server mode
+
+	// Asynq client for enqueueing tasks
+	asynqClient, err := worker.NewClient(cfg.RedisURL)
+	if err != nil {
+		slog.Warn("failed to create asynq client, generation will be unavailable", "error", err)
+	} else {
+		defer asynqClient.Close()
+	}
+
+	// SSE handler for progress streaming
+	sseHandler, err := worker.NewSSEHandler(cfg.RedisURL)
+	if err != nil {
+		slog.Warn("failed to create SSE handler", "error", err)
+	} else {
+		defer sseHandler.Close()
+		sseHandler.LogInfo()
+	}
+
 	// Wire modules
 	authRepo := auth.NewRepository(pool)
 	authSvc := auth.NewService(authRepo, cfg.JWTSecret, cfg.JWTAccessTTL, cfg.JWTRefreshTTL)
@@ -99,7 +139,11 @@ func run() error {
 
 	batchRepo := batch.NewRepository(pool)
 	batchSvc := batch.NewService(batchRepo, storageClient)
-	batchHandler := batch.NewHandler(batchSvc, tmplSvc, auditSvc)
+	var enqueuer batch.TaskEnqueuer
+	if asynqClient != nil {
+		enqueuer = asynqClient
+	}
+	batchHandler := batch.NewHandler(batchSvc, tmplSvc, auditSvc, enqueuer)
 
 	certRepo := certificate.NewRepository(pool)
 	certSvc := certificate.NewService(certRepo, storageClient, cfg.PublicBaseURL)
@@ -162,7 +206,13 @@ func run() error {
 				// Batch operations
 				r.Get("/batches/{id}", batchHandler.GetByID)
 				r.Patch("/batches/{id}/mapping", batchHandler.UpdateMapping)
+				r.Post("/batches/{id}/generate", batchHandler.Generate)
 				r.Delete("/batches/{id}", batchHandler.Delete)
+
+				// SSE progress endpoint
+				if sseHandler != nil {
+					r.Get("/batches/{id}/progress", sseHandler.ServeProgress)
+				}
 
 				// Certificates per event
 				r.Route("/events/{id}/certificates", func(r chi.Router) {
