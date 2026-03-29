@@ -1,0 +1,57 @@
+---
+- name: Update system packages
+  dnf:
+    name: "*"
+    state: latest
+
+- name: Install base packages
+  dnf:
+    name:
+      - git
+      - curl
+      - wget
+      - firewalld
+      - python3-pip
+    state: present
+
+- name: Start and enable firewalld
+  systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Allow SSH through firewall
+  firewalld:
+    service: ssh
+    permanent: true
+    state: enabled
+
+- name: Allow HTTP through firewall
+  firewalld:
+    service: http
+    permanent: true
+    state: enabled
+
+- name: Allow HTTPS through firewall
+  firewalld:
+    service: https
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  command: firewall-cmd --reload
+
+- name: Create app user
+  user:
+    name: "{{ app_user }}"
+    shell: /bin/bash
+    create_home: true
+    groups: docker
+    append: true
+  ignore_errors: true
+
+- name: Set SELinux to permissive (for Docker compatibility)
+  selinux:
+    policy: targeted
+    state: permissive
+  ignore_errors: true

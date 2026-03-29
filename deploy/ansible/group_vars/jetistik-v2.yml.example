@@ -1,0 +1,39 @@
+---
+# Application
+app_dir: /opt/jetistik-v2
+app_user: jetistik
+domain: new.jetistik.kz
+
+# PostgreSQL
+postgres_db: jetistik
+postgres_user: jetistik
+postgres_password: "CHANGE-ME-strong-db-password"
+
+# Redis
+redis_url: "redis://redis:6379/0"
+
+# MinIO
+minio_root_user: "CHANGE-ME-minio-access-key"
+minio_root_password: "CHANGE-ME-minio-secret-key"
+minio_bucket: jetistik
+
+# JWT
+jwt_secret: "CHANGE-ME-generate-with-openssl-rand-base64-48"
+
+# App
+public_base_url: "https://new.jetistik.kz"
+
+# Gotenberg
+gotenberg_url: "http://gotenberg:3000"
+
+# Email (optional)
+smtp_host: smtp.gmail.com
+smtp_port: 587
+smtp_user: ""
+smtp_password: ""
+smtp_from: "Jetistik <noreply@jetistik.kz>"
+organizer_email: "yerzhan@blackboard.kz"
+
+# Certbot / Cloudflare
+certbot_email: "your-email@example.com"
+cloudflare_api_token: "CHANGE-ME-cloudflare-api-token"

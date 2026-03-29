@@ -1,0 +1,10 @@
+---
+- name: Deploy Jetistik v2
+  hosts: jetistik-v2
+  become: true
+
+  roles:
+    - common
+    - docker
+    - app
+    - nginx

@@ -1,0 +1,70 @@
+---
+- name: Create app directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
+- name: Sync project files to server
+  synchronize:
+    src: "{{ playbook_dir }}/../../../"
+    dest: "{{ app_dir }}/"
+    delete: true
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.env"
+      - "--exclude=.env.prod"
+      - "--exclude=v1/"
+      - "--exclude=stitch/"
+      - "--exclude=node_modules"
+      - "--exclude=deploy/ansible/group_vars/*.yml"
+      - "--exclude=*.pyc"
+      - "--exclude=__pycache__"
+      - "--exclude=.venv"
+
+- name: Copy .env.prod to server
+  template:
+    src: env.prod.j2
+    dest: "{{ app_dir }}/.env.prod"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0600"
+
+- name: Set ownership of app directory
+  file:
+    path: "{{ app_dir }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    recurse: true
+
+- name: Build app images
+  shell: |
+    cd {{ app_dir }}
+    docker compose -f docker-compose.prod.yml build backend worker frontend
+
+- name: Restart app containers (preserve db, redis, minio data)
+  shell: |
+    cd {{ app_dir }}
+    docker compose -f docker-compose.prod.yml up -d --no-deps backend worker frontend
+
+- name: Ensure infrastructure services are running
+  shell: |
+    cd {{ app_dir }}
+    docker compose -f docker-compose.prod.yml up -d db redis minio gotenberg
+
+- name: Wait for backend to be healthy
+  shell: |
+    cd {{ app_dir }}
+    docker compose -f docker-compose.prod.yml ps backend --format '{{ '{{' }}.Status{{ '}}' }}' | grep -q "Up"
+  register: compose_ps
+  retries: 10
+  delay: 5
+  until: compose_ps.rc == 0
+
+- name: Run database migrations
+  shell: |
+    cd {{ app_dir }}
+    docker compose -f docker-compose.prod.yml exec -T backend /app/server --migrate
+  ignore_errors: true
