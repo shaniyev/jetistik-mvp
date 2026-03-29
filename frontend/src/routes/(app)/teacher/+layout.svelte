@@ -37,7 +37,7 @@
     {sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0">
     <div class="px-6 mb-10 flex justify-between items-center">
       <div>
-        <h1 class="text-xl font-bold text-blue-700 font-display tracking-tight">Sovereign Ledger</h1>
+        <h1 class="text-xl font-bold text-blue-700 font-display tracking-tight">{$t("teacher.layout.sovereignLedger")}</h1>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-1">{$t("teacher.title")}</p>
       </div>
       <button class="lg:hidden text-slate-500 p-1" onclick={closeSidebar}>

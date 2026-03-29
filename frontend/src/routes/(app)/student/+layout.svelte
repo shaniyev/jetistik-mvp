@@ -72,7 +72,7 @@
       <div class="col-span-1">
         <div class="font-display font-bold text-2xl text-slate-900 mb-4">Jetistik</div>
         <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
-          Elevating the standard of professional certification in Kazakhstan through the Sovereign Ledger system.
+          {$t("student.layout.footerDesc")}
         </p>
       </div>
       <div class="space-y-4">
