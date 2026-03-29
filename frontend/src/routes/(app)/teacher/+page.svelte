@@ -5,7 +5,10 @@
   import { t } from "$lib/i18n";
 
   interface Student {
-    iin: string;
+    id: number;
+    teacher_id: number;
+    student_iin: string;
+    created_at: string;
     username?: string;
     status?: string;
   }
@@ -254,10 +257,10 @@
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                           <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
-                            {getIinPrefix(student.iin)}
+                            {getIinPrefix(student.student_iin)}
                           </div>
                           <div>
-                            <span class="font-mono text-sm tracking-widest text-on-surface">{maskIin(student.iin)}</span>
+                            <span class="font-mono text-sm tracking-widest text-on-surface">{maskIin(student.student_iin)}</span>
                             {#if student.username}
                               <p class="text-[10px] text-on-surface-variant mt-0.5">{student.username}</p>
                             {/if}
@@ -266,7 +269,7 @@
                       </td>
                       <td class="px-6 py-4 text-right">
                         <button
-                          onclick={() => removeStudent(student.iin)}
+                          onclick={() => removeStudent(student.student_iin)}
                           class="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg transition-all"
                         >
                           <span class="material-symbols-outlined text-lg">delete</span>
@@ -288,10 +291,10 @@
                   <div class="p-4 flex justify-between items-center hover:bg-surface-container-low/30 transition-colors">
                     <div class="flex items-center gap-3">
                       <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs shrink-0">
-                        {getIinPrefix(student.iin)}
+                        {getIinPrefix(student.student_iin)}
                       </div>
                       <div>
-                        <p class="font-mono text-sm tracking-widest text-on-surface">{maskIin(student.iin)}</p>
+                        <p class="font-mono text-sm tracking-widest text-on-surface">{maskIin(student.student_iin)}</p>
                         {#if student.username}
                           <p class="text-[10px] text-on-surface-variant mt-0.5">{student.username}</p>
                         {:else}
@@ -300,7 +303,7 @@
                       </div>
                     </div>
                     <button
-                      onclick={() => removeStudent(student.iin)}
+                      onclick={() => removeStudent(student.student_iin)}
                       class="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg transition-all"
                     >
                       <span class="material-symbols-outlined text-lg">delete</span>
@@ -331,7 +334,7 @@
           >
             <option value="">{$t("teacher.filterByStudent")}</option>
             {#each students as student}
-              <option value={student.iin}>{student.username ?? maskIin(student.iin)}</option>
+              <option value={student.student_iin}>{student.username ?? maskIin(student.student_iin)}</option>
             {/each}
           </select>
           <span class="material-symbols-outlined absolute right-3 bottom-2 text-slate-400 pointer-events-none">expand_more</span>
