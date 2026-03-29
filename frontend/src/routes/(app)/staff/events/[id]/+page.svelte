@@ -37,6 +37,9 @@
   let uploading = $state(false);
   let uploadingBatch = $state(false);
   let error = $state("");
+  let editingEvent = $state(false);
+  let editForm = $state({ title: "", date: "", city: "", description: "" });
+  let savingEvent = $state(false);
 
   async function loadEvent() {
     loading = true;
@@ -119,6 +122,41 @@
     }
   }
 
+  async function deleteBatch(batchId: number) {
+    if (!confirm("Delete this batch? This cannot be undone.")) return;
+    try {
+      await api.delete(`/api/v1/staff/batches/${batchId}`);
+      batches = batches.filter((b) => b.id !== batchId);
+    } catch (err) {
+      error = err instanceof ApiError ? err.message : "Failed to delete batch";
+    }
+  }
+
+  function startEditEvent() {
+    if (!event) return;
+    editForm = {
+      title: event.title,
+      date: event.date,
+      city: event.city,
+      description: event.description,
+    };
+    editingEvent = true;
+  }
+
+  async function saveEvent() {
+    savingEvent = true;
+    error = "";
+    try {
+      const res = await api.patch<Event>(`/api/v1/staff/events/${eventId}`, editForm);
+      event = res.data;
+      editingEvent = false;
+    } catch (err) {
+      error = err instanceof ApiError ? err.message : "Failed to update event";
+    } finally {
+      savingEvent = false;
+    }
+  }
+
   onMount(loadEvent);
 </script>
 
@@ -140,15 +178,78 @@
             <StatusBadge status={event.status} />
           </div>
         </div>
-        <a
-          href="/staff/events/{eventId}/certificates"
-          class="px-4 py-2 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"
-        >
-          View Certificates
-        </a>
+        <div class="flex items-center gap-2">
+          <button
+            onclick={startEditEvent}
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"
+          >
+            Edit Event
+          </button>
+          <a
+            href="/staff/events/{eventId}/certificates"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"
+          >
+            View Certificates
+          </a>
+        </div>
       </div>
       {#if event.description}
         <p class="text-sm text-on-surface-variant mt-2">{event.description}</p>
+      {/if}
+
+      {#if editingEvent}
+        <div class="mt-4 p-4 rounded-lg bg-surface-lowest space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-on-surface-variant mb-1">Title</label>
+              <input
+                type="text"
+                bind:value={editForm.title}
+                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-on-surface-variant mb-1">Date</label>
+              <input
+                type="text"
+                bind:value={editForm.date}
+                placeholder="2026-03-29"
+                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-on-surface-variant mb-1">City</label>
+              <input
+                type="text"
+                bind:value={editForm.city}
+                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-on-surface-variant mb-1">Description</label>
+              <input
+                type="text"
+                bind:value={editForm.description}
+                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              onclick={saveEvent}
+              disabled={savingEvent || !editForm.title}
+              class="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-50 transition-colors"
+            >
+              {savingEvent ? "Saving..." : "Save"}
+            </button>
+            <button
+              onclick={() => { editingEvent = false; }}
+              class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-low transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       {/if}
     </div>
 
@@ -215,20 +316,28 @@
       {:else}
         <div class="space-y-2">
           {#each batches as batch}
-            <a
-              href="/staff/events/{eventId}/batches/{batch.id}"
-              class="flex items-center justify-between p-3 rounded-lg bg-surface hover:bg-surface-low transition-colors"
-            >
-              <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between p-3 rounded-lg bg-surface hover:bg-surface-low transition-colors">
+              <a
+                href="/staff/events/{eventId}/batches/{batch.id}"
+                class="flex items-center gap-3 flex-1"
+              >
                 <StatusBadge status={batch.status} />
                 <span class="text-sm text-on-surface">
                   {batch.rows_total} rows
                 </span>
+              </a>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-on-surface-variant">
+                  {new Date(batch.created_at).toLocaleString()}
+                </span>
+                <button
+                  onclick={() => deleteBatch(batch.id)}
+                  class="text-xs text-error hover:underline shrink-0"
+                >
+                  Delete
+                </button>
               </div>
-              <span class="text-xs text-on-surface-variant">
-                {new Date(batch.created_at).toLocaleString()}
-              </span>
-            </a>
+            </div>
           {/each}
         </div>
       {/if}
