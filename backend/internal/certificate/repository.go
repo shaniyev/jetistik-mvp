@@ -15,6 +15,7 @@ type Repository interface {
 	CreateCertificate(ctx context.Context, params sqlcdb.CreateCertificateParams) (sqlcdb.Certificate, error)
 	GetCertificateByID(ctx context.Context, id int64) (sqlcdb.Certificate, error)
 	GetCertificateByCode(ctx context.Context, code string) (sqlcdb.Certificate, error)
+	GetCertificateByCodeWithDetails(ctx context.Context, code string) (sqlcdb.GetCertificateByCodeWithDetailsRow, error)
 	ListCertificatesByEvent(ctx context.Context, eventID int64, limit, offset int32) ([]sqlcdb.Certificate, error)
 	CountCertificatesByEvent(ctx context.Context, eventID int64) (int64, error)
 	UpdateCertificateStatus(ctx context.Context, id int64, status, revokedReason string) (sqlcdb.Certificate, error)
@@ -53,6 +54,14 @@ func (r *pgRepository) GetCertificateByCode(ctx context.Context, code string) (s
 		return sqlcdb.Certificate{}, fmt.Errorf("get certificate by code: %w", err)
 	}
 	return cert, nil
+}
+
+func (r *pgRepository) GetCertificateByCodeWithDetails(ctx context.Context, code string) (sqlcdb.GetCertificateByCodeWithDetailsRow, error) {
+	row, err := r.q.GetCertificateByCodeWithDetails(ctx, code)
+	if err != nil {
+		return sqlcdb.GetCertificateByCodeWithDetailsRow{}, fmt.Errorf("get certificate by code with details: %w", err)
+	}
+	return row, nil
 }
 
 func (r *pgRepository) ListCertificatesByEvent(ctx context.Context, eventID int64, limit, offset int32) ([]sqlcdb.Certificate, error) {

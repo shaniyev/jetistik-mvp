@@ -9,6 +9,13 @@ SELECT * FROM certificates WHERE id = $1;
 -- name: GetCertificateByCode :one
 SELECT * FROM certificates WHERE code = $1;
 
+-- name: GetCertificateByCodeWithDetails :one
+SELECT c.*, e.title as event_title, o.name as org_name
+FROM certificates c
+JOIN events e ON e.id = c.event_id
+LEFT JOIN organizations o ON o.id = c.organization_id
+WHERE c.code = $1;
+
 -- name: ListCertificatesByEvent :many
 SELECT * FROM certificates
 WHERE event_id = $1

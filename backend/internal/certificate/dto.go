@@ -33,6 +33,7 @@ type VerifyResponse struct {
 	Valid         bool      `json:"valid"`
 	Code          string    `json:"code"`
 	Name          string    `json:"name"`
+	IIN           string    `json:"iin,omitempty"`
 	EventTitle    string    `json:"event_title,omitempty"`
 	OrgName       string    `json:"org_name,omitempty"`
 	Status        string    `json:"status"`

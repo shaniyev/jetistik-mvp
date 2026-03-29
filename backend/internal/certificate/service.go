@@ -53,9 +53,9 @@ func (s *Service) GetByCode(ctx context.Context, code string) (*CertificateRespo
 	return toCertResponse(cert), nil
 }
 
-// Verify looks up a certificate by code and returns verification info.
+// Verify looks up a certificate by code and returns verification info with event/org details.
 func (s *Service) Verify(ctx context.Context, code string) (*VerifyResponse, error) {
-	cert, err := s.repo.GetCertificateByCode(ctx, code)
+	cert, err := s.repo.GetCertificateByCodeWithDetails(ctx, code)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return &VerifyResponse{Valid: false, Code: code, Status: "not_found"}, nil
@@ -66,8 +66,11 @@ func (s *Service) Verify(ctx context.Context, code string) (*VerifyResponse, err
 		Valid:         cert.Status.String == "valid",
 		Code:          cert.Code,
 		Name:          cert.Name.String,
+		IIN:           cert.Iin.String,
 		Status:        cert.Status.String,
 		RevokedReason: cert.RevokedReason.String,
+		EventTitle:    cert.EventTitle,
+		OrgName:       cert.OrgName.String,
 		CreatedAt:     cert.CreatedAt.Time,
 	}, nil
 }
