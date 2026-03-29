@@ -1,56 +1,53 @@
-.PHONY: up down migrate migrate-down migrate-new migrate-status sqlc backend frontend test-backend test-frontend lint sync-prod restore-data seed
-
-DB_URL ?= postgres://jetistik:dev-password@localhost:5432/jetistik?sslmode=disable
+.PHONY: up down logs migrate migrate-down migrate-new migrate-status sqlc build test-backend test-frontend lint seed sync-prod restore-data
 
 ## Infrastructure
 up:
-	docker compose up -d
+	docker compose up -d --build
 
 down:
 	docker compose down
 
+logs:
+	docker compose logs -f
+
 ## Database
 migrate:
-	cd backend && goose -dir migrations postgres "$(DB_URL)" up
+	docker compose exec backend goose -dir migrations postgres "$$DATABASE_URL" up
 
 migrate-down:
-	cd backend && goose -dir migrations postgres "$(DB_URL)" down
+	docker compose exec backend goose -dir migrations postgres "$$DATABASE_URL" down
 
 migrate-new:
-	cd backend && goose -dir migrations create $(N) sql
+	docker compose exec backend goose -dir migrations create $(N) sql
 
 migrate-status:
-	cd backend && goose -dir migrations postgres "$(DB_URL)" status
+	docker compose exec backend goose -dir migrations postgres "$$DATABASE_URL" status
 
 ## Code generation
 sqlc:
-	cd backend && sqlc generate
+	docker compose exec backend sqlc generate
 
-## Development
-backend:
-	cd backend && air
-
-frontend:
-	cd frontend && npm run dev
+## Build (production)
+build:
+	docker compose -f docker-compose.prod.yml build
 
 ## Testing
 test-backend:
-	cd backend && go test ./...
+	docker compose exec backend go test ./...
 
 test-frontend:
-	cd frontend && npm test
+	docker compose exec frontend npm test
 
 ## Linting
 lint:
-	cd backend && go vet ./...
-	cd frontend && npm run check
+	docker compose exec backend go vet ./...
+	docker compose exec frontend npm run check
 
-## Production data sync
+## Data
 sync-prod:
 	./scripts/sync-prod-data.sh
 
 restore-data:
 	./scripts/restore-prod-data.sh
 
-seed:
-	./scripts/seed-dev.sh
+seed: sync-prod restore-data
