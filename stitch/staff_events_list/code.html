@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jetistik Staff Portal - Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-container": "#ffede6",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed-variant": "#31447b",
+                        "on-surface": "#191c1e",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#434655",
+                        "secondary-container": "#acbfff",
+                        "tertiary-container": "#bc4800",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "on-tertiary-fixed": "#360f00",
+                        "surface-variant": "#e0e3e5",
+                        "outline": "#737686",
+                        "on-background": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface-container": "#eceef0",
+                        "secondary": "#495c95",
+                        "primary-container": "#2563eb",
+                        "primary-fixed": "#dbe1ff",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed": "#dbe1ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary": "#943700",
+                        "surface-tint": "#0053db",
+                        "on-secondary-container": "#394c84",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#00174b",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-container": "#eeefff",
+                        "primary": "#004ac6",
+                        "background": "#f7f9fb",
+                        "surface-bright": "#f7f9fb"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 gap-2 z-40 border-r border-slate-100 dark:border-slate-900">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<h2 class="font-headline font-extrabold text-lg tracking-tight text-on-surface">Staff Portal</h2>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">Management Console</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<!-- Events Tab (Active) -->
+<a class="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg flex items-center gap-3 px-3 py-2.5 font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined active-nav-icon">event</span>
+<span>Events</span>
+</a>
+<!-- Certificates Tab -->
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 px-3 py-2.5 font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span>Certificates</span>
+</a>
+<!-- Audit Log Tab -->
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 px-3 py-2.5 font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>Audit Log</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1 pt-4 border-t border-slate-100 dark:border-slate-900">
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 px-3 py-2.5 font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 px-3 py-2.5 font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- Header / Top Bar -->
+<header class="h-20 flex items-center justify-between px-10 bg-surface/80 backdrop-blur-xl sticky top-0 z-30">
+<div>
+<h1 class="text-2xl font-headline font-extrabold tracking-tight text-on-surface">Events</h1>
+<p class="text-sm text-on-surface-variant font-medium">Управление мероприятиями и выпусками сертификатов</p>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-low border-none focus:ring-2 focus:ring-primary rounded-xl pl-10 pr-4 py-2 text-sm w-64 transition-all" placeholder="Поиск мероприятий..." type="text"/>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-container text-white px-6 py-2.5 rounded-xl font-headline font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 scale-100 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-lg">add</span>
+                    Создать мероприятие
+                </button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="px-10 py-8 space-y-8">
+<!-- Filters & Stats Bento -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Status Filter Pill Bar -->
+<div class="col-span-12 md:col-span-8 flex items-center gap-2 bg-surface-container-low p-1.5 rounded-2xl w-fit">
+<button class="px-6 py-2 bg-white text-primary font-bold text-sm rounded-xl shadow-sm">Все</button>
+<button class="px-6 py-2 text-on-surface-variant hover:text-on-surface font-semibold text-sm rounded-xl transition-colors">Активные</button>
+<button class="px-6 py-2 text-on-surface-variant hover:text-on-surface font-semibold text-sm rounded-xl transition-colors">Завершенные</button>
+<button class="px-6 py-2 text-on-surface-variant hover:text-on-surface font-semibold text-sm rounded-xl transition-colors">Черновики</button>
+</div>
+<!-- Date Filter -->
+<div class="col-span-12 md:col-span-4 flex justify-end gap-3">
+<div class="bg-surface-container-low rounded-xl px-4 py-2 flex items-center gap-3 text-sm font-semibold text-on-surface-variant cursor-pointer hover:bg-surface-container border border-transparent hover:border-outline-variant transition-all">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+<span>Этот месяц</span>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Events Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Event Card 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10 hover:shadow-xl hover:shadow-primary/5 transition-all group flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">Active</span>
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface mb-2 group-hover:text-primary transition-colors leading-tight">Digital Kazakhstan Forum 2024</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm mb-6">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>Astana, Kazakhstan</span>
+</div>
+<div class="mt-auto pt-6 border-t border-surface-container-low grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Дата</p>
+<p class="text-sm font-semibold text-on-surface">15 Ноя, 2024</p>
+</div>
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Сертификаты</p>
+<p class="text-sm font-semibold text-on-surface">1,240 шт.</p>
+</div>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10 hover:shadow-xl hover:shadow-primary/5 transition-all group flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">Completed</span>
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface mb-2 group-hover:text-primary transition-colors leading-tight">Almaty Tech Week: AI &amp; Web3</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm mb-6">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>Almaty, Kazakhstan</span>
+</div>
+<div class="mt-auto pt-6 border-t border-surface-container-low grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Дата</p>
+<p class="text-sm font-semibold text-on-surface">02 Окт, 2024</p>
+</div>
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Сертификаты</p>
+<p class="text-sm font-semibold text-on-surface">850 шт.</p>
+</div>
+</div>
+</div>
+<!-- Event Card 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10 hover:shadow-xl hover:shadow-primary/5 transition-all group flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">Active</span>
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface mb-2 group-hover:text-primary transition-colors leading-tight">QazCloud Security Summit</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm mb-6">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>Online Event</span>
+</div>
+<div class="mt-auto pt-6 border-t border-surface-container-low grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Дата</p>
+<p class="text-sm font-semibold text-on-surface">20 Дек, 2024</p>
+</div>
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Сертификаты</p>
+<p class="text-sm font-semibold text-on-surface">300 шт.</p>
+</div>
+</div>
+</div>
+<!-- Event Card 4 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10 hover:shadow-xl hover:shadow-primary/5 transition-all group flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest">Draft</span>
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface mb-2 group-hover:text-primary transition-colors leading-tight">EdTech Innovations Gala</h3>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm mb-6">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>Shymkent, Kazakhstan</span>
+</div>
+<div class="mt-auto pt-6 border-t border-surface-container-low grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Дата</p>
+<p class="text-sm font-semibold text-on-surface">12 Янв, 2025</p>
+</div>
+<div>
+<p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Сертификаты</p>
+<p class="text-sm font-semibold text-on-surface">0 шт.</p>
+</div>
+</div>
+</div>
+<!-- Add New Event Visual Placeholder -->
+<div class="border-2 border-dashed border-outline-variant/40 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group h-full min-h-[220px]">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-outline group-hover:bg-primary group-hover:text-white transition-all">
+<span class="material-symbols-outlined">add</span>
+</div>
+<p class="text-sm font-bold text-on-surface-variant group-hover:text-primary">Добавить новое событие</p>
+</div>
+</div>
+<!-- Detailed Table View (Zebra Styling) -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm border border-outline-variant/10 mt-12">
+<div class="p-6 border-b border-surface-container flex items-center justify-between">
+<h2 class="font-headline font-bold text-on-surface">Недавние активности</h2>
+<button class="text-primary text-xs font-bold uppercase tracking-widest hover:underline">Просмотреть все</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Событие</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Статус</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Выпущено</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Дата</th>
+<th class="px-6 py-4 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container/30">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Youth Startup Weekend</span>
+<span class="text-xs text-on-surface-variant">Astana Hub</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="bg-primary-fixed text-on-primary-fixed px-2 py-0.5 rounded text-[10px] font-bold uppercase">Активен</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-medium text-on-surface">142</span>
+</td>
+<td class="px-6 py-4 text-sm text-on-surface-variant">08.11.2024</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">chevron_right</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">DevOps Days Almaty</span>
+<span class="text-xs text-on-surface-variant">KBTU Hall</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="bg-surface-container-highest text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase">Завершен</span>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-medium text-on-surface">560</span>
+</td>
+<td class="px-6 py-4 text-sm text-on-surface-variant">25.10.2024</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary">chevron_right</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Footer Component -->
+<footer class="w-full py-12 px-10 mt-auto border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="col-span-1 md:col-span-2">
+<span class="font-headline font-bold text-slate-900 dark:text-white text-xl">Jetistik</span>
+<p class="mt-4 text-sm text-slate-500 max-w-xs leading-relaxed font-body">Sovereign digital ledger for certificate verification and event management. Empowering transparency in Kazakh merit systems.</p>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="text-xs font-bold uppercase tracking-widest text-on-surface">Platform</h4>
+<a class="text-sm text-slate-500 hover:text-blue-500 transition-colors" href="#">Verification</a>
+<a class="text-sm text-slate-500 hover:text-blue-500 transition-colors" href="#">Privacy Policy</a>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="text-xs font-bold uppercase tracking-widest text-on-surface">Support</h4>
+<a class="text-sm text-slate-500 hover:text-blue-500 transition-colors" href="#">Contact Us</a>
+<a class="text-sm text-slate-500 hover:text-blue-500 transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-sm text-slate-500 font-['Inter']">© 2024 Jetistik Certificate Platform. All rights reserved.</p>
+<div class="flex gap-6">
+<div class="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+<div class="w-6 h-6 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+</div>
+</div>
+</footer>
+</main>
+<!-- Mobile Bottom Navigation (Hidden on desktop) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 z-50 rounded-t-2xl shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-xl px-3 py-1 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined active-nav-icon">calendar_month</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">workspace_premium</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Certs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

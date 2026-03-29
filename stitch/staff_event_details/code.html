@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Event Details | Jetistik Staff Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-container": "#ffede6",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed-variant": "#31447b",
+                        "on-surface": "#191c1e",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#434655",
+                        "secondary-container": "#acbfff",
+                        "tertiary-container": "#bc4800",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "on-tertiary-fixed": "#360f00",
+                        "surface-variant": "#e0e3e5",
+                        "outline": "#737686",
+                        "on-background": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface-container": "#eceef0",
+                        "secondary": "#495c95",
+                        "primary-container": "#2563eb",
+                        "primary-fixed": "#dbe1ff",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed": "#dbe1ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary": "#943700",
+                        "surface-tint": "#0053db",
+                        "on-secondary-container": "#394c84",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#00174b",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary-container": "#eeefff",
+                        "primary": "#004ac6",
+                        "background": "#f7f9fb",
+                        "surface-bright": "#f7f9fb"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            background: rgba(247, 249, 251, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen">
+<!-- Sidebar Navigation (SideNavBar) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 gap-2 border-r border-slate-100 dark:border-slate-900 z-40 hidden md:flex">
+<div class="mb-8 px-2 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">architecture</span>
+</div>
+<div>
+<h2 class="font-headline font-bold text-on-surface leading-tight">Staff Portal</h2>
+<p class="text-xs text-on-surface-variant">Management Console</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+<span>Events</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="verified">verified</span>
+<span>Certificates</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span>Audit Log</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1 border-t border-slate-100 dark:border-slate-900 pt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-medium text-sm transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-medium text-sm transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 p-6 lg:p-10 pb-32">
+<!-- Header Actions Bar -->
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+<span>Back to Events</span>
+</div>
+<h1 class="font-headline text-4xl font-extrabold tracking-tight text-on-surface">Regional Math Olympiad 2024</h1>
+<p class="text-on-surface-variant max-w-2xl">Annual academic competition for high school students in the Almaty region. Technical management of certification and participation verification.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-5 py-2.5 rounded-lg border border-outline-variant font-semibold text-sm hover:bg-surface-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">edit</span>
+                    Edit
+                </button>
+<button class="px-5 py-2.5 rounded-lg border border-error/20 text-error font-semibold text-sm hover:bg-error-container/30 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">delete</span>
+                    Delete
+                </button>
+<button class="px-5 py-2.5 rounded-lg bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm shadow-lg shadow-primary/20 flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-lg">download_for_offline</span>
+                    Download All (ZIP)
+                </button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Event Specs -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Meta Card -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<h3 class="font-headline font-bold text-lg mb-6">Event Logistics</h3>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="p-2 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Date</p>
+<p class="font-semibold">October 14, 2024</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="p-2 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-primary">location_on</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">City</p>
+<p class="font-semibold">Almaty, Kazakhstan</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="p-2 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-primary">fingerprint</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Event ID</p>
+<p class="font-mono text-sm">EVT-2024-ALM-092</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Extracted Tokens -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline font-bold text-lg">Detected Tokens</h3>
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded uppercase">Auto-parsed</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<div class="px-3 py-1.5 bg-surface-container rounded flex items-center gap-2 border border-outline-variant/20">
+<span class="text-xs font-mono text-primary">{fname}</span>
+<span class="text-[10px] text-on-surface-variant">Full Name</span>
+</div>
+<div class="px-3 py-1.5 bg-surface-container rounded flex items-center gap-2 border border-outline-variant/20">
+<span class="text-xs font-mono text-primary">{fschool}</span>
+<span class="text-[10px] text-on-surface-variant">School ID</span>
+</div>
+<div class="px-3 py-1.5 bg-surface-container rounded flex items-center gap-2 border border-outline-variant/20">
+<span class="text-xs font-mono text-primary">{fclass}</span>
+<span class="text-[10px] text-on-surface-variant">Class</span>
+</div>
+<div class="px-3 py-1.5 bg-surface-container rounded flex items-center gap-2 border border-outline-variant/20">
+<span class="text-xs font-mono text-primary">{fdate}</span>
+<span class="text-[10px] text-on-surface-variant">Issue Date</span>
+</div>
+<div class="px-3 py-1.5 bg-surface-container rounded flex items-center gap-2 border border-outline-variant/20">
+<span class="text-xs font-mono text-primary">{fplace}</span>
+<span class="text-[10px] text-on-surface-variant">Rank</span>
+</div>
+</div>
+<p class="mt-4 text-xs text-on-surface-variant leading-relaxed">Tokens are automatically extracted from your uploaded PPTX template. Use these headers in your XLSX/CSV file.</p>
+</section>
+</div>
+<!-- Right Column: Main Upload Zones -->
+<div class="lg:col-span-8 space-y-6">
+<!-- Template Upload Area -->
+<section class="bg-surface-container-lowest rounded-xl p-8 border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-center group hover:border-primary/50 transition-colors">
+<div class="w-16 h-16 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">upload_file</span>
+</div>
+<h3 class="font-headline font-bold text-xl mb-2">Certificate Template</h3>
+<p class="text-on-surface-variant text-sm mb-6 max-w-sm">Drag and drop your PowerPoint (.pptx) template here. Ensure all merge tokens are properly bracketed.</p>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg hover:bg-surface-container-high transition-colors">Browse Files</button>
+<span class="text-xs text-on-surface-variant font-medium">Max 25MB</span>
+</div>
+</section>
+<!-- Data Import & History -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+<div class="p-6 border-b border-surface-container flex items-center justify-between">
+<div>
+<h3 class="font-headline font-bold text-lg">Batch History</h3>
+<p class="text-sm text-on-surface-variant">Track data imports and certificate generation status.</p>
+</div>
+<button class="px-4 py-2 bg-primary/10 text-primary font-bold text-sm rounded-lg flex items-center gap-2 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+                            Import Data
+                        </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Batch ID</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">File Source</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Records</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-5 font-mono text-sm text-on-surface">B-99821</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-green-600">table_view</span>
+<span class="text-sm font-medium">winners_list_v2.xlsx</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm">450</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-[10px] font-bold uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                            Generating
+                                        </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-5 font-mono text-sm text-on-surface">B-99815</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-green-600">table_view</span>
+<span class="text-sm font-medium">participants_final.csv</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm">1,204</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-800 text-[10px] font-bold uppercase">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+                                            Done
+                                        </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-5 font-mono text-sm text-on-surface">B-99802</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">description</span>
+<span class="text-sm font-medium">import_error_log.csv</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm">0</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase">
+<span class="material-symbols-outlined text-[12px]">error</span>
+                                            Failed
+                                        </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Data Preview / Visual Guide (Image) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="h-64 rounded-xl overflow-hidden shadow-lg relative group">
+<img class="w-full h-full object-cover" data-alt="clean minimal screenshot of an excel spreadsheet with columns for name school and certificate date on a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjBP_NSVl05lgciGOrtqSaPOtZvTJskzTupDZHJxfgxVaNLA6c6lfE9dIK_qZLxdBYiAMBh8BEoaPwiYQvdPus5ioBLDfr4fEsiFuHOJKZdx3ysdU6ooUiNGqY5vCz8qiX7Yj7DEEmcyzQrSpNMF-K_FKK5aG3u_AaD6TKfFlriIq5c0FIMzj_3HGrR-ycbwqvcIFFhDyBCU31UHakReCxdQsvn9e6YB8wASHU-wFcaAOp0pQYhlBm5bA8_g3O_6Z-t91ZYY_ZQVAv"/>
+<div class="absolute inset-0 bg-black/40 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-opacity">
+<h4 class="text-white font-bold">XLSX Structure Guide</h4>
+<p class="text-white/80 text-xs">Learn how to format your spreadsheets for zero-error imports.</p>
+</div>
+</div>
+<div class="h-64 rounded-xl overflow-hidden shadow-lg relative group">
+<img class="w-full h-full object-cover" data-alt="Modern professional office setting with high-end tech equipment and architectural design blueprints on a large digital screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAforWWrbtj-DSU0W72VXKuqAXkWu5TLrKx4kwEG9JCrK8KCbwmlJhqBi0kN70oxbBh2uIvhpsh2cS_e9X2WGufBurnAC_NNhT0K7qk65BVwwWDlE-CpEu-f-iGcs4GN6hJPGPGKmXbvLIkUnqcyq5GDggfa680sOVbUyx-cF1XcKPVjrSXRV5zzgP5CKH1j3uelOQoJIBFWcyp1NAJPXbRexYioCqy_Jmpt1z3fSw-I-VQ0Zh1Bg1aYXrfzCZ81Zu35MJzc9euMkPR"/>
+<div class="absolute inset-0 bg-black/40 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-opacity">
+<h4 class="text-white font-bold">Generation Engine</h4>
+<p class="text-white/80 text-xs">Processing over 5,000 certificates per hour with sovereign security.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 z-50 rounded-t-2xl shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-xl px-3 py-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="workspace_premium">workspace_premium</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Certs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+<!-- Footer (Shared Component) -->
+<footer class="w-full py-12 px-6 mt-auto bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 md:ml-64 md:w-[calc(100%-16rem)]">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+<div class="col-span-1">
+<p class="font-['Manrope'] font-bold text-slate-900 dark:text-white mb-4">Jetistik</p>
+<p class="text-sm text-slate-500 font-['Inter']">Official certification management infrastructure for digital merit and academic records.</p>
+</div>
+<div>
+<h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Platform</h4>
+<ul class="space-y-2 text-sm text-slate-500 font-['Inter']">
+<li><a class="hover:text-blue-500 transition-colors" href="#">Verification</a></li>
+<li><a class="hover:text-blue-500 transition-colors" href="#">API Docs</a></li>
+<li><a class="hover:text-blue-500 transition-colors" href="#">Dashboard</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Legal</h4>
+<ul class="space-y-2 text-sm text-slate-500 font-['Inter']">
+<li><a class="hover:text-blue-500 transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-blue-500 transition-colors" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Support</h4>
+<ul class="space-y-2 text-sm text-slate-500 font-['Inter']">
+<li><a class="hover:text-blue-500 transition-colors" href="#">Contact Us</a></li>
+<li><a class="hover:text-blue-500 transition-colors" href="#">Knowledge Base</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<p class="font-['Inter'] text-sm text-slate-500">© 2024 Jetistik Certificate Platform. All rights reserved.</p>
+<div class="flex gap-4">
+<span class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800"></span>
+<span class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800"></span>
+</div>
+</div>
+</footer>
+</body></html>

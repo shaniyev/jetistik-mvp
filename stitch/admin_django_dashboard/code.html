@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jetistik Admin | Organizations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-tint": "#0053db",
+              "tertiary": "#943700",
+              "surface-container-high": "#e6e8ea",
+              "on-secondary-fixed": "#00174b",
+              "on-secondary-container": "#394c84",
+              "error-container": "#ffdad6",
+              "inverse-primary": "#b4c5ff",
+              "on-primary-fixed-variant": "#003ea8",
+              "primary": "#004ac6",
+              "on-primary-container": "#eeefff",
+              "background": "#f7f9fb",
+              "surface-bright": "#f7f9fb",
+              "secondary": "#495c95",
+              "primary-fixed": "#dbe1ff",
+              "primary-container": "#2563eb",
+              "surface-container": "#eceef0",
+              "surface": "#f7f9fb",
+              "secondary-fixed": "#dbe1ff",
+              "primary-fixed-dim": "#b4c5ff",
+              "on-error": "#ffffff",
+              "surface-container-highest": "#e0e3e5",
+              "on-error-container": "#93000a",
+              "on-tertiary-fixed-variant": "#7d2d00",
+              "surface-container-low": "#f2f4f6",
+              "secondary-fixed-dim": "#b4c5ff",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed-dim": "#ffb596",
+              "surface-variant": "#e0e3e5",
+              "outline": "#737686",
+              "on-tertiary-fixed": "#360f00",
+              "on-tertiary": "#ffffff",
+              "on-background": "#191c1e",
+              "tertiary-fixed": "#ffdbcd",
+              "surface-dim": "#d8dadc",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed": "#00174b",
+              "inverse-surface": "#2d3133",
+              "on-tertiary-container": "#ffede6",
+              "on-surface": "#191c1e",
+              "outline-variant": "#c3c6d7",
+              "on-secondary-fixed-variant": "#31447b",
+              "on-surface-variant": "#434655",
+              "error": "#ba1a1a",
+              "secondary-container": "#acbfff",
+              "tertiary-container": "#bc4800",
+              "inverse-on-surface": "#eff1f3",
+              "on-primary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 gap-2 border-r border-slate-100 dark:border-slate-900 z-40">
+<div class="mb-8 px-2 py-4">
+<span class="text-2xl font-bold tracking-tighter text-primary">Jetistik</span>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Management Console</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">corporate_fare</span>
+<span>Organizations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">event</span>
+<span>Events</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span>Templates</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+<span>Batches</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">person_celebrate</span>
+<span>Participants</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">workspace_premium</span>
+<span>Certificates</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">history_edu</span>
+<span>Audit Log</span>
+</a>
+<div class="pt-4 mt-4 border-t border-slate-200/50">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+<span>Profiles</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg font-['Inter'] text-sm font-medium transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">link</span>
+<span>Teacher-Student Ties</span>
+</a>
+</div>
+</nav>
+<div class="mt-auto pt-6 flex items-center gap-3 px-3 border-t border-slate-200/50 py-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+<img alt="Staff Member" data-alt="close-up portrait of a professional man in a modern office setting with soft natural window light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAC5p5t8cAeogIavMGbtTKEKN3JWv5rTtQdj15gBuqznJ2VtE7qpXHEQE0h6omR5lan9KOL7yNg0K9SHwHwmlqLImzP7Wm3tK6YP8k_YItx0N532FCYlZz5jH2QiC-KGAESYWadssE-Z_LdCBashUH31-kgS8zCnf9ff7UCnG7Yk1w5gxbXaJUtURB4_UMHzklrBhZn-9ady3Xh2Chp7thqr6_bSyp-zfp0CZ-bK7mm9eRa8vMbjm9kIH2huZgeZFZgOyAWnOkf2pMi"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface">Admin User</span>
+<span class="text-[10px] text-on-surface-variant">System Administrator</span>
+</div>
+<a class="ml-auto text-slate-400 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen p-8 bg-surface">
+<!-- Page Header -->
+<header class="flex justify-between items-end mb-10">
+<div class="space-y-1">
+<nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant/60 gap-2 mb-2">
+<a class="hover:text-primary transition-colors" href="#">Admin</a>
+<span>/</span>
+<span class="text-on-surface-variant">Organizations</span>
+</nav>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface">Organizations</h1>
+<p class="text-on-surface-variant max-w-2xl font-body">Manage partner entities, educational institutions, and corporate clients within the Jetistik ledger.</p>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-container text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 shadow-sm hover:shadow-md active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">add_business</span>
+<span>Create Organization</span>
+</button>
+</header>
+<!-- Search and Filters -->
+<section class="mb-6 flex flex-wrap gap-4 items-center justify-between">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-lowest rounded-xl border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary/50 transition-all outline-none font-body text-sm placeholder:text-on-surface-variant/40 shadow-sm" placeholder="Search by name, ID, or domain..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2.5 bg-surface-container-low text-on-surface-variant rounded-lg border border-outline-variant/20 flex items-center gap-2 hover:bg-surface-container transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span>Filters</span>
+</button>
+<button class="px-4 py-2.5 bg-surface-container-low text-on-surface-variant rounded-lg border border-outline-variant/20 flex items-center gap-2 hover:bg-surface-container transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>Export CSV</span>
+</button>
+</div>
+</section>
+<!-- Organizations Table -->
+<div class="bg-surface-container-low rounded-2xl overflow-hidden ring-1 ring-outline-variant/10 shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 text-on-surface-variant uppercase tracking-[0.1em] text-[11px] font-bold">
+<th class="px-6 py-4">ID</th>
+<th class="px-6 py-4">Organization Name</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4">Created Date</th>
+<th class="px-6 py-4">Members</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="bg-surface-container-lowest hover:bg-white transition-colors group">
+<td class="px-6 py-5 font-mono text-xs text-on-surface-variant">#ORG-8842</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">NK</div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Nazarbayev K-12</span>
+<span class="text-xs text-on-surface-variant">edu.nazarbayev.kz</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Active</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">Oct 12, 2023</td>
+<td class="px-6 py-5 text-sm text-on-surface font-medium">1,240</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-on-surface hover:bg-slate-100 rounded-lg transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-low hover:bg-white transition-colors group">
+<td class="px-6 py-5 font-mono text-xs text-on-surface-variant">#ORG-7719</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-secondary-fixed flex items-center justify-center text-secondary font-bold text-xs">AU</div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Astana IT University</span>
+<span class="text-xs text-on-surface-variant">astana_it.edu</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Active</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">Nov 05, 2023</td>
+<td class="px-6 py-5 text-sm text-on-surface font-medium">8,520</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-on-surface hover:bg-slate-100 rounded-lg transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-surface-container-lowest hover:bg-white transition-colors group">
+<td class="px-6 py-5 font-mono text-xs text-on-surface-variant">#ORG-9921</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-tertiary-fixed flex items-center justify-center text-tertiary font-bold text-xs">KT</div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Kazakh Telecom</span>
+<span class="text-xs text-on-surface-variant">corporate.telecom.kz</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Pending</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">Jan 18, 2024</td>
+<td class="px-6 py-5 text-sm text-on-surface font-medium">0</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-on-surface hover:bg-slate-100 rounded-lg transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-low hover:bg-white transition-colors group">
+<td class="px-6 py-5 font-mono text-xs text-on-surface-variant">#ORG-5520</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">QB</div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Qazaq Banki Academy</span>
+<span class="text-xs text-on-surface-variant">academy.qazaq.kz</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Active</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">Feb 22, 2024</td>
+<td class="px-6 py-5 text-sm text-on-surface font-medium">412</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-on-surface hover:bg-slate-100 rounded-lg transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="bg-surface-container-lowest hover:bg-white transition-colors group">
+<td class="px-6 py-5 font-mono text-xs text-on-surface-variant">#ORG-1209</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center text-outline font-bold text-xs">DL</div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">DataLab Global</span>
+<span class="text-xs text-on-surface-variant">datalab.ai</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="bg-outline-variant/30 text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Archived</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">Dec 12, 2022</td>
+<td class="px-6 py-5 text-sm text-on-surface font-medium">54</td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-outline hover:text-on-surface hover:bg-slate-100 rounded-lg transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<footer class="px-6 py-4 bg-surface-container-high/30 border-t border-outline-variant/10 flex items-center justify-between">
+<p class="text-xs text-on-surface-variant">Showing 1 to 5 of 48 entries</p>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface text-xs font-medium">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface text-xs font-medium">3</button>
+<span class="px-2 text-outline text-xs">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-on-surface text-xs font-medium">10</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</footer>
+</div>
+<!-- System Stats Grid (Bento Style) -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-2xl ring-1 ring-outline-variant/10 shadow-sm flex flex-col gap-4">
+<div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Weekly Growth</h3>
+<p class="text-3xl font-extrabold text-on-surface">+12%</p>
+<p class="text-xs text-primary font-semibold mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+<span>4 new orgs this week</span>
+</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl ring-1 ring-outline-variant/10 shadow-sm flex flex-col gap-4">
+<div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">security</span>
+</div>
+<div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Ledger Integrity</h3>
+<p class="text-3xl font-extrabold text-on-surface">99.9%</p>
+<p class="text-xs text-on-surface-variant mt-2">All certificates verified &amp; synced</p>
+</div>
+</div>
+<div class="md:col-span-1 bg-gradient-to-br from-primary/5 to-primary-container/5 p-6 rounded-2xl ring-1 ring-primary/20 flex flex-col justify-between">
+<div>
+<h3 class="text-sm font-bold text-on-surface mb-2">Need bulk import?</h3>
+<p class="text-xs text-on-surface-variant leading-relaxed">Download our CSV template for faster organization onboarding and member mapping.</p>
+</div>
+<button class="mt-4 text-xs font-bold text-primary flex items-center gap-1 hover:underline">
+                    Get Template <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Global Footer -->
+<footer class="ml-64 w-full py-8 px-8 mt-auto border-t border-slate-200 dark:border-slate-800 bg-slate-50">
+<div class="max-w-7xl flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="font-['Manrope'] font-bold text-slate-900 dark:text-white">Jetistik Admin</span>
+<p class="text-xs text-slate-500 font-['Inter']">© 2024 Jetistik Certificate Platform. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">System Status</a>
+<a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Documentation</a>
+<a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Privacy Policy</a>
+</div>
+</div>
+</footer>
+</body></html>
