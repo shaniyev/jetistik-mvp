@@ -1,6 +1,13 @@
 import type { PageLoad } from "./$types";
+import { browser } from "$app/environment";
+
+export const ssr = false;
 
 export const load: PageLoad = async ({ params, fetch }) => {
+  if (!browser) {
+    return { result: null, code: params.code };
+  }
+
   const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
   try {

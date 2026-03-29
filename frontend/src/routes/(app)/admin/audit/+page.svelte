@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { api } from '$lib/api/client';
   import DataTable from '$lib/components/DataTable.svelte';
   import StatusBadge from '$lib/components/StatusBadge.svelte';
@@ -24,7 +25,7 @@
     loading = false;
   }
 
-  $effect(() => { load(); });
+  onMount(() => { load(); });
 </script>
 
 <div class="space-y-6">
