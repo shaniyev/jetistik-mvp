@@ -196,7 +196,7 @@
           {$t("landing.organizer.desc")}
         </p>
         <a
-          href="/register"
+          href="/register-org"
           class="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold bg-gradient-to-br from-primary to-primary-container text-on-primary hover:shadow-lg hover:shadow-primary/20 transition-all"
         >
           {$t("landing.organizer.cta")}
