@@ -218,7 +218,7 @@ export default {
   "landing.hero.subtitleKz": "Сертификаттар мен дипломдардың түпнұсқалығын тексеруге арналған бірыңғай платформа.",
   "landing.hero.showCerts": "Показать сертификаты",
   "landing.hero.verifiedSystem": "Verified System",
-  "landing.hero.blockchainSecured": "Blockchain Secured",
+  "landing.hero.blockchainSecured": "QR-защищённый",
   "landing.howItWorksSubtitle": "Процесс создания и выдачи сертификатов автоматизирован и занимает считанные минуты.",
   "landing.step1.titleNew": "Загрузка шаблона",
   "landing.step1.descNew": "Загрузите свой дизайн сертификата в формате PDF или выберите из наших готовых премиум-шаблонов.",

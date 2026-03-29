@@ -254,7 +254,7 @@
               </div>
               <div>
                 <p class="text-xs font-bold text-on-surface">{$t("landing.hero.verifiedSystem")}</p>
-                <p class="text-[10px] text-on-surface-variant">{$t("landing.hero.blockchainSecured")}</p>
+                <p class="text-[10px] text-on-surface-variant">QR-Protected</p>
               </div>
             </div>
           </div>
