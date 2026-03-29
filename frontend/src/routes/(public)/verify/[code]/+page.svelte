@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import StatusBadge from '$lib/components/StatusBadge.svelte';
-
-  let { data }: { data: { code: string } } = $props();
+  import { page } from '$app/stores';
 
   let loading = $state(true);
   let result = $state<any>(null);
   let certificates = $state<any[]>([]);
   let isIIN = $state(false);
+  let currentCode = $state('');
 
   const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
@@ -16,8 +15,11 @@
     return iin.slice(0, 4) + '****' + iin.slice(-2);
   }
 
-  onMount(async () => {
-    const code = data.code;
+  async function loadData(code: string) {
+    loading = true;
+    result = null;
+    certificates = [];
+    currentCode = code;
     isIIN = /^\d{12}$/.test(code);
 
     try {
@@ -28,10 +30,8 @@
       } else {
         const body = await res.json();
         if (isIIN) {
-          // IIN search returns array of certificates
           certificates = Array.isArray(body.data) ? body.data : [];
         } else {
-          // Code verification returns single result
           result = body.data;
         }
       }
@@ -40,6 +40,21 @@
       certificates = [];
     }
     loading = false;
+  }
+
+  // React to URL param changes (same route, different code)
+  $effect(() => {
+    const code = $page.params.code;
+    if (code && code !== currentCode) {
+      loadData(code);
+    }
+  });
+
+  // Initial load
+  $effect(() => {
+    if (!currentCode && $page.params.code) {
+      loadData($page.params.code);
+    }
   });
 </script>
 
@@ -67,12 +82,12 @@
         <div class="flex items-center justify-between mb-6">
           <div>
             <p class="text-sm text-on-surface-variant">Certificates for IIN</p>
-            <p class="font-mono text-lg font-semibold text-on-surface mt-1">{maskIIN(data.code)}</p>
+            <p class="font-mono text-lg font-semibold text-on-surface mt-1">{maskIIN(currentCode)}</p>
           </div>
           <div class="flex gap-2">
             {#if certificates.length > 0}
               <a
-                href="{API_BASE}/api/v1/certificates/download-zip?iin={data.code}"
+                href="{API_BASE}/api/v1/certificates/download-zip?iin={currentCode}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-br from-primary to-primary-container text-on-primary text-xs font-medium hover:opacity-90 transition-opacity"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -156,7 +171,7 @@
           </div>
           <h2 class="font-display text-xl font-semibold text-on-surface">Not Found</h2>
           <p class="text-sm text-on-surface-variant">
-            Certificate with code <code class="font-mono bg-surface-low px-1.5 py-0.5 rounded">{data.code}</code> was not found.
+            Certificate with code <code class="font-mono bg-surface-low px-1.5 py-0.5 rounded">{currentCode}</code> was not found.
           </p>
         </div>
       </div>
