@@ -3,6 +3,7 @@ package user
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 
@@ -26,6 +27,28 @@ func (h *Handler) ProfileRoutes() chi.Router {
 	r.Get("/", h.GetProfile)
 	r.Patch("/", h.UpdateProfile)
 	return r
+}
+
+// PublicProfileRoutes registers public portfolio routes (no auth required).
+func (h *Handler) PublicProfileRoutes() chi.Router {
+	r := chi.NewRouter()
+	r.Get("/{id}", h.GetPublicProfile)
+	return r
+}
+
+// GetPublicProfile handles GET /api/v1/p/{id}
+func (h *Handler) GetPublicProfile(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "INVALID_ID", "invalid profile id")
+		return
+	}
+	profile, err := h.svc.GetPublicProfile(r.Context(), id)
+	if err != nil {
+		response.Error(w, http.StatusNotFound, "NOT_FOUND", "profile not found")
+		return
+	}
+	response.JSON(w, http.StatusOK, profile)
 }
 
 // TeacherStudentRoutes registers teacher-student routes.

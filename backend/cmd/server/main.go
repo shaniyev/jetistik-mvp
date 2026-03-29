@@ -176,10 +176,11 @@ func run() error {
 			r.Mount("/auth", authHandler.Routes())
 		})
 
-		// Public certificate routes (rate-limited)
+		// Public routes (rate-limited)
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.RateLimit(10, time.Minute))
 			r.Mount("/", certHandler.PublicRoutes())
+			r.Mount("/p", userHandler.PublicProfileRoutes())
 		})
 
 		// Protected routes

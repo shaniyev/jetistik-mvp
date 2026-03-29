@@ -33,6 +33,30 @@ type TeacherStudentResponse struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
+type PublicProfileResponse struct {
+	ID           int64                    `json:"id"`
+	Username     string                   `json:"username"`
+	Role         string                   `json:"role"`
+	MemberSince  time.Time                `json:"member_since"`
+	Certificates []PublicCertificateEntry `json:"certificates"`
+	Stats        ProfileStats             `json:"stats"`
+}
+
+type PublicCertificateEntry struct {
+	Code       string    `json:"code"`
+	Name       string    `json:"name"`
+	EventTitle string    `json:"event_title"`
+	OrgName    string    `json:"org_name"`
+	Status     string    `json:"status"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+type ProfileStats struct {
+	TotalCertificates int `json:"total_certificates"`
+	ValidCertificates int `json:"valid_certificates"`
+	Organizations     int `json:"organizations"`
+}
+
 // --- Validation ---
 
 func (r UpdateProfileRequest) Validate() map[string]string {

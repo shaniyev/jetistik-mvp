@@ -478,6 +478,10 @@ export default {
   "student.filter.completed": "Завершённые",
   // Teacher layout
   "teacher.layout.search": "Поиск...",
+  "student.memberSince": "Участник с",
+  "student.totalCerts": "Сертификатов",
+  "student.orgsCount": "Организаций",
+  "student.verifiedDesc": "Все сертификаты в этом профиле верифицированы через платформу Jetistik.",
   "common.refresh": "Обновить",
   "common.unavailable": "Недоступно",
   "common.copied": "Скопировано!",

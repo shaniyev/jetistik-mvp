@@ -634,6 +634,10 @@ export default {
   // Teacher layout
   "teacher.layout.search": "Search...",
   // Common extras
+  "student.memberSince": "Member since",
+  "student.totalCerts": "Certificates",
+  "student.orgsCount": "Organizations",
+  "student.verifiedDesc": "All certificates on this profile are verified through Jetistik platform.",
   "common.refresh": "Refresh",
   "common.unavailable": "Unavailable",
   "common.copied": "Copied!",

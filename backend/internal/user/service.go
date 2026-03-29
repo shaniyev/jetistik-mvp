@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"jetistik/internal/sqlcdb"
@@ -118,4 +119,54 @@ func toProfileResponseFromRow(u sqlcdb.UpdateUserProfileRow) *ProfileResponse {
 		Language:  u.Language.String,
 		CreatedAt: u.CreatedAt.Time,
 	}
+}
+
+// GetPublicProfile returns a public portfolio for a user (no sensitive data).
+func (s *Service) GetPublicProfile(ctx context.Context, userID int64) (*PublicProfileResponse, error) {
+	user, err := s.repo.GetUserByID(ctx, userID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	certs, err := s.repo.ListCertificatesByUserID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get certificates: %w", err)
+	}
+
+	entries := make([]PublicCertificateEntry, 0, len(certs))
+	orgsMap := make(map[string]bool)
+	validCount := 0
+
+	for _, c := range certs {
+		entries = append(entries, PublicCertificateEntry{
+			Code:       c.Code,
+			Name:       c.Name.String,
+			EventTitle: c.EventTitle,
+			OrgName:    c.OrgName.String,
+			Status:     c.Status.String,
+			CreatedAt:  c.CreatedAt.Time,
+		})
+		if c.Status.String == "valid" {
+			validCount++
+		}
+		if c.OrgName.String != "" {
+			orgsMap[c.OrgName.String] = true
+		}
+	}
+
+	return &PublicProfileResponse{
+		ID:          user.ID,
+		Username:    user.Username,
+		Role:        user.Role,
+		MemberSince: user.CreatedAt.Time,
+		Certificates: entries,
+		Stats: ProfileStats{
+			TotalCertificates: len(certs),
+			ValidCertificates: validCount,
+			Organizations:     len(orgsMap),
+		},
+	}, nil
 }

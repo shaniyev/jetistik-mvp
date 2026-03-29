@@ -478,6 +478,10 @@ export default {
   "student.filter.completed": "Аяқталған",
   // Teacher layout
   "teacher.layout.search": "Іздеу...",
+  "student.memberSince": "Мүше болғаннан бері",
+  "student.totalCerts": "Сертификаттар",
+  "student.orgsCount": "Ұйымдар",
+  "student.verifiedDesc": "Бұл профильдегі барлық сертификаттар Jetistik платформасы арқылы расталған.",
   "common.refresh": "Жаңарту",
   "common.unavailable": "Қол жетімсіз",
   "common.copied": "Көшірілді!",

@@ -65,7 +65,8 @@
   }
 
   async function copyProfileLink() {
-    const url = `${window.location.origin}`;
+    const userId = $currentUser?.id;
+    const url = userId ? `${window.location.origin}/p/${userId}` : window.location.origin;
     try {
       await navigator.clipboard.writeText(url);
       linkCopied = true;

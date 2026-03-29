@@ -67,3 +67,11 @@ LIMIT $1 OFFSET $2;
 
 -- name: CountAllCertificates :one
 SELECT count(*) FROM certificates;
+
+-- name: ListCertificatesByUserID :many
+SELECT c.id, c.event_id, c.organization_id, c.iin, c.name, c.code, c.pdf_path, c.status, c.revoked_reason, c.payload, c.created_at, c.updated_at, e.title as event_title, o.name as org_name
+FROM certificates c
+JOIN events e ON e.id = c.event_id
+LEFT JOIN organizations o ON o.id = c.organization_id
+WHERE c.iin = (SELECT users.iin FROM users WHERE users.id = $1 AND users.iin IS NOT NULL AND users.iin != '')
+ORDER BY c.created_at DESC;
