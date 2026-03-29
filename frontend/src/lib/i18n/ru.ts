@@ -478,4 +478,9 @@ export default {
   "student.filter.completed": "Завершённые",
   // Teacher layout
   "teacher.layout.search": "Поиск...",
+  "common.refresh": "Обновить",
+  "common.unavailable": "Недоступно",
+  "common.copied": "Скопировано!",
+  "common.status": "Статус",
+  "common.actions": "Действия",
 } as const;

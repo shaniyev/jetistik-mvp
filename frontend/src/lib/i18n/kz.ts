@@ -478,4 +478,9 @@ export default {
   "student.filter.completed": "Аяқталған",
   // Teacher layout
   "teacher.layout.search": "Іздеу...",
+  "common.refresh": "Жаңарту",
+  "common.unavailable": "Қол жетімсіз",
+  "common.copied": "Көшірілді!",
+  "common.status": "Мәртебе",
+  "common.actions": "Әрекеттер",
 } as const;

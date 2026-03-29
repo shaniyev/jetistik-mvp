@@ -65,7 +65,6 @@
   }
 
   async function copyProfileLink() {
-    // Share link to the platform, never expose IIN
     const url = `${window.location.origin}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -123,10 +122,10 @@
           bind:value={statusFilter}
           class="w-full appearance-none bg-surface-container-lowest text-on-surface border border-outline-variant/30 px-5 py-3 rounded-xl text-sm font-semibold pr-10 focus:ring-primary focus:border-primary transition-all cursor-pointer"
         >
-          <option value="">{$t("common.filter")}: All</option>
-          <option value="valid">Valid</option>
-          <option value="revoked">Revoked</option>
-          <option value="completed">Completed</option>
+          <option value="">{$t("common.filter")}: {$t("staff.events.all")}</option>
+          <option value="valid">{$t("student.filter.valid")}</option>
+          <option value="revoked">{$t("student.filter.revoked")}</option>
+          <option value="completed">{$t("student.filter.completed")}</option>
         </select>
         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]">filter_list</span>
       </div>
@@ -150,56 +149,19 @@
         <div class="w-24 h-24 rounded-[2rem] overflow-hidden bg-primary-fixed shadow-inner flex items-center justify-center text-primary font-bold text-3xl">
           {$currentUser?.username?.[0]?.toUpperCase() ?? "?"}
         </div>
-        <button class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-slate-50 transition-colors border border-slate-100">
-          <span class="material-symbols-outlined text-[18px] text-primary">edit</span>
-        </button>
       </div>
       <h2 class="font-display font-bold text-xl text-on-surface mb-1">{$currentUser?.username ?? ""}</h2>
-      <p class="text-on-surface-variant text-sm mb-6 uppercase tracking-wider font-semibold">{$t("student.role")} / Student</p>
+      <p class="text-on-surface-variant text-sm mb-6 uppercase tracking-wider font-semibold">{$t("student.role")}</p>
 
       <div class="w-full space-y-4 text-left">
-        <!-- IIN Section -->
+        <!-- IIN Section (read-only) -->
         <div class="group">
           <div class="flex justify-between items-center mb-1 px-1">
-            <label class="text-[11px] font-bold text-outline uppercase tracking-widest">{$t("student.iin")} / IIN</label>
-            {#if !editingIIN}
-              <button onclick={startEditIIN} class="text-primary text-[11px] font-bold uppercase tracking-widest hover:underline">{$t("common.edit")}</button>
-            {/if}
+            <label class="text-[11px] font-bold text-outline uppercase tracking-widest">{$t("student.iin")}</label>
           </div>
-
-          {#if editingIIN}
-            <div class="space-y-3">
-              <input
-                type="text"
-                bind:value={newIIN}
-                maxlength={12}
-                placeholder="123456789012"
-                class="w-full bg-surface p-4 rounded-xl font-mono text-on-surface border border-outline-variant/20 shadow-inner focus:outline-none focus:border-primary transition-colors"
-              />
-              <div class="flex items-center gap-2">
-                <button
-                  onclick={saveIIN}
-                  disabled={savingIIN || newIIN.length !== 12}
-                  class="px-4 py-2 rounded-lg text-xs font-bold bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                >
-                  {savingIIN ? "..." : $t("common.save")}
-                </button>
-                <button
-                  onclick={() => { editingIIN = false; }}
-                  class="px-4 py-2 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-surface-container-low transition-colors"
-                >
-                  {$t("common.cancel")}
-                </button>
-              </div>
-            </div>
-          {:else}
-            <div class="bg-surface p-4 rounded-xl font-mono text-on-surface flex justify-between items-center border border-outline-variant/20 shadow-inner">
-              <span class="tracking-widest">{$currentUser?.iin ?? "---"}</span>
-              <button class="text-outline hover:text-primary transition-colors">
-                <span class="material-symbols-outlined text-[20px]">content_copy</span>
-              </button>
-            </div>
-          {/if}
+          <div class="bg-surface p-4 rounded-xl font-mono text-on-surface border border-outline-variant/20 shadow-inner">
+            <span class="tracking-widest">{$currentUser?.iin ?? "---"}</span>
+          </div>
         </div>
 
         <!-- Verified Badge -->
@@ -220,8 +182,8 @@
     <!-- Data Row Header (Hidden on Mobile) -->
     <div class="hidden md:grid grid-cols-12 gap-4 px-6 mb-4 text-[11px] font-bold text-outline uppercase tracking-[0.15em]">
       <div class="col-span-5">{$t("student.certificateDetails")}</div>
-      <div class="col-span-3">Status</div>
-      <div class="col-span-4 text-right">Actions</div>
+      <div class="col-span-3">{$t("common.status")}</div>
+      <div class="col-span-4 text-right">{$t("common.actions")}</div>
     </div>
 
     <!-- Certificate Cards Container -->
@@ -238,7 +200,7 @@
           </div>
           <h3 class="font-display font-bold text-xl text-on-surface mb-2">{$t("student.noCertificates")}</h3>
           <button onclick={loadCertificates} class="mt-4 bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-            Refresh Data
+            {$t("common.refresh")}
           </button>
         </div>
       {:else}
@@ -267,12 +229,12 @@
               {#if cert.status === "valid" || cert.status === "completed"}
                 <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-fixed text-blue-800 text-[10px] font-bold uppercase tracking-wider border border-blue-200">
                   <span class="w-1.5 h-1.5 rounded-full bg-blue-600 mr-2 animate-pulse"></span>
-                  VALID
+                  {$t("student.filter.valid")}
                 </span>
               {:else if cert.status === "revoked"}
                 <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-wider border border-red-200/50">
                   <span class="w-1.5 h-1.5 rounded-full bg-error mr-2"></span>
-                  REVOKED
+                  {$t("student.filter.revoked")}
                 </span>
               {:else}
                 <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">
@@ -287,7 +249,7 @@
               {#if cert.status === "revoked"}
                 <button class="w-full md:w-auto text-outline border border-outline-variant/30 px-4 py-3 md:py-2 rounded-xl text-sm font-semibold cursor-not-allowed opacity-50 flex items-center justify-center gap-2 bg-surface">
                   <span class="material-symbols-outlined text-[20px] md:text-[18px]">lock</span>
-                  Unavailable
+                  {$t("common.unavailable")}
                 </button>
               {:else}
                 <a
@@ -302,7 +264,7 @@
                   class="flex-1 md:flex-none bg-primary text-white px-4 py-3 md:py-2 rounded-xl text-sm font-semibold hover:bg-primary-container transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
                   <span class="material-symbols-outlined text-[20px] md:text-[18px]">download</span>
-                  {$t("student.downloadPdf")}
+                  PDF
                 </button>
               {/if}
             </div>
@@ -328,18 +290,14 @@
         >
           {linkCopied ? $t("common.copied") : $t("student.copyLink")}
         </button>
-        <a href="/student" class="bg-blue-600/30 border border-blue-400/30 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-blue-600/50 transition-colors active:scale-95 inline-block">
-          {$t("staff.nav.settings")}
-        </a>
       </div>
     </div>
     <div class="shrink-0 w-56 h-56 md:w-64 md:h-64 bg-white p-5 rounded-[2rem] shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
       <div class="w-full h-full bg-surface-container-low rounded-xl flex items-center justify-center text-on-surface-variant text-sm font-mono">
-        QR Code
+        QR
       </div>
     </div>
   </div>
-  <!-- Decorative Background Elements -->
   <div class="absolute -right-20 -top-20 w-80 h-80 bg-primary/20 rounded-full blur-[100px] pointer-events-none"></div>
   <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 </div>

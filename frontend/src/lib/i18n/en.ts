@@ -633,4 +633,10 @@ export default {
   "student.filter.completed": "Completed",
   // Teacher layout
   "teacher.layout.search": "Search...",
+  // Common extras
+  "common.refresh": "Refresh",
+  "common.unavailable": "Unavailable",
+  "common.copied": "Copied!",
+  "common.status": "Status",
+  "common.actions": "Actions",
 } as const;
