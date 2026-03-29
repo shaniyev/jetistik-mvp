@@ -72,7 +72,7 @@
       <td class="px-4 py-3"><StatusBadge status={cert.status || 'valid'} /></td>
       <td class="px-4 py-3 text-sm text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</td>
       <td class="px-4 py-3 flex gap-2">
-        <a href={`http://localhost:8080/api/v1/verify/${cert.code}`} target="_blank" class="text-primary text-sm hover:underline">View</a>
+        <a href={`/verify/${cert.code}`} target="_blank" class="text-primary text-sm hover:underline">View</a>
         <button onclick={() => revoke(cert)} class="text-error text-sm hover:underline" disabled={cert.status === 'revoked'}>
           {cert.status === 'revoked' ? 'Revoked' : 'Revoke'}
         </button>
