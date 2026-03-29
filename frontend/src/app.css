@@ -13,13 +13,25 @@
   --color-surface-low: #f2f4f6;
   --color-surface-lowest: #ffffff;
   --color-surface-high: #e6e8ea;
+  --color-surface-highest: #e0e3e5;
+  --color-surface-container: #eceef0;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-dim: #d8dadc;
+  --color-surface-variant: #e0e3e5;
 
   /* Primary */
   --color-primary: #004ac6;
   --color-primary-container: #2563eb;
-  --color-primary-fixed: #dbeafe;
+  --color-primary-fixed: #dbe1ff;
   --color-on-primary: #ffffff;
-  --color-on-primary-container: #1e3a5f;
+  --color-on-primary-container: #eeefff;
+  --color-on-primary-fixed: #00174b;
+  --color-on-primary-fixed-variant: #003ea8;
+
+  /* Secondary */
+  --color-secondary: #495c95;
+  --color-secondary-container: #acbfff;
 
   /* Error */
   --color-error: #ba1a1a;
@@ -28,11 +40,12 @@
 
   /* Text */
   --color-on-surface: #191c1e;
-  --color-on-surface-variant: #6b7280;
-  --color-outline-variant: #c4c7cc;
+  --color-on-surface-variant: #434655;
+  --color-outline: #737686;
+  --color-outline-variant: #c3c6d7;
 
   /* Surface tint */
-  --color-surface-tint: #004ac6;
+  --color-surface-tint: #0053db;
 
   /* Font families */
   --font-display: "Manrope", sans-serif;
