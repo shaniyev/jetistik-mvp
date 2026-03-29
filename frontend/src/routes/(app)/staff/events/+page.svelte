@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { api, type PaginatedResponse } from "$lib/api/client";
+  import { api, ApiError, type PaginatedResponse } from "$lib/api/client";
   import StatusBadge from "$lib/components/StatusBadge.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
 
@@ -32,6 +32,16 @@
     }
   }
 
+  async function deleteEvent(id: number) {
+    if (!confirm("Delete this event? This cannot be undone.")) return;
+    try {
+      await api.delete(`/api/v1/staff/events/${id}`);
+      loadEvents();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Failed to delete event");
+    }
+  }
+
   onMount(loadEvents);
 
   const columns = [
@@ -39,7 +49,7 @@
     { key: "date", label: "Date" },
     { key: "city", label: "City" },
     { key: "status", label: "Status" },
-    { key: "actions", label: "", class: "w-20" },
+    { key: "actions", label: "", class: "w-32" },
   ];
 </script>
 
@@ -80,7 +90,10 @@
           <StatusBadge status={event.status} />
         </td>
         <td class="px-4 py-3">
-          <a href="/staff/events/{event.id}" class="text-xs text-primary hover:underline">View</a>
+          <div class="flex items-center gap-2">
+            <a href="/staff/events/{event.id}" class="text-xs text-primary hover:underline">View</a>
+            <button onclick={() => deleteEvent(event.id)} class="text-xs text-error hover:underline">Delete</button>
+          </div>
         </td>
       </tr>
     {/snippet}
