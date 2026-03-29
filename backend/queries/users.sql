@@ -61,6 +61,27 @@ INSERT INTO teacher_students (teacher_id, student_iin)
 VALUES ($1, $2)
 RETURNING id, teacher_id, student_iin, created_at;
 
+-- name: UpdateUserAdmin :one
+UPDATE users
+SET role = COALESCE(sqlc.narg('role'), role),
+    is_active = COALESCE(sqlc.narg('is_active'), is_active),
+    email = COALESCE(sqlc.narg('email'), email),
+    language = COALESCE(sqlc.narg('language'), language),
+    updated_at = now()
+WHERE id = sqlc.arg('id')
+RETURNING id, username, email, iin, role, is_active, language, created_at, updated_at;
+
+-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1;
+
+-- name: CountCertificatesThisWeek :one
+SELECT count(*) FROM certificates
+WHERE created_at >= date_trunc('week', now());
+
+-- name: CountOrganizationsThisWeek :one
+SELECT count(*) FROM organizations
+WHERE created_at >= date_trunc('week', now());
+
 -- name: RemoveTeacherStudent :exec
 DELETE FROM teacher_students
 WHERE teacher_id = $1 AND student_iin = $2;

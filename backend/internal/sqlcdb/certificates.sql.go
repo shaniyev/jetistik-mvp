@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countAllCertificates = `-- name: CountAllCertificates :one
+SELECT count(*) FROM certificates
+`
+
+func (q *Queries) CountAllCertificates(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countAllCertificates)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countCertificatesByEvent = `-- name: CountCertificatesByEvent :one
 SELECT count(*) FROM certificates WHERE event_id = $1
 `
@@ -134,6 +145,50 @@ func (q *Queries) GetCertificateByID(ctx context.Context, id int64) (Certificate
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const listAllCertificates = `-- name: ListAllCertificates :many
+SELECT id, event_id, organization_id, iin, name, code, pdf_path, status, revoked_reason, payload, created_at, updated_at FROM certificates
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListAllCertificatesParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListAllCertificates(ctx context.Context, arg ListAllCertificatesParams) ([]Certificate, error) {
+	rows, err := q.db.Query(ctx, listAllCertificates, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Certificate{}
+	for rows.Next() {
+		var i Certificate
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventID,
+			&i.OrganizationID,
+			&i.Iin,
+			&i.Name,
+			&i.Code,
+			&i.PdfPath,
+			&i.Status,
+			&i.RevokedReason,
+			&i.Payload,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listCertificatesByEvent = `-- name: ListCertificatesByEvent :many

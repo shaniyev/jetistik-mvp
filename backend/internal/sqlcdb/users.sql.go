@@ -34,6 +34,30 @@ func (q *Queries) AddTeacherStudent(ctx context.Context, arg AddTeacherStudentPa
 	return i, err
 }
 
+const countCertificatesThisWeek = `-- name: CountCertificatesThisWeek :one
+SELECT count(*) FROM certificates
+WHERE created_at >= date_trunc('week', now())
+`
+
+func (q *Queries) CountCertificatesThisWeek(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countCertificatesThisWeek)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countOrganizationsThisWeek = `-- name: CountOrganizationsThisWeek :one
+SELECT count(*) FROM organizations
+WHERE created_at >= date_trunc('week', now())
+`
+
+func (q *Queries) CountOrganizationsThisWeek(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countOrganizationsThisWeek)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countUsers = `-- name: CountUsers :one
 SELECT count(*) FROM users
 `
@@ -83,6 +107,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
+	return err
 }
 
 const emailExists = `-- name: EmailExists :one
@@ -291,6 +324,60 @@ type RemoveTeacherStudentParams struct {
 func (q *Queries) RemoveTeacherStudent(ctx context.Context, arg RemoveTeacherStudentParams) error {
 	_, err := q.db.Exec(ctx, removeTeacherStudent, arg.TeacherID, arg.StudentIin)
 	return err
+}
+
+const updateUserAdmin = `-- name: UpdateUserAdmin :one
+UPDATE users
+SET role = COALESCE($1, role),
+    is_active = COALESCE($2, is_active),
+    email = COALESCE($3, email),
+    language = COALESCE($4, language),
+    updated_at = now()
+WHERE id = $5
+RETURNING id, username, email, iin, role, is_active, language, created_at, updated_at
+`
+
+type UpdateUserAdminParams struct {
+	Role     pgtype.Text `json:"role"`
+	IsActive pgtype.Bool `json:"is_active"`
+	Email    pgtype.Text `json:"email"`
+	Language pgtype.Text `json:"language"`
+	ID       int64       `json:"id"`
+}
+
+type UpdateUserAdminRow struct {
+	ID        int64              `json:"id"`
+	Username  string             `json:"username"`
+	Email     pgtype.Text        `json:"email"`
+	Iin       pgtype.Text        `json:"iin"`
+	Role      string             `json:"role"`
+	IsActive  pgtype.Bool        `json:"is_active"`
+	Language  pgtype.Text        `json:"language"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) UpdateUserAdmin(ctx context.Context, arg UpdateUserAdminParams) (UpdateUserAdminRow, error) {
+	row := q.db.QueryRow(ctx, updateUserAdmin,
+		arg.Role,
+		arg.IsActive,
+		arg.Email,
+		arg.Language,
+		arg.ID,
+	)
+	var i UpdateUserAdminRow
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Iin,
+		&i.Role,
+		&i.IsActive,
+		&i.Language,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const updateUserPassword = `-- name: UpdateUserPassword :exec

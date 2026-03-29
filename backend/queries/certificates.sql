@@ -52,3 +52,11 @@ JOIN events e ON e.id = c.event_id
 LEFT JOIN organizations o ON o.id = c.organization_id
 WHERE c.iin = $1
 ORDER BY c.created_at DESC;
+
+-- name: ListAllCertificates :many
+SELECT * FROM certificates
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2;
+
+-- name: CountAllCertificates :one
+SELECT count(*) FROM certificates;
