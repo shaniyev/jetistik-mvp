@@ -12,10 +12,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"jetistik/internal/auth"
 	"jetistik/internal/platform/config"
 	"jetistik/internal/platform/db"
 	"jetistik/internal/platform/middleware"
 	"jetistik/internal/platform/response"
+	"jetistik/internal/user"
 )
 
 func main() {
@@ -52,6 +54,15 @@ func run() error {
 
 	slog.Info("connected to database")
 
+	// Wire modules
+	authRepo := auth.NewRepository(pool)
+	authSvc := auth.NewService(authRepo, cfg.JWTSecret, cfg.JWTAccessTTL, cfg.JWTRefreshTTL)
+	authHandler := auth.NewHandler(authSvc, cfg.JWTRefreshTTL, !cfg.IsDev())
+
+	userRepo := user.NewRepository(pool)
+	userSvc := user.NewService(userRepo)
+	userHandler := user.NewHandler(userSvc)
+
 	r := chi.NewRouter()
 
 	// Global middleware
@@ -59,13 +70,30 @@ func run() error {
 	r.Use(middleware.Logger)
 	r.Use(middleware.CORS(cfg.PublicBaseURL))
 
-	r.Get("/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
-		err := pool.Ping(r.Context())
-		if err != nil {
-			response.Error(w, http.StatusServiceUnavailable, "DB_UNAVAILABLE", "database is not reachable")
-			return
-		}
-		response.JSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	r.Route("/api/v1", func(r chi.Router) {
+		// Health
+		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+			err := pool.Ping(r.Context())
+			if err != nil {
+				response.Error(w, http.StatusServiceUnavailable, "DB_UNAVAILABLE", "database is not reachable")
+				return
+			}
+			response.JSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		})
+
+		// Public auth routes (rate-limited)
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.RateLimit(10, time.Minute))
+			r.Mount("/auth", authHandler.Routes())
+		})
+
+		// Protected routes
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.JWTAuth(cfg.JWTSecret))
+
+			r.Mount("/profile", userHandler.ProfileRoutes())
+			r.Mount("/teacher/students", userHandler.TeacherStudentRoutes())
+		})
 	})
 
 	srv := &http.Server{
