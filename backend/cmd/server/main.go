@@ -14,6 +14,7 @@ import (
 
 	"jetistik/internal/platform/config"
 	"jetistik/internal/platform/db"
+	"jetistik/internal/platform/middleware"
 	"jetistik/internal/platform/response"
 )
 
@@ -52,6 +53,11 @@ func run() error {
 	slog.Info("connected to database")
 
 	r := chi.NewRouter()
+
+	// Global middleware
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.CORS(cfg.PublicBaseURL))
 
 	r.Get("/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
 		err := pool.Ping(r.Context())
