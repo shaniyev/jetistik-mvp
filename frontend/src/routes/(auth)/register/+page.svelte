@@ -1,8 +1,9 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { auth } from "$lib/stores/auth";
+  import { auth, currentUser } from "$lib/stores/auth";
   import { t, language } from "$lib/i18n";
   import { ApiError } from "$lib/api/client";
+  import { get } from "svelte/store";
 
   let username = $state("");
   let email = $state("");
@@ -29,7 +30,9 @@
         role,
         language: currentLang,
       });
-      goto("/");
+      const user = get(currentUser);
+      const path = user?.role === "teacher" ? "/teacher" : "/student";
+      goto(path);
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === "USERNAME_EXISTS") {
@@ -125,8 +128,9 @@
         type="text"
         bind:value={iin}
         maxlength="12"
-        pattern="[0-9]{12}"
-        class="w-full px-3 py-2.5 bg-surface-low rounded-md text-on-surface
+        inputmode="numeric"
+        oninput={(e) => { iin = (e.target as HTMLInputElement).value.replace(/\D/g, ''); }}
+        class="w-full px-3 py-2.5 bg-surface-low rounded-md text-on-surface font-mono tracking-wider
                placeholder:text-on-surface-variant/50
                focus:outline-2 focus:outline-primary focus:outline-offset-0
                transition-colors"
