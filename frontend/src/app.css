@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@import "@fontsource/manrope/400.css";
+@import "@fontsource/manrope/600.css";
+@import "@fontsource/manrope/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+
+/* Sovereign Ledger Design System */
+@theme {
+  /* Surface hierarchy */
+  --color-surface: #f7f9fb;
+  --color-surface-low: #f2f4f6;
+  --color-surface-lowest: #ffffff;
+  --color-surface-high: #e6e8ea;
+
+  /* Primary */
+  --color-primary: #004ac6;
+  --color-primary-container: #2563eb;
+  --color-primary-fixed: #dbeafe;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #1e3a5f;
+
+  /* Error */
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #410002;
+
+  /* Text */
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #6b7280;
+  --color-outline-variant: #c4c7cc;
+
+  /* Surface tint */
+  --color-surface-tint: #004ac6;
+
+  /* Font families */
+  --font-display: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Border radius */
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-full: 9999px;
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-body);
+  color: var(--color-on-surface);
+  background-color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
