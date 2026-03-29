@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"jetistik/internal/admin"
 	"jetistik/internal/audit"
 	"jetistik/internal/auth"
 	"jetistik/internal/batch"
@@ -104,6 +105,9 @@ func run() error {
 	certSvc := certificate.NewService(certRepo, storageClient, cfg.PublicBaseURL)
 	certHandler := certificate.NewHandler(certSvc, auditSvc)
 
+	adminSvc := admin.NewService(pool)
+	adminHandler := admin.NewHandler(adminSvc)
+
 	r := chi.NewRouter()
 
 	// Global middleware
@@ -178,6 +182,7 @@ func run() error {
 
 				r.Mount("/organizations", orgHandler.AdminRoutes())
 				r.Mount("/audit-log", auditHandler.Routes())
+				r.Mount("/", adminHandler.Routes())
 			})
 		})
 	})
