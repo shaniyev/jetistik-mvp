@@ -5,8 +5,9 @@
   let { children } = $props();
 
   const navItems = [
-    { href: "/staff/events", label: "Events", icon: "calendar" },
-    { href: "/staff/audit", label: "Audit Log", icon: "shield" },
+    { href: "/staff/events", label: "Events", icon: "event" },
+    { href: "/staff/certificates", label: "Certificates", icon: "verified" },
+    { href: "/staff/audit", label: "Audit Log", icon: "receipt_long" },
   ];
 
   let currentPath = $derived($page.url.pathname);
@@ -14,57 +15,53 @@
 
 <div class="min-h-screen bg-surface flex">
   <!-- Sidebar -->
-  <aside class="w-64 bg-surface-lowest flex flex-col shrink-0">
-    <div class="p-6">
-      <h1 class="font-display text-xl font-bold text-on-surface">Jetistik</h1>
-      <p class="text-xs text-on-surface-variant mt-1">Staff Panel</p>
+  <aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col p-4 gap-2 z-40 border-r border-slate-100">
+    <div class="mb-8 px-2 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
+        <span class="material-symbols-outlined active-nav-icon">architecture</span>
+      </div>
+      <div>
+        <h2 class="font-display text-lg font-extrabold tracking-tight text-on-surface">Staff Portal</h2>
+        <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">Management Console</p>
+      </div>
     </div>
 
-    <nav class="flex-1 px-3 space-y-1">
+    <nav class="flex-1 flex flex-col gap-1">
       {#each navItems as item}
         {@const isActive = currentPath.startsWith(item.href)}
         <a
           href={item.href}
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out
             {isActive
-              ? 'bg-primary/10 text-primary'
-              : 'text-on-surface-variant hover:bg-surface-low hover:text-on-surface'}"
+              ? 'bg-blue-50 text-blue-700'
+              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}"
         >
-          {#if item.icon === "calendar"}
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-            </svg>
-          {:else if item.icon === "shield"}
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-            </svg>
-          {/if}
-          {item.label}
+          <span class="material-symbols-outlined {isActive ? 'active-nav-icon' : ''}">{item.icon}</span>
+          <span>{item.label}</span>
         </a>
       {/each}
     </nav>
 
-    <div class="p-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold">
-          {$currentUser?.username?.[0]?.toUpperCase() ?? "?"}
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-on-surface truncate">{$currentUser?.username ?? ""}</p>
-          <p class="text-xs text-on-surface-variant capitalize">{$currentUser?.role ?? ""}</p>
-        </div>
-      </div>
+    <div class="mt-auto flex flex-col gap-1 pt-4 border-t border-slate-100">
+      <a
+        href="/staff/settings"
+        class="text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out"
+      >
+        <span class="material-symbols-outlined">settings</span>
+        <span>Settings</span>
+      </a>
       <button
         onclick={() => auth.logout()}
-        class="mt-3 w-full text-xs text-on-surface-variant hover:text-error transition-colors text-left"
+        class="text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out w-full text-left"
       >
-        Sign out
+        <span class="material-symbols-outlined">logout</span>
+        <span>Logout</span>
       </button>
     </div>
   </aside>
 
   <!-- Main content -->
-  <main class="flex-1 p-8">
+  <main class="ml-64 flex-1 flex flex-col min-h-screen">
     {@render children()}
   </main>
 </div>

@@ -44,8 +44,20 @@
   --color-outline: #737686;
   --color-outline-variant: #c3c6d7;
 
+  /* Tertiary */
+  --color-tertiary: #943700;
+  --color-tertiary-container: #bc4800;
+  --color-tertiary-fixed: #ffdbcd;
+
+  /* Secondary extras */
+  --color-secondary-fixed: #dbe1ff;
+  --color-on-secondary-fixed-variant: #31447b;
+
   /* Surface tint */
   --color-surface-tint: #0053db;
+  --color-surface-container-high: #e6e8ea;
+  --color-surface-container-highest: #e0e3e5;
+  --color-surface-bright: #f7f9fb;
 
   /* Font families */
   --font-display: "Manrope", sans-serif;
@@ -55,6 +67,15 @@
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
   --radius-full: 9999px;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+}
+.active-nav-icon {
+  font-variation-settings: 'FILL' 1;
 }
 
 /* Base styles */
