@@ -51,6 +51,7 @@ services:
       - "8080:8080"
     volumes:
       - ./backend:/app
+      - ./data/media:/media
     depends_on:
       db:
         condition: service_healthy
