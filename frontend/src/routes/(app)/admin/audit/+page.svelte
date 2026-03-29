@@ -11,6 +11,13 @@
   let actionFilter = $state('');
   const perPage = 20;
 
+  const columns = [
+    { key: 'time', label: 'Time' },
+    { key: 'actor', label: 'Actor' },
+    { key: 'action', label: 'Action' },
+    { key: 'object', label: 'Object' },
+  ];
+
   const actions = ['', 'create_event', 'upload_template', 'upload_data', 'generate', 'revoke', 'unrevoke', 'certificate_edit', 'certificate_delete', 'batch_delete', 'mapping_update', 'delete_event'];
 
   async function load() {
@@ -22,16 +29,21 @@
       logs = res.data || [];
       total = res.pagination?.total || 0;
     } catch { logs = []; }
-    loading = false;
+    finally { loading = false; }
   }
 
   onMount(() => { load(); });
+
+  function applyFilter() {
+    page = 1;
+    load();
+  }
 </script>
 
 <div class="space-y-6">
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-display font-bold text-on-surface">Audit Log</h1>
-    <select bind:value={actionFilter} onchange={() => { page = 1; load(); }} class="px-3 py-2 rounded-lg bg-surface-lowest text-sm text-on-surface border-0 border-b-2 border-outline-variant focus:border-primary outline-none">
+    <select bind:value={actionFilter} onchange={applyFilter} class="px-3 py-2 rounded-lg bg-surface-lowest text-sm text-on-surface border-0 border-b-2 border-outline-variant focus:border-primary outline-none">
       <option value="">All Actions</option>
       {#each actions.filter(a => a) as action}
         <option value={action}>{action}</option>
@@ -40,25 +52,21 @@
   </div>
 
   {#snippet row(log: any)}
-    <td class="px-4 py-3 text-sm text-on-surface-variant">{new Date(log.created_at).toLocaleString()}</td>
-    <td class="px-4 py-3 text-sm">{log.actor_id || '—'}</td>
-    <td class="px-4 py-3"><StatusBadge status={log.action} /></td>
-    <td class="px-4 py-3 text-sm text-on-surface-variant">{log.object_type} {log.object_id}</td>
+    <tr class="hover:bg-surface-low transition-colors">
+      <td class="px-4 py-3 text-sm text-on-surface-variant">{new Date(log.created_at).toLocaleString()}</td>
+      <td class="px-4 py-3 text-sm">{log.actor_id || '—'}</td>
+      <td class="px-4 py-3"><StatusBadge status={log.action} /></td>
+      <td class="px-4 py-3 text-sm text-on-surface-variant">{log.object_type} {log.object_id}</td>
+    </tr>
   {/snippet}
 
-  <DataTable
-    columns={['Time', 'Actor', 'Action', 'Object']}
-    items={logs}
-    {loading}
-    {row}
-    emptyMessage="No audit logs found"
-  />
+  <DataTable {columns} data={logs} {loading} {row} empty="No audit logs found" />
 
   {#if total > perPage}
     <div class="flex justify-center gap-2 mt-4">
-      <button onclick={() => { page--; }} disabled={page <= 1} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Previous</button>
+      <button onclick={() => { page--; load(); }} disabled={page <= 1} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Previous</button>
       <span class="px-3 py-1 text-sm text-on-surface-variant">Page {page}</span>
-      <button onclick={() => { page++; }} disabled={page * perPage >= total} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Next</button>
+      <button onclick={() => { page++; load(); }} disabled={page * perPage >= total} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Next</button>
     </div>
   {/if}
 </div>

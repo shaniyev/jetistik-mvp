@@ -10,6 +10,14 @@
   let total = $state(0);
   const perPage = 20;
 
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'title', label: 'Event' },
+    { key: 'status', label: 'Status' },
+    { key: 'date', label: 'Date' },
+    { key: 'created_at', label: 'Created' },
+  ];
+
   async function load() {
     loading = true;
     try {
@@ -17,7 +25,7 @@
       events = res.data || [];
       total = res.pagination?.total || 0;
     } catch { events = []; }
-    loading = false;
+    finally { loading = false; }
   }
 
   onMount(() => { load(); });
@@ -27,29 +35,25 @@
   <h1 class="text-2xl font-display font-bold text-on-surface">Events</h1>
 
   {#snippet row(event: any)}
-    <td class="px-4 py-3 text-sm font-medium">{event.id}</td>
-    <td class="px-4 py-3">
-      <div class="font-medium text-on-surface">{event.title}</div>
-      <div class="text-xs text-on-surface-variant">{event.city || ''}</div>
-    </td>
-    <td class="px-4 py-3"><StatusBadge status={event.status || 'active'} /></td>
-    <td class="px-4 py-3 text-sm text-on-surface-variant">{event.date || '—'}</td>
-    <td class="px-4 py-3 text-sm text-on-surface-variant">{new Date(event.created_at).toLocaleDateString()}</td>
+    <tr class="hover:bg-surface-low transition-colors">
+      <td class="px-4 py-3 text-sm font-medium">{event.id}</td>
+      <td class="px-4 py-3">
+        <div class="font-medium text-on-surface">{event.title}</div>
+        <div class="text-xs text-on-surface-variant">{event.city || ''}</div>
+      </td>
+      <td class="px-4 py-3"><StatusBadge status={event.status || 'active'} /></td>
+      <td class="px-4 py-3 text-sm text-on-surface-variant">{event.date || '—'}</td>
+      <td class="px-4 py-3 text-sm text-on-surface-variant">{new Date(event.created_at).toLocaleDateString()}</td>
+    </tr>
   {/snippet}
 
-  <DataTable
-    columns={['ID', 'Event', 'Status', 'Date', 'Created']}
-    items={events}
-    {loading}
-    {row}
-    emptyMessage="No events found"
-  />
+  <DataTable {columns} data={events} {loading} {row} empty="No events found" />
 
   {#if total > perPage}
     <div class="flex justify-center gap-2 mt-4">
-      <button onclick={() => { page--; }} disabled={page <= 1} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Previous</button>
+      <button onclick={() => { page--; load(); }} disabled={page <= 1} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Previous</button>
       <span class="px-3 py-1 text-sm text-on-surface-variant">Page {page}</span>
-      <button onclick={() => { page++; }} disabled={page * perPage >= total} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Next</button>
+      <button onclick={() => { page++; load(); }} disabled={page * perPage >= total} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Next</button>
     </div>
   {/if}
 </div>
