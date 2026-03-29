@@ -45,6 +45,9 @@ deploy/ansible/group_vars/jetistik.yml
 .vscode/
 .claude/
 
+# === Production data (synced locally) ===
+data/
+
 # === Archives ===
 *.zip
 *.sqlite3

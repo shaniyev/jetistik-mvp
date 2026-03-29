@@ -1,4 +1,4 @@
-.PHONY: up down migrate migrate-down migrate-new migrate-status sqlc backend frontend test-backend test-frontend lint
+.PHONY: up down migrate migrate-down migrate-new migrate-status sqlc backend frontend test-backend test-frontend lint sync-prod restore-data seed
 
 DB_URL ?= postgres://jetistik:dev-password@localhost:5432/jetistik?sslmode=disable
 
@@ -44,3 +44,13 @@ test-frontend:
 lint:
 	cd backend && go vet ./...
 	cd frontend && npm run check
+
+## Production data sync
+sync-prod:
+	./scripts/sync-prod-data.sh
+
+restore-data:
+	./scripts/restore-prod-data.sh
+
+seed:
+	./scripts/seed-dev.sh
