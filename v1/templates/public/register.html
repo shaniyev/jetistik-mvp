@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-3">Регистрация</h4>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-primary">Создать аккаунт</button>
+        </form>
+        <div class="text-muted small mt-3">
+          Уже есть аккаунт? <a href="/accounts/login/">Войти</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

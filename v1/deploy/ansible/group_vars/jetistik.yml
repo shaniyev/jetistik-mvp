@@ -1,0 +1,24 @@
+---
+# Application
+app_dir: /opt/jetistik
+app_user: jetistik
+domain: "jetistik.kz"
+
+# Django
+secret_key: "ZpNEoCsT6OyacjmQEk_M7qheaU0f04qs2BwgSccbKbMu_wWGj5C_BE5AJrLE8_NFmdo"
+
+# PostgreSQL
+postgres_db: jetistik
+postgres_user: jetistik
+postgres_password: "N1U2YqbC1k7i7zjXA8RQuP7n7kbsWy4s"
+
+# Email (optional)
+email_host: smtp.gmail.com
+email_port: 587
+email_host_user: ""
+email_host_password: ""
+organizer_email: "yerzhan@blackboard.kz"
+
+# Certbot / Cloudflare
+certbot_email: "raim.khamzin@gmail.com"
+cloudflare_api_token: "cfut_h8BsV7Lo7XMLZBkbltG1NmKC5lvb170dRWk2KpOXc5052ff8"

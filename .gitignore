@@ -1,37 +1,45 @@
+# OS
 .DS_Store
-*.zip
 *.log
-*.sqlite3
-db.sqlite3
 
-# Python
-__pycache__/
-*.py[cod]
+# === V1 (legacy Django) ===
+v1/media/
+v1/staticfiles/
+v1/__pycache__/
+v1/**/__pycache__/
+v1/*.pyc
+v1/db.sqlite3
+v1/.venv/
+v1/venv/
+v1/frontend/**/node_modules/
+v1/frontend/**/.vite/
 
-# Environments
-.env
-.env.prod
-.venv/
-venv/
+# === V2 Backend (Go) ===
+backend/tmp/
+backend/server
 
-# Django static/media
-media/
-staticfiles/
+# === V2 Frontend (SvelteKit) ===
+frontend/node_modules/
+frontend/.svelte-kit/
+frontend/build/
 
-# Frontend dependencies/build cache
-frontend/**/node_modules/
-frontend/**/.vite/
-
-# IDE / tools
-.idea/
-.vscode/
-.claude/
-
-# Terraform
+# === Infrastructure ===
 deploy/terraform/.terraform/
 deploy/terraform/.terraform.lock.hcl
 deploy/terraform/terraform.tfstate*
 deploy/terraform/terraform.tfvars
-
-# Ansible
 deploy/ansible/group_vars/jetistik.yml
+
+# === Environment ===
+.env
+.env.prod
+.env.local
+
+# === IDE / Tools ===
+.idea/
+.vscode/
+.claude/
+
+# === Archives ===
+*.zip
+*.sqlite3

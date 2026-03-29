@@ -1,0 +1,186 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jetistik</title>
+    <meta name="description" content="Jetistik — проверка и выпуск сертификатов." />
+    <meta property="og:title" content="Jetistik" />
+    <meta property="og:description" content="Проверка и выпуск сертификатов." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" crossorigin href="{% static 'landing/assets/index-DU1S_1t3.css' %}">
+    <style>
+      .jetistik-search-wrap {
+        margin-top: 12px;
+        display: flex;
+        justify-content: center;
+      }
+      .jetistik-search-form {
+        width: min(820px, 92vw);
+        display: grid;
+        grid-template-columns: minmax(220px, 38%) auto;
+        gap: 14px;
+        align-items: center;
+        justify-content: center;
+      }
+      .jetistik-search-input {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 0 14px;
+        font-size: 18px;
+        color: #0f172a;
+        outline: none;
+        background: #ffffff;
+      }
+      .jetistik-search-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+      }
+      .jetistik-search-btn {
+        height: 42px;
+        border: 0;
+        border-radius: 12px;
+        padding: 0 18px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
+        white-space: nowrap;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+      }
+      .jetistik-search-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 32px rgba(37, 99, 235, 0.34);
+        filter: brightness(1.02);
+      }
+      @media (max-width: 900px) {
+        .jetistik-search-form {
+          grid-template-columns: 1fr;
+        }
+        .jetistik-search-input,
+        .jetistik-search-btn {
+          font-size: 16px;
+          height: 42px;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="{% static 'landing/assets/index-C1N47sIX.js' %}"></script>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=108286386', 'ym');
+        ym(108286386, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/108286386" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      (function () {
+        if (window.location.pathname !== "/" && window.location.pathname !== "") {
+          return;
+        }
+
+        function createFallbackForm() {
+          var host = document.querySelector("form");
+          if (!host) return false;
+          if (host.dataset.jetistikFallback === "1") return true;
+          host.dataset.jetistikFallback = "1";
+          host.style.display = "none";
+          var wrapper = document.createElement("div");
+          wrapper.className = "jetistik-search-wrap";
+          wrapper.innerHTML = '' +
+            '<form action="/my" method="get" class="jetistik-search-form">' +
+            '  <input name="iin" type="text" inputmode="numeric" maxlength="12" pattern="\\d{12}" ' +
+            '    placeholder="Введите ИИН (12 цифр)" class="jetistik-search-input" data-jetistik-iin-input required />' +
+            '  <button type="submit" class="jetistik-search-btn"><span data-jetistik-btn-label>Показать сертификаты</span></button>' +
+            '</form>';
+          host.parentNode && host.parentNode.insertBefore(wrapper, host.nextSibling);
+          updateLocalizedTexts();
+          return true;
+        }
+
+        function updateLocalizedTexts() {
+          var btnLabel = document.querySelector("[data-jetistik-btn-label]");
+          var input = document.querySelector("[data-jetistik-iin-input]");
+          var langBtn = document.querySelector("button.bg-primary.text-primary-foreground");
+          var lang = (langBtn && langBtn.textContent || "").trim().toUpperCase();
+          var isKz = lang === "ҚАЗ";
+          if (btnLabel) {
+            btnLabel.textContent = isKz ? "Сертификаттарды көрсету" : "Показать сертификаты";
+          }
+          if (input) {
+            input.placeholder = isKz ? "ЖСН-ді еңгізіңіз (12 сан)" : "Введите ИИН (12 цифр)";
+          }
+        }
+
+        var tries = 0;
+        var timer = setInterval(function () {
+          tries += 1;
+          if (createFallbackForm() || tries > 40) clearInterval(timer);
+        }, 200);
+
+        setInterval(updateLocalizedTexts, 300);
+      })();
+    </script>
+    <script>
+      (function () {
+        var path = window.location.pathname;
+        if (path !== "/organizers/" && path !== "/organizers") {
+          return;
+        }
+
+        function bindOrganizerSubmit() {
+          var form = document.querySelector("form");
+          var fullName = document.querySelector("#fullName");
+          var organization = document.querySelector("#organization");
+          var phone = document.querySelector("#phone");
+          if (!form || !fullName || !organization || !phone) {
+            return false;
+          }
+          if (form.dataset.jetistikMailBound === "1") {
+            return true;
+          }
+          form.dataset.jetistikMailBound = "1";
+          form.addEventListener(
+            "submit",
+            function () {
+              fetch("/api/organizer-request/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fullName: fullName.value || "",
+                  organization: organization.value || "",
+                  phone: phone.value || ""
+                })
+              }).catch(function () {});
+            },
+            true
+          );
+          return true;
+        }
+
+        var tries = 0;
+        var timer = setInterval(function () {
+          tries += 1;
+          if (bindOrganizerSubmit() || tries > 60) clearInterval(timer);
+        }, 300);
+      })();
+    </script>
+  </body>
+</html>

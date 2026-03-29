@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Staff — Events{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Создать событие</h5>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-primary">Создать</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">События</h5>
+        <div class="list-group">
+          {% for e in events %}
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <a class="text-decoration-none text-reset flex-grow-1" href="{% url 'staff_event_detail' e.id %}">
+                  <div class="fw-semibold">{{ e.title }}</div>
+                  <div class="text-muted small">{{ e.city }}{% if e.date %} · {{ e.date }}{% endif %}</div>
+                </a>
+                <div class="text-end ms-2">
+                  <div class="text-muted small">#{{ e.id }}</div>
+                  <form method="post" action="{% url 'staff_event_delete' e.id %}" onsubmit="return confirm('Удалить событие? Все шаблоны, batch и сертификаты будут удалены.');">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger mt-1" type="submit">Удалить</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="text-muted">Пока нет событий.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
