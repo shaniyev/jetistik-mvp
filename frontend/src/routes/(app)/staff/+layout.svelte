@@ -1,13 +1,14 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { auth, currentUser } from "$lib/stores/auth";
+  import { t } from "$lib/i18n";
 
   let { children } = $props();
 
   const navItems = [
-    { href: "/staff/events", label: "Events", icon: "event" },
-    { href: "/staff/certificates", label: "Certificates", icon: "verified" },
-    { href: "/staff/audit", label: "Audit Log", icon: "receipt_long" },
+    { href: "/staff/events", labelKey: "staff.nav.events" as const, icon: "event" },
+    { href: "/staff/certificates", labelKey: "staff.nav.certificates" as const, icon: "verified" },
+    { href: "/staff/audit", labelKey: "staff.nav.audit" as const, icon: "receipt_long" },
   ];
 
   let currentPath = $derived($page.url.pathname);
@@ -21,8 +22,8 @@
         <span class="material-symbols-outlined active-nav-icon">architecture</span>
       </div>
       <div>
-        <h2 class="font-display text-lg font-extrabold tracking-tight text-on-surface">Staff Portal</h2>
-        <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">Management Console</p>
+        <h2 class="font-display text-lg font-extrabold tracking-tight text-on-surface">{$t("staff.portal")}</h2>
+        <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">{$t("staff.console")}</p>
       </div>
     </div>
 
@@ -37,7 +38,7 @@
               : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}"
         >
           <span class="material-symbols-outlined {isActive ? 'active-nav-icon' : ''}">{item.icon}</span>
-          <span>{item.label}</span>
+          <span>{$t(item.labelKey)}</span>
         </a>
       {/each}
     </nav>
@@ -48,14 +49,14 @@
         class="text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out"
       >
         <span class="material-symbols-outlined">settings</span>
-        <span>Settings</span>
+        <span>{$t("staff.nav.settings")}</span>
       </a>
       <button
         onclick={() => auth.logout()}
         class="text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out w-full text-left"
       >
         <span class="material-symbols-outlined">logout</span>
-        <span>Logout</span>
+        <span>{$t("nav.logout")}</span>
       </button>
     </div>
   </aside>

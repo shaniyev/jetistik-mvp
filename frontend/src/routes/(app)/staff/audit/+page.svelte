@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { api, type PaginatedResponse } from "$lib/api/client";
   import DataTable from "$lib/components/DataTable.svelte";
+  import { t } from "$lib/i18n";
 
   interface AuditLog {
     id: number;
@@ -41,12 +42,12 @@
 
   onMount(loadLogs);
 
-  const columns = [
-    { key: "time", label: "Time" },
-    { key: "actor", label: "Actor" },
-    { key: "action", label: "Action" },
-    { key: "object", label: "Object" },
-  ];
+  let columns = $derived([
+    { key: "time", label: $t("common.time") },
+    { key: "actor", label: $t("common.actor") },
+    { key: "action", label: $t("common.action") },
+    { key: "object", label: $t("common.object") },
+  ]);
 
   const actionOptions = [
     "", "event.create", "event.update", "event.delete",
@@ -58,8 +59,8 @@
 
 <div class="space-y-6">
   <div>
-    <h1 class="font-display text-2xl font-bold text-on-surface">Audit Log</h1>
-    <p class="text-sm text-on-surface-variant mt-1">Activity history for your organization</p>
+    <h1 class="font-display text-2xl font-bold text-on-surface">{$t("staff.audit.title")}</h1>
+    <p class="text-sm text-on-surface-variant mt-1">{$t("staff.audit.subtitle")}</p>
   </div>
 
   <!-- Filter -->
@@ -70,14 +71,14 @@
       class="px-3 py-2 rounded-md bg-surface-lowest text-on-surface text-sm
              focus:outline-none focus:ring-2 focus:ring-primary/30"
     >
-      <option value="">All actions</option>
+      <option value="">{$t("staff.audit.allActions")}</option>
       {#each actionOptions.filter(Boolean) as action}
         <option value={action}>{formatAction(action)}</option>
       {/each}
     </select>
   </div>
 
-  <DataTable {columns} data={logs} {loading} empty="No audit logs yet.">
+  <DataTable {columns} data={logs} {loading} empty={$t("staff.audit.empty")}>
     {#snippet row(log: AuditLog)}
       <tr class="hover:bg-surface-low/50 transition-colors">
         <td class="px-4 py-3 text-xs text-on-surface-variant whitespace-nowrap">
@@ -104,21 +105,21 @@
 
   {#if total > perPage}
     <div class="flex items-center justify-between text-sm text-on-surface-variant">
-      <span>Page {currentPage} of {Math.ceil(total / perPage)}</span>
+      <span>{$t("staff.audit.page_of")} {currentPage} / {Math.ceil(total / perPage)}</span>
       <div class="flex gap-2">
         <button
           disabled={currentPage <= 1}
           onclick={() => { currentPage--; loadLogs(); }}
           class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
         >
-          Previous
+          {$t("common.previous")}
         </button>
         <button
           disabled={currentPage * perPage >= total}
           onclick={() => { currentPage++; loadLogs(); }}
           class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
         >
-          Next
+          {$t("common.next")}
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { api, ApiError } from "$lib/api/client";
+  import { t } from "$lib/i18n";
   import StatusBadge from "$lib/components/StatusBadge.svelte";
 
   interface Batch {
@@ -77,16 +78,16 @@
 </script>
 
 {#if loading}
-  <div class="text-center py-12 text-on-surface-variant">Loading batch...</div>
+  <div class="text-center py-12 text-on-surface-variant">{$t("staff.batch.loading")}</div>
 {:else if batch}
   <div class="max-w-2xl space-y-6">
     <div>
       <a href="/staff/events/{eventId}" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
-        &larr; Back to event
+        &larr; {$t("staff.batch.back_to_event")}
       </a>
-      <h1 class="font-display text-2xl font-bold text-on-surface mt-2">Column Mapping</h1>
+      <h1 class="font-display text-2xl font-bold text-on-surface mt-2">{$t("staff.mapping.title")}</h1>
       <p class="text-sm text-on-surface-variant mt-1">
-        Map CSV/XLSX columns to template tokens. {batch.rows_total} rows found.
+        {$t("staff.batch.map_hint")} {batch.rows_total} {$t("staff.batch.rows_found")}
         <StatusBadge status={batch.status} />
       </p>
     </div>
@@ -97,9 +98,9 @@
 
     <div class="bg-surface-lowest rounded-lg p-6 space-y-4">
       <div class="grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm font-medium text-on-surface-variant">
-        <span>Template Token</span>
+        <span>{$t("staff.mapping.templateToken")}</span>
         <span></span>
-        <span>CSV/XLSX Column</span>
+        <span>{$t("staff.mapping.csvColumn")}</span>
       </div>
 
       {#each templateTokens as token}
@@ -115,7 +116,7 @@
             class="w-full px-3 py-2.5 rounded-md bg-surface text-on-surface text-sm
                    focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
           >
-            <option value="">— not mapped —</option>
+            <option value="">{$t("staff.mapping.notMapped")}</option>
             {#each batch.tokens ?? [] as col}
               <option value={col}>{col}</option>
             {/each}
@@ -132,24 +133,24 @@
                bg-gradient-to-br from-primary to-primary-container text-on-primary
                hover:shadow-lg disabled:opacity-50 transition-all"
       >
-        {saving ? "Saving..." : "Save Mapping"}
+        {saving ? $t("staff.batch.saving") : $t("staff.mapping.save")}
       </button>
       {#if batch.mapping && Object.keys(batch.mapping).length > 0}
         <a
           href="/staff/events/{eventId}/batches/{batchId}/generate"
           class="px-6 py-2.5 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
         >
-          Generate
+          {$t("staff.mapping.generate")}
         </a>
       {/if}
       <a
         href="/staff/events/{eventId}"
         class="px-6 py-2.5 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"
       >
-        Cancel
+        {$t("common.cancel")}
       </a>
     </div>
   </div>
 {:else}
-  <div class="text-center py-12 text-error">Batch not found</div>
+  <div class="text-center py-12 text-error">{$t("staff.mapping.batchNotFound")}</div>
 {/if}

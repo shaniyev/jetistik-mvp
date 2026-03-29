@@ -3,6 +3,7 @@
   import { api } from '$lib/api/client';
   import DataTable from '$lib/components/DataTable.svelte';
   import StatusBadge from '$lib/components/StatusBadge.svelte';
+  import { t } from '$lib/i18n';
 
   let certs = $state<any[]>([]);
   let loading = $state(true);
@@ -11,14 +12,14 @@
   let total = $state(0);
   const perPage = 20;
 
-  const columns = [
-    { key: 'code', label: 'Code' },
-    { key: 'name', label: 'Name' },
+  let columns = $derived([
+    { key: 'code', label: $t('common.code') },
+    { key: 'name', label: $t('common.name') },
     { key: 'iin', label: 'IIN' },
-    { key: 'status', label: 'Status' },
-    { key: 'created_at', label: 'Created' },
-    { key: 'actions', label: 'Actions', class: 'text-right' },
-  ];
+    { key: 'status', label: $t('common.status') },
+    { key: 'created_at', label: $t('common.created') },
+    { key: 'actions', label: $t('common.actions'), class: 'text-right' },
+  ]);
 
   let totalPages = $derived(Math.ceil(total / perPage));
 
@@ -43,7 +44,7 @@
   }
 
   async function revoke(cert: any) {
-    const reason = prompt('Reason for revocation:');
+    const reason = prompt($t('admin.certs.revoke_reason'));
     if (reason === null) return;
     try {
       await api.post(`/api/v1/staff/certificates/${cert.id}/revoke`, { reason });
@@ -59,12 +60,12 @@
 <header class="flex justify-between items-end mb-10">
   <div class="space-y-1">
     <nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant/60 gap-2 mb-2">
-      <a class="hover:text-primary transition-colors" href="/admin">Admin</a>
+      <a class="hover:text-primary transition-colors" href="/admin">{$t("admin.breadcrumb")}</a>
       <span>/</span>
-      <span class="text-on-surface-variant">Certificates</span>
+      <span class="text-on-surface-variant">{$t("admin.certs.title")}</span>
     </nav>
-    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-display">Certificates</h1>
-    <p class="text-on-surface-variant max-w-2xl">Browse and manage all issued certificates. Total: {total}</p>
+    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-display">{$t("admin.certs.title")}</h1>
+    <p class="text-on-surface-variant max-w-2xl">{$t("admin.certs.subtitle")} Total: {total}</p>
   </div>
 </header>
 
@@ -89,7 +90,7 @@
         onclick={() => revoke(cert)}
         disabled={cert.status === 'revoked'}
         class="p-2 text-outline hover:text-error hover:bg-error-container/30 rounded-lg transition-all disabled:opacity-30"
-        title={cert.status === 'revoked' ? 'Already revoked' : 'Revoke'}
+        title={cert.status === 'revoked' ? $t('admin.certs.alreadyRevoked') : $t('staff.certs.revoke')}
       >
         <span class="material-symbols-outlined">block</span>
       </button>
@@ -102,12 +103,12 @@
   data={certs}
   {loading}
   {row}
-  empty="No certificates found"
+  empty={$t("admin.certs.empty")}
 />
 
 {#if total > 0}
   <footer class="px-6 py-4 bg-surface-container-high/30 border-t border-outline-variant/10 flex items-center justify-between -mt-[1px] rounded-b-2xl">
-    <p class="text-xs text-on-surface-variant">Showing {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} of {total} entries</p>
+    <p class="text-xs text-on-surface-variant">{$t("common.showing")} {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} {$t("common.of")} {total} {$t("admin.certs.entries")}</p>
     <div class="flex items-center gap-1">
       <button disabled={page <= 1} onclick={() => { page--; load(); }} class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30">
         <span class="material-symbols-outlined text-[18px]">chevron_left</span>

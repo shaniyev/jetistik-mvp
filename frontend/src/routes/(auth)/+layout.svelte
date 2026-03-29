@@ -1,4 +1,5 @@
 <script>
+  import { t } from "$lib/i18n";
   let { children } = $props();
 </script>
 
@@ -27,7 +28,7 @@
         Jetistik
       </a>
       <div class="flex items-center gap-4">
-        <span class="text-xs font-body font-semibold text-on-surface-variant tracking-wider uppercase">Merit Ledger</span>
+        <span class="text-xs font-body font-semibold text-on-surface-variant tracking-wider uppercase">{$t("auth.meritLedger")}</span>
       </div>
     </div>
   </header>
@@ -44,7 +45,7 @@
         &copy; 2024 Jetistik Certificate Platform. All rights reserved.
       </p>
       <div class="flex gap-6">
-        <a class="text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors" href="/verify">Verification</a>
+        <a class="text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors" href="/verify">{$t("nav.verification")}</a>
       </div>
     </div>
   </footer>

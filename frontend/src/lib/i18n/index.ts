@@ -5,7 +5,7 @@ import ru from "./ru";
 import en from "./en";
 
 export type Language = "kz" | "ru" | "en";
-export type TranslationKey = keyof typeof kz;
+export type TranslationKey = keyof typeof en;
 
 const translations: Record<Language, Record<string, string>> = { kz, ru, en };
 

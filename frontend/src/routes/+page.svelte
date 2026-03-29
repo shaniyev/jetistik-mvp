@@ -142,7 +142,7 @@
         </div>
         {#if loggedIn}
           <a href={getDashboardPath(userRole)} class="bg-primary text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm hover:opacity-90 transition-all active:scale-95">
-            Dashboard
+            {$t("landing.dashboard")}
           </a>
         {:else}
           <a href="/login" class="hidden sm:inline-flex text-sm font-semibold text-slate-600 hover:bg-slate-50/50 px-4 py-2 rounded-lg transition-all active:scale-95">
@@ -254,7 +254,7 @@
               </div>
               <div>
                 <p class="text-xs font-bold text-on-surface">{$t("landing.hero.verifiedSystem")}</p>
-                <p class="text-[10px] text-on-surface-variant">QR-Protected</p>
+                <p class="text-[10px] text-on-surface-variant">{$t("landing.qrProtected")}</p>
               </div>
             </div>
           </div>

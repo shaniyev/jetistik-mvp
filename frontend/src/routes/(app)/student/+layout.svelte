@@ -21,10 +21,10 @@
 
       <!-- Desktop Links -->
       <div class="hidden md:flex gap-8 items-center font-display font-semibold tracking-tight">
-        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">How it works</a>
-        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">FAQ</a>
-        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">For Organizers</a>
-        <a class="text-blue-600 border-b-2 border-blue-600" href="/student">Dashboard</a>
+        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">{$t("student.layout.howItWorks")}</a>
+        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">{$t("student.layout.faq")}</a>
+        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">{$t("student.layout.forOrganizers")}</a>
+        <a class="text-blue-600 border-b-2 border-blue-600" href="/student">{$t("student.layout.dashboard")}</a>
       </div>
 
       <div class="flex items-center gap-4">

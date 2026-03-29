@@ -1,6 +1,7 @@
 <script lang="ts">
   import StatusBadge from '$lib/components/StatusBadge.svelte';
   import { page } from '$app/stores';
+  import { t } from '$lib/i18n';
 
   let loading = $state(true);
   let result = $state<any>(null);
@@ -68,12 +69,12 @@
       <a href="/" class="inline-block">
         <h1 class="font-display text-3xl font-bold text-on-surface">Jetistik</h1>
       </a>
-      <p class="text-sm text-on-surface-variant mt-1">Certificate Verification</p>
+      <p class="text-sm text-on-surface-variant mt-1">{$t("verify.title")}</p>
     </div>
 
     {#if loading}
       <div class="bg-surface-lowest rounded-lg p-12 shadow-[0_4px_40px_rgba(0,74,198,0.04)] text-center">
-        <p class="text-on-surface-variant">Loading...</p>
+        <p class="text-on-surface-variant">{$t("verify.loading")}</p>
       </div>
 
     {:else if isIIN}
@@ -81,7 +82,7 @@
       <div class="bg-surface-lowest rounded-lg p-6 shadow-[0_4px_40px_rgba(0,74,198,0.04)]">
         <div class="flex items-center justify-between mb-6">
           <div>
-            <p class="text-sm text-on-surface-variant">Certificates for IIN</p>
+            <p class="text-sm text-on-surface-variant">{$t("verify.certificatesForIIN")}</p>
             <p class="font-mono text-lg font-semibold text-on-surface mt-1">{maskIIN(currentCode)}</p>
           </div>
           <div class="flex gap-2">
@@ -93,7 +94,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
-                Download All
+                {$t("verify.downloadAll")}
               </a>
             {/if}
             <a
@@ -103,7 +104,7 @@
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
               </svg>
-              Change IIN
+              {$t("verify.changeIIN")}
             </a>
           </div>
         </div>
@@ -115,7 +116,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
               </svg>
             </div>
-            <p class="text-on-surface-variant">No certificates found for this IIN</p>
+            <p class="text-on-surface-variant">{$t("verify.noCertsFound")}</p>
           </div>
         {:else}
           <div class="space-y-3">
@@ -151,7 +152,7 @@
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                     </svg>
-                    Verify
+                    {$t("verify.verify")}
                   </a>
                 </div>
               </div>
@@ -169,7 +170,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 class="font-display text-xl font-semibold text-on-surface">Not Found</h2>
+          <h2 class="font-display text-xl font-semibold text-on-surface">{$t("verify.notFoundTitle")}</h2>
           <p class="text-sm text-on-surface-variant">
             Certificate with code <code class="font-mono bg-surface-low px-1.5 py-0.5 rounded">{currentCode}</code> was not found.
           </p>
@@ -186,20 +187,20 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
             </svg>
           </div>
-          <span class="inline-block bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Valid / Жарамды</span>
+          <span class="inline-block bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">{$t("verify.valid")}</span>
         </div>
 
         <div class="p-8 space-y-0">
           <!-- Name -->
           <div class="text-center pb-4 mb-4" style="border-bottom: 1px solid var(--color-surface-high);">
-            <p class="text-xs text-on-surface-variant uppercase tracking-wider mb-1">Recipient / Алушы</p>
+            <p class="text-xs text-on-surface-variant uppercase tracking-wider mb-1">{$t("verify.recipient")}</p>
             <p class="font-display text-xl font-bold text-on-surface">{result.name}</p>
           </div>
 
           <!-- IIN -->
           {#if result.iin}
             <div class="flex justify-between py-2.5">
-              <span class="text-sm text-on-surface-variant">ЖСН / IIN</span>
+              <span class="text-sm text-on-surface-variant">{$t("verify.iinLabel")}</span>
               <span class="text-sm font-mono font-medium text-on-surface">{maskIIN(result.iin)}</span>
             </div>
           {/if}
@@ -207,7 +208,7 @@
           <!-- Organization -->
           {#if result.org_name}
             <div class="flex justify-between py-2.5">
-              <span class="text-sm text-on-surface-variant">Ұйым / Организация</span>
+              <span class="text-sm text-on-surface-variant">{$t("verify.orgLabel")}</span>
               <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.org_name}</span>
             </div>
           {/if}
@@ -215,7 +216,7 @@
           <!-- Event -->
           {#if result.event_title}
             <div class="flex justify-between py-2.5">
-              <span class="text-sm text-on-surface-variant">Іс-шара / Мероприятие</span>
+              <span class="text-sm text-on-surface-variant">{$t("verify.eventLabel")}</span>
               <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.event_title}</span>
             </div>
           {/if}
@@ -224,43 +225,43 @@
           {#if result.payload}
             {#if result.payload.school}
               <div class="flex justify-between py-2.5">
-                <span class="text-sm text-on-surface-variant">Мектеп / Школа</span>
+                <span class="text-sm text-on-surface-variant">{$t("verify.schoolLabel")}</span>
                 <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.payload.school}</span>
               </div>
             {/if}
             {#if result.payload.class}
               <div class="flex justify-between py-2.5">
-                <span class="text-sm text-on-surface-variant">Сынып / Класс</span>
+                <span class="text-sm text-on-surface-variant">{$t("verify.classLabel")}</span>
                 <span class="text-sm font-medium text-on-surface">{result.payload.class}</span>
               </div>
             {/if}
             {#if result.payload.text}
               <div class="flex justify-between py-2.5">
-                <span class="text-sm text-on-surface-variant">Сипаттама / Описание</span>
+                <span class="text-sm text-on-surface-variant">{$t("verify.descriptionLabel")}</span>
                 <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.payload.text}</span>
               </div>
             {/if}
             {#if result.payload.diplom}
               <div class="flex justify-between py-2.5">
-                <span class="text-sm text-on-surface-variant">Түрі / Тип</span>
+                <span class="text-sm text-on-surface-variant">{$t("verify.typeLabel")}</span>
                 <span class="text-sm font-medium text-on-surface">{result.payload.diplom}</span>
               </div>
             {/if}
             {#if result.payload.id}
               <div class="flex justify-between py-2.5">
-                <span class="text-sm text-on-surface-variant">Нөмірі / Номер</span>
+                <span class="text-sm text-on-surface-variant">{$t("verify.numberLabel")}</span>
                 <span class="text-sm font-mono font-medium text-on-surface">{result.payload.id}</span>
               </div>
             {/if}
             {#if result.payload.data || result.payload.event_date}
               <div class="flex justify-between py-2.5">
-                <span class="text-sm text-on-surface-variant">Күні / Дата</span>
+                <span class="text-sm text-on-surface-variant">{$t("verify.dateLabel")}</span>
                 <span class="text-sm font-medium text-on-surface">{result.payload.data || result.payload.event_date}</span>
               </div>
             {/if}
             {#if result.payload.event_city}
               <div class="flex justify-between py-2.5">
-                <span class="text-sm text-on-surface-variant">Қала / Город</span>
+                <span class="text-sm text-on-surface-variant">{$t("verify.cityLabel")}</span>
                 <span class="text-sm font-medium text-on-surface">{result.payload.event_city}</span>
               </div>
             {/if}
@@ -269,13 +270,13 @@
           <!-- Dates & code -->
           <div class="mt-4 pt-4" style="border-top: 1px solid var(--color-surface-high);">
             <div class="flex justify-between py-2">
-              <span class="text-sm text-on-surface-variant">Берілген / Выдан</span>
+              <span class="text-sm text-on-surface-variant">{$t("verify.issuedLabel")}</span>
               <span class="text-sm font-medium text-on-surface">
                 {new Date(result.created_at).toLocaleDateString()}
               </span>
             </div>
             <div class="flex justify-between py-2">
-              <span class="text-sm text-on-surface-variant">Код</span>
+              <span class="text-sm text-on-surface-variant">{$t("verify.codeLabel")}</span>
               <span class="text-xs font-mono text-on-surface-variant">{result.code}</span>
             </div>
           </div>
@@ -289,7 +290,7 @@
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
-              Жүктеу / Скачать PDF
+              {$t("verify.downloadPdf")}
             </a>
           </div>
         </div>
@@ -304,18 +305,18 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
             </svg>
           </div>
-          <h2 class="font-display text-xl font-semibold text-error">Revoked Certificate</h2>
-          <p class="text-sm text-on-surface-variant">This certificate has been revoked.</p>
+          <h2 class="font-display text-xl font-semibold text-error">{$t("verify.revokedTitle")}</h2>
+          <p class="text-sm text-on-surface-variant">{$t("verify.revokedDesc")}</p>
           {#if result.revoked_reason}
             <p class="text-sm text-on-surface-variant">Reason: {result.revoked_reason}</p>
           {/if}
           <div class="space-y-2 text-left mt-4">
             <div class="flex justify-between py-2">
-              <span class="text-sm text-on-surface-variant">Recipient</span>
+              <span class="text-sm text-on-surface-variant">{$t("verify.recipientLabel")}</span>
               <span class="text-sm font-medium text-on-surface">{result.name}</span>
             </div>
             <div class="flex justify-between py-2">
-              <span class="text-sm text-on-surface-variant">Code</span>
+              <span class="text-sm text-on-surface-variant">{$t("verify.codeSmall")}</span>
               <span class="text-sm font-mono text-on-surface-variant">{result.code}</span>
             </div>
           </div>
@@ -324,7 +325,7 @@
     {/if}
 
     <p class="text-center text-xs text-on-surface-variant mt-6">
-      Powered by <a href="/" class="text-primary hover:underline">Jetistik</a>
+      {$t("verify.poweredBy")} <a href="/" class="text-primary hover:underline">Jetistik</a>
     </p>
   </div>
 </div>

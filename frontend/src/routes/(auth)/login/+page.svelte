@@ -136,7 +136,7 @@
   <div class="mt-8 text-center">
     <div class="inline-flex items-center gap-2 px-4 py-2 bg-surface-high/50 rounded-full">
       <span class="material-symbols-outlined text-xs text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
-      <span class="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Verified Certificate Infrastructure</span>
+      <span class="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">{$t("auth.verifiedInfra")}</span>
     </div>
   </div>
 </div>

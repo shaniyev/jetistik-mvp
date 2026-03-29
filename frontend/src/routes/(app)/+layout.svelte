@@ -3,6 +3,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { auth, isAuthenticated, isLoading, currentUser } from "$lib/stores/auth";
+  import { t } from "$lib/i18n";
 
   let { children } = $props();
   let initialized = $state(false);
@@ -41,7 +42,7 @@
 
 {#if !initialized}
   <div class="min-h-screen bg-surface flex items-center justify-center">
-    <div class="text-on-surface-variant">Loading...</div>
+    <div class="text-on-surface-variant">{$t("app.loading")}</div>
   </div>
 {:else}
   {@render children()}

@@ -45,10 +45,10 @@
 <div class="w-full max-w-md">
   <div class="text-center mb-6">
     <h2 class="font-display text-2xl font-bold text-on-surface">
-      Ұйым тіркеу / Регистрация организации
+      {$t("registerOrg.title")}
     </h2>
     <p class="text-sm text-on-surface-variant mt-2">
-      Сертификаттарды басқару үшін тіркеліңіз
+      {$t("registerOrg.subtitle")}
     </p>
   </div>
 
@@ -61,7 +61,7 @@
   <form onsubmit={handleSubmit} class="space-y-4">
     <div>
       <label for="orgName" class="block text-sm font-medium text-on-surface mb-1">
-        Ұйым атауы / Название организации
+        {$t("registerOrg.orgName")}
       </label>
       <input
         id="orgName"
@@ -69,13 +69,13 @@
         bind:value={orgName}
         required
         class="w-full px-4 py-2.5 rounded-lg bg-surface-lowest text-on-surface text-sm border-0 border-b-2 border-outline-variant focus:border-primary outline-none transition-colors"
-        placeholder="Astana Daryny"
+        placeholder={$t("registerOrg.orgPlaceholder")}
       />
     </div>
 
     <div>
       <label for="username" class="block text-sm font-medium text-on-surface mb-1">
-        Пайдаланушы аты / Имя пользователя
+        {$t("registerOrg.username")}
       </label>
       <input
         id="username"
@@ -89,7 +89,7 @@
 
     <div>
       <label for="email" class="block text-sm font-medium text-on-surface mb-1">
-        Email
+        {$t("registerOrg.email")}
       </label>
       <input
         id="email"
@@ -102,7 +102,7 @@
 
     <div>
       <label for="password" class="block text-sm font-medium text-on-surface mb-1">
-        Құпия сөз / Пароль
+        {$t("registerOrg.password")}
       </label>
       <input
         id="password"
@@ -119,14 +119,14 @@
       disabled={loading}
       class="w-full py-3 rounded-lg bg-gradient-to-br from-primary to-primary-container text-on-primary font-display font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
     >
-      {loading ? 'Тіркелуде...' : 'Тіркелу / Зарегистрироваться'}
+      {loading ? $t('registerOrg.submitting') : $t('registerOrg.submit')}
     </button>
   </form>
 
   <p class="text-center text-sm text-on-surface-variant mt-6">
-    Аккаунт бар ма? <a href="/login" class="text-primary hover:underline">Кіру / Войти</a>
+    {$t("registerOrg.hasAccount")} <a href="/login" class="text-primary hover:underline">{$t("registerOrg.loginLink")}</a>
   </p>
   <p class="text-center text-sm text-on-surface-variant mt-2">
-    <a href="/register" class="text-primary hover:underline">Оқушы/Мұғалім ретінде тіркелу</a>
+    <a href="/register" class="text-primary hover:underline">{$t("registerOrg.studentTeacherLink")}</a>
   </p>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { api, ApiError, type PaginatedResponse } from "$lib/api/client";
+  import { t } from "$lib/i18n";
 
   interface Event {
     id: number;
@@ -18,11 +19,11 @@
   const perPage = 20;
   let activeFilter = $state("all");
 
-  const filters = [
-    { key: "all", label: "Все" },
-    { key: "active", label: "Активные" },
-    { key: "completed", label: "Завершенные" },
-    { key: "draft", label: "Черновики" },
+  const filterKeys = [
+    { key: "all", labelKey: "staff.events.all" as const },
+    { key: "active", labelKey: "staff.events.active" as const },
+    { key: "completed", labelKey: "staff.events.completed" as const },
+    { key: "draft", labelKey: "staff.events.draft" as const },
   ];
 
   async function loadEvents() {
@@ -39,12 +40,12 @@
   }
 
   async function deleteEvent(id: number) {
-    if (!confirm("Delete this event? This cannot be undone.")) return;
+    if (!confirm($t("staff.events.deleteConfirm"))) return;
     try {
       await api.delete(`/api/v1/staff/events/${id}`);
       loadEvents();
     } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to delete event");
+      alert(err instanceof ApiError ? err.message : $t("staff.events.deleteFailed"));
     }
   }
 
@@ -90,8 +91,8 @@
 <!-- Header / Top Bar -->
 <header class="h-20 flex items-center justify-between px-10 bg-surface/80 backdrop-blur-xl sticky top-0 z-30">
   <div>
-    <h1 class="text-2xl font-display font-extrabold tracking-tight text-on-surface">Events</h1>
-    <p class="text-sm text-on-surface-variant font-medium">Управление мероприятиями и выпусками сертификатов</p>
+    <h1 class="text-2xl font-display font-extrabold tracking-tight text-on-surface">{$t("staff.events.title")}</h1>
+    <p class="text-sm text-on-surface-variant font-medium">{$t("staff.events.subtitle")}</p>
   </div>
   <div class="flex items-center gap-6">
     <a
@@ -99,7 +100,7 @@
       class="bg-gradient-to-br from-primary to-primary-container text-white px-6 py-2.5 rounded-xl font-display font-bold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform"
     >
       <span class="material-symbols-outlined text-lg">add</span>
-      Создать мероприятие
+      {$t("staff.events.create")}
     </a>
   </div>
 </header>
@@ -108,7 +109,7 @@
 <div class="px-10 py-8 space-y-8">
   <!-- Status Filter Pill Bar -->
   <div class="flex items-center gap-2 bg-surface-container-low p-1.5 rounded-2xl w-fit">
-    {#each filters as filter}
+    {#each filterKeys as filter}
       <button
         onclick={() => { activeFilter = filter.key; }}
         class="px-6 py-2 text-sm rounded-xl font-semibold transition-colors
@@ -116,14 +117,14 @@
             ? 'bg-white text-primary font-bold shadow-sm'
             : 'text-on-surface-variant hover:text-on-surface'}"
       >
-        {filter.label}
+        {$t(filter.labelKey)}
       </button>
     {/each}
   </div>
 
   <!-- Events Grid -->
   {#if loading}
-    <div class="text-center py-12 text-on-surface-variant">Loading events...</div>
+    <div class="text-center py-12 text-on-surface-variant">{$t("staff.events.loading")}</div>
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {#each filteredEvents as event (event.id)}
@@ -151,11 +152,11 @@
           </div>
           <div class="mt-auto pt-6 border-t border-surface-container-low grid grid-cols-2 gap-4">
             <div>
-              <p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Дата</p>
+              <p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">{$t("common.date")}</p>
               <p class="text-sm font-semibold text-on-surface">{formatDate(event.date)}</p>
             </div>
             <div>
-              <p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">Создано</p>
+              <p class="text-[10px] text-outline font-bold uppercase tracking-wider mb-1">{$t("common.created")}</p>
               <p class="text-sm font-semibold text-on-surface">{formatDate(event.created_at)}</p>
             </div>
           </div>
@@ -170,7 +171,7 @@
         <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-outline group-hover:bg-primary group-hover:text-white transition-all">
           <span class="material-symbols-outlined">add</span>
         </div>
-        <p class="text-sm font-bold text-on-surface-variant group-hover:text-primary">Добавить новое событие</p>
+        <p class="text-sm font-bold text-on-surface-variant group-hover:text-primary">{$t("staff.events.addNew")}</p>
       </a>
     </div>
 
@@ -178,19 +179,19 @@
     {#if events.length > 0}
       <div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm border border-outline-variant/10 mt-12">
         <div class="p-6 border-b border-surface-container flex items-center justify-between">
-          <h2 class="font-display font-bold text-on-surface">Недавние активности</h2>
+          <h2 class="font-display font-bold text-on-surface">{$t("staff.events.recentActivity")}</h2>
           <a href="/staff/events" class="text-primary text-xs font-bold uppercase tracking-widest hover:underline">
-            Просмотреть все
+            {$t("staff.events.filter.all")}
           </a>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-surface-container-low/50">
-                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Событие</th>
-                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Статус</th>
-                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Город</th>
-                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">Дата</th>
+                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">{$t("common.event")}</th>
+                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">{$t("common.status")}</th>
+                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">{$t("common.city")}</th>
+                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-outline">{$t("common.date")}</th>
                 <th class="px-6 py-4 text-right"></th>
               </tr>
             </thead>
@@ -228,21 +229,21 @@
     <!-- Pagination -->
     {#if total > perPage}
       <div class="flex items-center justify-between text-sm text-on-surface-variant">
-        <span>Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total}</span>
+        <span>{$t("common.showing")} {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} {$t("common.of")} {total}</span>
         <div class="flex gap-2">
           <button
             disabled={page <= 1}
             onclick={() => { page--; loadEvents(); }}
             class="px-4 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container-high disabled:opacity-50 transition-colors text-sm font-medium"
           >
-            Previous
+            {$t("common.previous")}
           </button>
           <button
             disabled={page * perPage >= total}
             onclick={() => { page++; loadEvents(); }}
             class="px-4 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container-high disabled:opacity-50 transition-colors text-sm font-medium"
           >
-            Next
+            {$t("common.next")}
           </button>
         </div>
       </div>

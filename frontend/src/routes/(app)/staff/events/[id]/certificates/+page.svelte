@@ -2,6 +2,7 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { api, ApiError, getAccessToken, type PaginatedResponse } from "$lib/api/client";
+  import { t } from "$lib/i18n";
   import StatusBadge from "$lib/components/StatusBadge.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import JSZip from "jszip";
@@ -41,7 +42,7 @@
   }
 
   async function revoke(id: number) {
-    const reason = prompt("Revoke reason:");
+    const reason = prompt($t("staff.certs.revokeReason"));
     if (!reason) return;
     try {
       await api.post(`/api/v1/staff/certificates/${id}/revoke`, { reason });
@@ -62,7 +63,7 @@
 
   async function downloadAll() {
     downloading = true;
-    downloadProgress = "Fetching certificates...";
+    downloadProgress = $t("staff.certs.fetching");
     try {
       const apiBase = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
       const token = getAccessToken();
@@ -84,7 +85,7 @@
       const zip = new JSZip();
       let done = 0;
       for (const cert of allCerts) {
-        downloadProgress = `Downloading ${done + 1} / ${allCerts.length}...`;
+        downloadProgress = `${$t("staff.certs.downloading")} ${done + 1} / ${allCerts.length}...`;
         try {
           const res = await fetch(`${apiBase}/api/v1/staff/certificates/${cert.id}/download`, {
             headers,
@@ -101,7 +102,7 @@
         done++;
       }
 
-      downloadProgress = "Creating ZIP...";
+      downloadProgress = $t("staff.certs.creating_zip");
       const zipBlob = await zip.generateAsync({ type: "blob" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(zipBlob);
@@ -120,24 +121,24 @@
 
   onMount(loadCerts);
 
-  const columns = [
-    { key: "name", label: "Name" },
+  let columns = $derived([
+    { key: "name", label: $t("common.name") },
     { key: "iin", label: "IIN" },
-    { key: "code", label: "Code" },
-    { key: "status", label: "Status" },
-    { key: "created_at", label: "Created" },
+    { key: "code", label: $t("common.code") },
+    { key: "status", label: $t("common.status") },
+    { key: "created_at", label: $t("common.created") },
     { key: "actions", label: "", class: "w-32" },
-  ];
+  ]);
 </script>
 
 <div class="space-y-6">
   <div class="flex items-start justify-between">
     <div>
       <a href="/staff/events/{eventId}" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
-        &larr; Back to event
+        &larr; {$t("staff.certs.back_to_event")}
       </a>
-      <h1 class="font-display text-2xl font-bold text-on-surface mt-2">Certificates</h1>
-      <p class="text-sm text-on-surface-variant mt-1">{total} total certificates</p>
+      <h1 class="font-display text-2xl font-bold text-on-surface mt-2">{$t("staff.certs.title")}</h1>
+      <p class="text-sm text-on-surface-variant mt-1">{total} {$t("staff.certs.total")}</p>
     </div>
     {#if total > 0}
       <button
@@ -150,7 +151,7 @@
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
         </svg>
-        {downloading ? downloadProgress : "Download All"}
+        {downloading ? downloadProgress : $t("staff.certs.downloadAll")}
       </button>
     {/if}
   </div>
@@ -159,7 +160,7 @@
     <div class="p-3 rounded-lg bg-error-container text-on-error-container text-sm">{error}</div>
   {/if}
 
-  <DataTable {columns} data={certs} {loading} empty="No certificates generated yet.">
+  <DataTable {columns} data={certs} {loading} empty={$t("staff.certs.empty")}>
     {#snippet row(cert: Certificate)}
       <tr class="hover:bg-surface-low/50 transition-colors">
         <td class="px-4 py-3 text-sm text-on-surface">{cert.name}</td>
@@ -182,11 +183,11 @@
             </a>
             {#if cert.status === "valid"}
               <button onclick={() => revoke(cert.id)} class="text-xs text-error hover:underline">
-                Revoke
+                {$t("staff.certs.revoke")}
               </button>
             {:else if cert.status === "revoked"}
               <button onclick={() => unrevoke(cert.id)} class="text-xs text-emerald-600 hover:underline">
-                Restore
+                {$t("staff.certs.restore")}
               </button>
             {/if}
           </div>
@@ -197,21 +198,21 @@
 
   {#if total > perPage}
     <div class="flex items-center justify-between text-sm text-on-surface-variant">
-      <span>Page {currentPage} of {Math.ceil(total / perPage)}</span>
+      <span>{$t("staff.certs.page_of")} {currentPage} / {Math.ceil(total / perPage)}</span>
       <div class="flex gap-2">
         <button
           disabled={currentPage <= 1}
           onclick={() => { currentPage--; loadCerts(); }}
           class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
         >
-          Previous
+          {$t("common.previous")}
         </button>
         <button
           disabled={currentPage * perPage >= total}
           onclick={() => { currentPage++; loadCerts(); }}
           class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
         >
-          Next
+          {$t("common.next")}
         </button>
       </div>
     </div>

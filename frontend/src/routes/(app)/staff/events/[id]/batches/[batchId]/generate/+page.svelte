@@ -2,6 +2,7 @@
   import { page } from "$app/stores";
   import { onMount, onDestroy } from "svelte";
   import { api, ApiError } from "$lib/api/client";
+  import { t } from "$lib/i18n";
 
   const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
@@ -175,7 +176,7 @@
 {#if loading}
   <div class="flex items-center justify-center py-24 text-on-surface-variant">
     <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span>
-    Loading...
+    {$t("common.loading")}
   </div>
 {:else if batch}
   <!-- Header Section -->
@@ -187,13 +188,13 @@
           class="inline-flex items-center text-primary hover:text-surface-tint transition-colors mb-2 text-sm font-medium group"
         >
           <span class="material-symbols-outlined text-sm mr-1 group-hover:-translate-x-1 transition-transform">arrow_back</span>
-          Вернуться к сопоставлению / Карталауга оралу
+          {$t("staff.generate.backToMapping")}
         </a>
         <h1 class="font-display text-3xl font-extrabold tracking-tight text-on-surface">
-          Генерация: Батч #{batch.id}
+          {$t("staff.generate.title")} #{batch.id}
         </h1>
         <p class="text-sm text-on-surface-variant mt-1">
-          Генерациялау: №{batch.id} топтама
+          {$t("staff.generate.title")} #{batch.id}
         </p>
       </div>
       <div class="flex items-center gap-3">
@@ -202,7 +203,7 @@
           class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface font-semibold text-sm flex items-center gap-2 hover:bg-surface-container-low transition-all active:scale-95"
         >
           <span class="material-symbols-outlined text-[20px]">refresh</span>
-          Обновить / Жанарту
+          {$t("staff.generate.refresh")}
         </button>
         {#if !generating && !completed}
           <button
@@ -210,7 +211,7 @@
             class="px-6 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform"
           >
             <span class="material-symbols-outlined text-[20px]">play_circle</span>
-            Запустить генерацию / Жіберу
+            {$t("staff.generate.start")}
           </button>
         {:else if completed}
           <a
@@ -218,7 +219,7 @@
             class="px-6 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform"
           >
             <span class="material-symbols-outlined text-[20px]">verified</span>
-            Просмотреть сертификаты
+            {$t("staff.generate.viewCerts")}
           </a>
         {:else}
           <button
@@ -226,7 +227,7 @@
             disabled
           >
             <span class="material-symbols-outlined text-[20px]">play_circle</span>
-            Запустить генерацию / Жіберу
+            {$t("staff.generate.start")}
           </button>
         {/if}
       </div>
@@ -245,8 +246,8 @@
       <div class="md:col-span-8 bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-outline-variant/5">
         <div class="flex justify-between items-start mb-10">
           <div>
-            <h3 class="font-display text-lg font-bold text-on-surface mb-1">Текущий прогресс</h3>
-            <p class="text-on-surface-variant text-xs uppercase tracking-widest font-medium">Агымдагы барысы</p>
+            <h3 class="font-display text-lg font-bold text-on-surface mb-1">{$t("staff.generate.progress")}</h3>
+            <p class="text-on-surface-variant text-xs uppercase tracking-widest font-medium">{$t("staff.generate.progress")}</p>
           </div>
           <div class="text-right">
             <span class="text-4xl font-display font-extrabold text-primary">{percentComplete()}%</span>
@@ -266,14 +267,14 @@
         <div class="flex justify-between text-sm">
           <span class="text-on-surface-variant font-medium">
             {#if generating && !completed}
-              Обработка сертификатов...
+              {$t("staff.generate.processing")}
             {:else if completed}
-              Генерация завершена
+              {$t("staff.generate.generation_completed")}
             {:else}
-              Готово к генерации
+              {$t("staff.generate.ready")}
             {/if}
           </span>
-          <span class="text-on-surface font-bold">{progress} из {total.toLocaleString()}</span>
+          <span class="text-on-surface font-bold">{progress} {$t("staff.generate.of")} {total.toLocaleString()}</span>
         </div>
       </div>
 
@@ -284,7 +285,7 @@
             <span class="material-symbols-outlined">all_inbox</span>
           </div>
           <div>
-            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Всего / Барлыгы</p>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">{$t("staff.generate.total")}</p>
             <p class="text-2xl font-display font-extrabold">{total.toLocaleString()}</p>
           </div>
         </div>
@@ -293,7 +294,7 @@
             <span class="material-symbols-outlined active-nav-icon">check_circle</span>
           </div>
           <div>
-            <p class="text-[10px] text-emerald-600 uppercase tracking-widest font-bold">Успешно / Сатті</p>
+            <p class="text-[10px] text-emerald-600 uppercase tracking-widest font-bold">{$t("staff.generate.ok")}</p>
             <p class="text-2xl font-display font-extrabold">{rowsOk.toLocaleString()}</p>
           </div>
         </div>
@@ -302,7 +303,7 @@
             <span class="material-symbols-outlined active-nav-icon">error</span>
           </div>
           <div>
-            <p class="text-[10px] text-error uppercase tracking-widest font-bold">Ошибки / Кателер</p>
+            <p class="text-[10px] text-error uppercase tracking-widest font-bold">{$t("staff.generate.failed")}</p>
             <p class="text-2xl font-display font-extrabold">{rowsFailed.toLocaleString()}</p>
           </div>
         </div>
@@ -314,21 +315,21 @@
       <div class="bg-surface-container-low rounded-3xl p-1 overflow-hidden">
         <div class="bg-surface-container-lowest rounded-[1.4rem] overflow-hidden">
           <div class="px-6 py-5 border-b border-outline-variant/10 flex justify-between items-center bg-white">
-            <h2 class="font-display font-bold text-on-surface">Журнал выполнения / Орындалу журналы</h2>
+            <h2 class="font-display font-bold text-on-surface">{$t("staff.generate.log")}</h2>
             {#if generating && !completed}
-              <span class="px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Live Updates</span>
+              <span class="px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">{$t("staff.generate.liveUpdates")}</span>
             {:else}
-              <span class="text-sm text-on-surface-variant">{logs.length} entries</span>
+              <span class="text-sm text-on-surface-variant">{logs.length} {$t("staff.generate.entries")}</span>
             {/if}
           </div>
           <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
             <table class="w-full text-left border-collapse">
               <thead class="sticky top-0 bg-surface-container-lowest">
                 <tr class="bg-surface-container-low/30">
-                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">ID</th>
-                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Получатель / Алушы</th>
-                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Статус / Куйі</th>
-                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest text-right">Время / Уакыты</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">{$t("common.id")}</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">{$t("staff.generate.recipient")}</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">{$t("common.status")}</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest text-right">{$t("staff.generate.time")}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-outline-variant/5">
@@ -359,7 +360,7 @@
           {#if logs.length > 10}
             <div class="px-6 py-4 bg-surface-container-low/20 border-t border-outline-variant/10 flex justify-center">
               <button class="text-primary font-bold text-xs uppercase tracking-widest hover:underline flex items-center gap-2">
-                Показать все записи / Барлык жазбаларды корсету
+                {$t("staff.generate.show_all")}
                 <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
               </button>
             </div>
@@ -369,5 +370,5 @@
     {/if}
   </div>
 {:else}
-  <div class="text-center py-12 text-error">Batch not found</div>
+  <div class="text-center py-12 text-error">{$t("staff.generate.not_found")}</div>
 {/if}

@@ -1,5 +1,6 @@
 <script lang="ts" generics="T">
   import type { Snippet } from "svelte";
+  import { t } from "$lib/i18n";
 
   interface Column {
     key: string;
@@ -15,7 +16,7 @@
     row: Snippet<[T, number]>;
   }
 
-  let { columns, data, loading = false, empty = "No data found.", row }: Props = $props();
+  let { columns, data, loading = false, empty = $t("common.no_data"), row }: Props = $props();
 </script>
 
 <div class="bg-surface-container-low rounded-2xl overflow-hidden ring-1 ring-outline-variant/10 shadow-sm">
@@ -35,7 +36,7 @@
           <td colspan={columns.length} class="px-6 py-12 text-center text-on-surface-variant">
             <div class="flex items-center justify-center gap-2">
               <span class="material-symbols-outlined animate-spin text-primary">progress_activity</span>
-              <span>Loading...</span>
+              <span>{$t("dataTable.loading")}</span>
             </div>
           </td>
         </tr>

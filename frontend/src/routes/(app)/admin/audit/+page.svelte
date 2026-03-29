@@ -3,6 +3,7 @@
   import { api } from '$lib/api/client';
   import DataTable from '$lib/components/DataTable.svelte';
   import StatusBadge from '$lib/components/StatusBadge.svelte';
+  import { t } from '$lib/i18n';
 
   let logs = $state<any[]>([]);
   let loading = $state(true);
@@ -11,12 +12,12 @@
   let actionFilter = $state('');
   const perPage = 20;
 
-  const columns = [
-    { key: 'time', label: 'Time' },
-    { key: 'actor', label: 'Actor' },
-    { key: 'action', label: 'Action' },
-    { key: 'object', label: 'Object' },
-  ];
+  let columns = $derived([
+    { key: 'time', label: $t('common.time') },
+    { key: 'actor', label: $t('common.actor') },
+    { key: 'action', label: $t('common.action') },
+    { key: 'object', label: $t('common.object') },
+  ]);
 
   const actions = ['', 'create_event', 'upload_template', 'upload_data', 'generate', 'revoke', 'unrevoke', 'certificate_edit', 'certificate_delete', 'batch_delete', 'mapping_update', 'delete_event'];
 
@@ -45,19 +46,19 @@
 <header class="flex justify-between items-end mb-10">
   <div class="space-y-1">
     <nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant/60 gap-2 mb-2">
-      <a class="hover:text-primary transition-colors" href="/admin">Admin</a>
+      <a class="hover:text-primary transition-colors" href="/admin">{$t("admin.breadcrumb")}</a>
       <span>/</span>
-      <span class="text-on-surface-variant">Audit Log</span>
+      <span class="text-on-surface-variant">{$t("admin.audit.title")}</span>
     </nav>
-    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-display">Audit Log</h1>
-    <p class="text-on-surface-variant max-w-2xl">Track all system actions and changes for compliance.</p>
+    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-display">{$t("admin.audit.title")}</h1>
+    <p class="text-on-surface-variant max-w-2xl">{$t("admin.audit.subtitle")}</p>
   </div>
   <select
     bind:value={actionFilter}
     onchange={applyFilter}
     class="px-4 py-2.5 rounded-lg bg-surface-container-lowest text-sm text-on-surface ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary/50 outline-none transition-all"
   >
-    <option value="">All Actions</option>
+    <option value="">{$t("admin.audit.allActions")}</option>
     {#each actions.filter(a => a) as action}
       <option value={action}>{action}</option>
     {/each}
@@ -73,11 +74,11 @@
   </tr>
 {/snippet}
 
-<DataTable {columns} data={logs} {loading} {row} empty="No audit logs found" />
+<DataTable {columns} data={logs} {loading} {row} empty={$t("admin.audit.empty")} />
 
 {#if total > 0}
   <footer class="px-6 py-4 bg-surface-container-high/30 border-t border-outline-variant/10 flex items-center justify-between -mt-[1px] rounded-b-2xl">
-    <p class="text-xs text-on-surface-variant">Showing {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} of {total} entries</p>
+    <p class="text-xs text-on-surface-variant">{$t("common.showing")} {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} {$t("common.of")} {total} {$t("admin.audit.entries")}</p>
     <div class="flex items-center gap-1">
       <button disabled={page <= 1} onclick={() => { page--; load(); }} class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30">
         <span class="material-symbols-outlined text-[18px]">chevron_left</span>

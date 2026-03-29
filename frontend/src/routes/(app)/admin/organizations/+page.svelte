@@ -191,7 +191,7 @@
 <header class="flex justify-between items-end mb-10">
   <div class="space-y-1">
     <nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant/60 gap-2 mb-2">
-      <a class="hover:text-primary transition-colors" href="/admin">Admin</a>
+      <a class="hover:text-primary transition-colors" href="/admin">{$t("admin.breadcrumb")}</a>
       <span>/</span>
       <span class="text-on-surface-variant">{$t("admin.organizations")}</span>
     </nav>
@@ -231,7 +231,7 @@
       class="px-4 py-2.5 bg-surface-container-low text-on-surface-variant rounded-lg border border-outline-variant/20 flex items-center gap-2 hover:bg-surface-container transition-colors text-sm font-medium"
     >
       <span class="material-symbols-outlined text-[18px]">file_download</span>
-      <span>Export CSV</span>
+      <span>{$t("admin.orgs.exportCsv")}</span>
     </button>
   </div>
 </section>
@@ -276,11 +276,11 @@
             bind:value={editStatus}
             class="px-2 py-1 rounded bg-surface-container-lowest text-sm text-on-surface border border-outline-variant focus:border-primary outline-none"
           >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="pending">Pending</option>
-            <option value="archived">Archived</option>
-            <option value="suspended">Suspended</option>
+            <option value="active">{$t("admin.orgs.status.active")}</option>
+            <option value="inactive">{$t("admin.orgs.status.inactive")}</option>
+            <option value="pending">{$t("admin.orgs.status.pending")}</option>
+            <option value="archived">{$t("admin.orgs.status.archived")}</option>
+            <option value="suspended">{$t("admin.orgs.status.suspended")}</option>
           </select>
         {:else}
           <StatusBadge status={org.status} />
@@ -410,11 +410,11 @@
 
   <div class="md:col-span-1 bg-gradient-to-br from-primary/5 to-primary-container/5 p-6 rounded-2xl ring-1 ring-primary/20 flex flex-col justify-between">
     <div>
-      <h3 class="text-sm font-bold text-on-surface mb-2">Need bulk import?</h3>
-      <p class="text-xs text-on-surface-variant leading-relaxed">Download our CSV template for faster organization onboarding and member mapping.</p>
+      <h3 class="text-sm font-bold text-on-surface mb-2">{$t("admin.orgs.bulk_import")}</h3>
+      <p class="text-xs text-on-surface-variant leading-relaxed">{$t("admin.orgs.bulk_import_desc")}</p>
     </div>
     <button class="mt-4 text-xs font-bold text-primary flex items-center gap-1 hover:underline">
-      Get Template <span class="material-symbols-outlined text-xs">arrow_forward</span>
+      {$t("admin.orgs.get_template")} <span class="material-symbols-outlined text-xs">arrow_forward</span>
     </button>
   </div>
 </section>

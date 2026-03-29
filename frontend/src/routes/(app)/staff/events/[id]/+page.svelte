@@ -2,6 +2,7 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { api, ApiError, type ApiResponse } from "$lib/api/client";
+  import { t } from "$lib/i18n";
 
   interface Event {
     id: number;
@@ -89,7 +90,7 @@
   }
 
   async function deleteTemplate() {
-    if (!confirm("Delete template? This cannot be undone.")) return;
+    if (!confirm($t("staff.event.deleteTemplateConfirm"))) return;
     try {
       await api.delete(`/api/v1/staff/events/${eventId}/template`);
       template = null;
@@ -122,7 +123,7 @@
   }
 
   async function deleteBatch(batchId: number) {
-    if (!confirm("Delete this batch? This cannot be undone.")) return;
+    if (!confirm($t("staff.event.deleteBatchConfirm"))) return;
     try {
       await api.delete(`/api/v1/staff/batches/${batchId}`);
       batches = batches.filter((b) => b.id !== batchId);
@@ -196,7 +197,7 @@
 {#if loading}
   <div class="flex items-center justify-center py-24 text-on-surface-variant">
     <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span>
-    Loading event...
+    {$t("staff.event.loading")}
   </div>
 {:else if event}
   <div class="p-6 lg:p-10 pb-32">
@@ -205,7 +206,7 @@
       <div class="space-y-1">
         <a href="/staff/events" class="flex items-center gap-2 text-primary font-semibold text-sm mb-2 hover:underline">
           <span class="material-symbols-outlined text-sm">arrow_back</span>
-          <span>Back to Events</span>
+          <span>{$t("staff.event.backToEvents")}</span>
         </a>
         <h1 class="font-display text-4xl font-extrabold tracking-tight text-on-surface">{event.title}</h1>
         {#if event.description}
@@ -218,14 +219,14 @@
           class="px-5 py-2.5 rounded-lg border border-outline-variant font-semibold text-sm hover:bg-surface-container transition-colors flex items-center gap-2"
         >
           <span class="material-symbols-outlined text-lg">edit</span>
-          Edit
+          {$t("staff.event.edit")}
         </button>
         <a
           href="/staff/events/{eventId}/certificates"
           class="px-5 py-2.5 rounded-lg bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm shadow-lg shadow-primary/20 flex items-center gap-2 active:scale-95 transition-transform"
         >
           <span class="material-symbols-outlined text-lg">download_for_offline</span>
-          Download All (ZIP)
+          {$t("staff.event.downloadAll")}
         </a>
       </div>
     </header>
@@ -237,10 +238,10 @@
     <!-- Edit Event Modal -->
     {#if editingEvent}
       <div class="mb-8 bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
-        <h3 class="font-display font-bold text-lg mb-4">Edit Event</h3>
+        <h3 class="font-display font-bold text-lg mb-4">{$t("staff.event.editEvent")}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Title</label>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">{$t("common.title")}</label>
             <input
               type="text"
               bind:value={editForm.title}
@@ -248,7 +249,7 @@
             />
           </div>
           <div>
-            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Date</label>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">{$t("common.date")}</label>
             <input
               type="text"
               bind:value={editForm.date}
@@ -257,7 +258,7 @@
             />
           </div>
           <div>
-            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">City</label>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">{$t("common.city")}</label>
             <input
               type="text"
               bind:value={editForm.city}
@@ -265,7 +266,7 @@
             />
           </div>
           <div>
-            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Description</label>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">{$t("common.description")}</label>
             <input
               type="text"
               bind:value={editForm.description}
@@ -279,13 +280,13 @@
             disabled={savingEvent || !editForm.title}
             class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-br from-primary to-primary-container text-white shadow-lg shadow-primary/20 disabled:opacity-50 transition-all active:scale-95"
           >
-            {savingEvent ? "Saving..." : "Save Changes"}
+            {savingEvent ? $t("staff.event.saving") : $t("staff.event.saveChanges")}
           </button>
           <button
             onclick={() => { editingEvent = false; }}
             class="px-5 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors"
           >
-            Cancel
+            {$t("common.cancel")}
           </button>
         </div>
       </div>
@@ -297,14 +298,14 @@
       <div class="lg:col-span-4 space-y-6">
         <!-- Meta Card -->
         <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
-          <h3 class="font-display font-bold text-lg mb-6">Event Logistics</h3>
+          <h3 class="font-display font-bold text-lg mb-6">{$t("staff.events.event_logistics")}</h3>
           <div class="space-y-4">
             <div class="flex items-start gap-4">
               <div class="p-2 bg-surface-container rounded-lg">
                 <span class="material-symbols-outlined text-primary">calendar_today</span>
               </div>
               <div>
-                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Date</p>
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">{$t("common.date")}</p>
                 <p class="font-semibold">{formatDate(event.date)}</p>
               </div>
             </div>
@@ -313,7 +314,7 @@
                 <span class="material-symbols-outlined text-primary">location_on</span>
               </div>
               <div>
-                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">City</p>
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">{$t("common.city")}</p>
                 <p class="font-semibold">{event.city || "—"}</p>
               </div>
             </div>
@@ -322,7 +323,7 @@
                 <span class="material-symbols-outlined text-primary">fingerprint</span>
               </div>
               <div>
-                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Event ID</p>
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">{$t("staff.events.event_id")}</p>
                 <p class="font-mono text-sm">EVT-{event.id}</p>
               </div>
             </div>
@@ -333,8 +334,8 @@
         {#if template}
           <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
             <div class="flex items-center justify-between mb-6">
-              <h3 class="font-display font-bold text-lg">Detected Tokens</h3>
-              <span class="px-2 py-0.5 bg-secondary-container text-on-surface-variant text-[10px] font-bold rounded uppercase">Auto-parsed</span>
+              <h3 class="font-display font-bold text-lg">{$t("staff.events.detected_tokens")}</h3>
+              <span class="px-2 py-0.5 bg-secondary-container text-on-surface-variant text-[10px] font-bold rounded uppercase">{$t("staff.events.auto_parsed")}</span>
             </div>
             <div class="flex flex-wrap gap-2">
               {#each template.tokens as token}
@@ -344,14 +345,14 @@
               {/each}
             </div>
             <p class="mt-4 text-xs text-on-surface-variant leading-relaxed">
-              Tokens are automatically extracted from your uploaded PPTX template. Use these headers in your XLSX/CSV file.
+              {$t("staff.events.tokens_hint")}
             </p>
             <button
               onclick={deleteTemplate}
               class="mt-3 text-xs text-error hover:underline flex items-center gap-1"
             >
               <span class="material-symbols-outlined text-sm">delete</span>
-              Remove template
+              {$t("staff.events.remove_template")}
             </button>
           </section>
         {/if}
@@ -365,13 +366,13 @@
             <div class="w-16 h-16 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-3xl">upload_file</span>
             </div>
-            <h3 class="font-display font-bold text-xl mb-2">Certificate Template</h3>
+            <h3 class="font-display font-bold text-xl mb-2">{$t("staff.events.certificate_template")}</h3>
             <p class="text-on-surface-variant text-sm mb-6 max-w-sm">
-              Drag and drop your PowerPoint (.pptx) template here. Ensure all merge tokens are properly bracketed.
+              {$t("staff.events.template_drag_hint")}
             </p>
             <div class="flex items-center gap-4">
               <label class="px-6 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer {uploading ? 'opacity-50 pointer-events-none' : ''}">
-                {uploading ? "Uploading..." : "Browse Files"}
+                {uploading ? $t("staff.batch.uploading") : $t("staff.events.browse_files")}
                 <input type="file" accept=".pptx" onchange={uploadTemplate} class="sr-only" />
               </label>
               <span class="text-xs text-on-surface-variant font-medium">Max 25MB</span>
@@ -384,13 +385,13 @@
                 <span class="material-symbols-outlined text-2xl">description</span>
               </div>
               <div>
-                <h3 class="font-display font-bold text-lg">Certificate Template</h3>
+                <h3 class="font-display font-bold text-lg">{$t("staff.events.certificate_template")}</h3>
                 <p class="text-sm text-on-surface-variant">{template.file_path.split("/").pop()}</p>
               </div>
             </div>
             <label class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer {uploading ? 'opacity-50 pointer-events-none' : ''}">
               <span class="material-symbols-outlined text-lg">swap_horiz</span>
-              {uploading ? "Uploading..." : "Replace Template"}
+              {uploading ? $t("staff.batch.uploading") : $t("staff.events.replace_template")}
               <input type="file" accept=".pptx" onchange={uploadTemplate} class="sr-only" />
             </label>
           </section>
@@ -400,13 +401,13 @@
         <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
           <div class="p-6 border-b border-surface-container flex items-center justify-between">
             <div>
-              <h3 class="font-display font-bold text-lg">Batch History</h3>
-              <p class="text-sm text-on-surface-variant">Track data imports and certificate generation status.</p>
+              <h3 class="font-display font-bold text-lg">{$t("staff.events.batch_history")}</h3>
+              <p class="text-sm text-on-surface-variant">{$t("staff.events.batch_track_hint")}</p>
             </div>
             {#if template}
               <label class="px-4 py-2 bg-primary/10 text-primary font-bold text-sm rounded-lg flex items-center gap-2 hover:bg-primary/20 transition-colors cursor-pointer {uploadingBatch ? 'opacity-50 pointer-events-none' : ''}">
                 <span class="material-symbols-outlined text-lg">add</span>
-                {uploadingBatch ? "Uploading..." : "Import Data"}
+                {uploadingBatch ? $t("staff.batch.uploading") : $t("staff.events.import_data")}
                 <input type="file" accept=".csv,.xlsx" onchange={uploadBatch} class="sr-only" />
               </label>
             {/if}
@@ -414,22 +415,22 @@
 
           {#if !template}
             <div class="p-8 text-center text-on-surface-variant text-sm">
-              Upload a template first before importing participant data.
+              {$t("staff.events.no_template_hint")}
             </div>
           {:else if batches.length === 0}
             <div class="p-8 text-center text-on-surface-variant text-sm">
-              No batches uploaded yet. Click "Import Data" to start.
+              {$t("staff.events.no_batches")}
             </div>
           {:else}
             <div class="overflow-x-auto">
               <table class="w-full text-left">
                 <thead class="bg-surface-container-low">
                   <tr>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Batch ID</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">File Source</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Records</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-right">Action</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">{$t("staff.events.col.batch_id")}</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">{$t("staff.events.col.file_source")}</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">{$t("staff.events.col.records")}</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">{$t("common.status")}</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-right">{$t("staff.events.col.action")}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-surface-container">
@@ -480,5 +481,5 @@
     </div>
   </div>
 {:else}
-  <div class="text-center py-12 text-error">Event not found</div>
+  <div class="text-center py-12 text-error">{$t("staff.events.event_not_found")}</div>
 {/if}
