@@ -128,6 +128,32 @@ URL /verify/{code} MUST keep the same format (old QR codes on printed certificat
 - File uploads: validate MIME type + size
 - HTTPS only in production
 
+## Deploy
+
+```bash
+# v2 deploy (from project root)
+cd deploy/ansible
+ansible-playbook -i inventory.ini playbook.yml
+
+# v1 migration (standalone binary)
+cd backend
+go build -o migrate-v1 ./cmd/migrate-v1
+./migrate-v1 \
+  --source-db "postgres://user:pass@v1-host:5432/jetistik" \
+  --target-db "postgres://user:pass@v2-host:5432/jetistik" \
+  --minio-endpoint "localhost:9000" \
+  --minio-key "minioadmin" \
+  --minio-secret "minioadmin" \
+  --minio-bucket "jetistik" \
+  --media-dir "/path/to/v1/media"
+
+# Dry run (no writes, just prints plan)
+./migrate-v1 --dry-run ...
+```
+
+Deploy config: `deploy/ansible/group_vars/jetistik-v2.yml.example`
+Production env template: `deploy/ansible/roles/app/templates/env.prod.j2`
+
 ## Environment Variables
 
 See .env.example for the full list.
