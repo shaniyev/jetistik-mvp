@@ -2,7 +2,6 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { api, ApiError, type ApiResponse } from "$lib/api/client";
-  import StatusBadge from "$lib/components/StatusBadge.svelte";
 
   interface Event {
     id: number;
@@ -157,191 +156,328 @@
     }
   }
 
+  function formatDate(dateStr: string): string {
+    if (!dateStr) return "—";
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  function batchStatusClasses(status: string): string {
+    switch (status) {
+      case "generating":
+        return "bg-primary-fixed text-on-primary-fixed-variant";
+      case "done":
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "failed":
+        return "bg-error-container text-on-error-container";
+      default:
+        return "bg-surface-container-highest text-on-surface-variant";
+    }
+  }
+
+  function batchStatusIcon(status: string): string {
+    switch (status) {
+      case "generating": return "";
+      case "done":
+      case "completed": return "check_circle";
+      case "failed": return "error";
+      default: return "";
+    }
+  }
+
   onMount(loadEvent);
 </script>
 
 {#if loading}
-  <div class="text-center py-12 text-on-surface-variant">Loading event...</div>
+  <div class="flex items-center justify-center py-24 text-on-surface-variant">
+    <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+    Loading event...
+  </div>
 {:else if event}
-  <div class="space-y-8">
-    <!-- Header -->
-    <div>
-      <a href="/staff/events" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
-        &larr; Back to events
-      </a>
-      <div class="flex items-start justify-between mt-2">
-        <div>
-          <h1 class="font-display text-2xl font-bold text-on-surface">{event.title}</h1>
-          <div class="flex items-center gap-3 mt-1 text-sm text-on-surface-variant">
-            {#if event.date}<span>{event.date}</span>{/if}
-            {#if event.city}<span>{event.city}</span>{/if}
-            <StatusBadge status={event.status} />
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button
-            onclick={startEditEvent}
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"
-          >
-            Edit Event
-          </button>
-          <a
-            href="/staff/events/{eventId}/certificates"
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"
-          >
-            View Certificates
-          </a>
-        </div>
+  <div class="p-6 lg:p-10 pb-32">
+    <!-- Header Actions Bar -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+      <div class="space-y-1">
+        <a href="/staff/events" class="flex items-center gap-2 text-primary font-semibold text-sm mb-2 hover:underline">
+          <span class="material-symbols-outlined text-sm">arrow_back</span>
+          <span>Back to Events</span>
+        </a>
+        <h1 class="font-display text-4xl font-extrabold tracking-tight text-on-surface">{event.title}</h1>
+        {#if event.description}
+          <p class="text-on-surface-variant max-w-2xl">{event.description}</p>
+        {/if}
       </div>
-      {#if event.description}
-        <p class="text-sm text-on-surface-variant mt-2">{event.description}</p>
-      {/if}
-
-      {#if editingEvent}
-        <div class="mt-4 p-4 rounded-lg bg-surface-lowest space-y-3">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-on-surface-variant mb-1">Title</label>
-              <input
-                type="text"
-                bind:value={editForm.title}
-                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label class="block text-xs text-on-surface-variant mb-1">Date</label>
-              <input
-                type="text"
-                bind:value={editForm.date}
-                placeholder="2026-03-29"
-                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label class="block text-xs text-on-surface-variant mb-1">City</label>
-              <input
-                type="text"
-                bind:value={editForm.city}
-                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label class="block text-xs text-on-surface-variant mb-1">Description</label>
-              <input
-                type="text"
-                bind:value={editForm.description}
-                class="w-full px-3 py-2 rounded-md bg-surface text-sm text-on-surface border border-outline/20 focus:outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button
-              onclick={saveEvent}
-              disabled={savingEvent || !editForm.title}
-              class="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-50 transition-colors"
-            >
-              {savingEvent ? "Saving..." : "Save"}
-            </button>
-            <button
-              onclick={() => { editingEvent = false; }}
-              class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-low transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      {/if}
-    </div>
+      <div class="flex items-center gap-3">
+        <button
+          onclick={startEditEvent}
+          class="px-5 py-2.5 rounded-lg border border-outline-variant font-semibold text-sm hover:bg-surface-container transition-colors flex items-center gap-2"
+        >
+          <span class="material-symbols-outlined text-lg">edit</span>
+          Edit
+        </button>
+        <a
+          href="/staff/events/{eventId}/certificates"
+          class="px-5 py-2.5 rounded-lg bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm shadow-lg shadow-primary/20 flex items-center gap-2 active:scale-95 transition-transform"
+        >
+          <span class="material-symbols-outlined text-lg">download_for_offline</span>
+          Download All (ZIP)
+        </a>
+      </div>
+    </header>
 
     {#if error}
-      <div class="p-3 rounded-lg bg-error-container text-on-error-container text-sm">{error}</div>
+      <div class="p-3 rounded-lg bg-error-container text-on-error-container text-sm mb-6">{error}</div>
     {/if}
 
-    <!-- Template Section -->
-    <section class="bg-surface-lowest rounded-lg p-6 space-y-4">
-      <h2 class="font-display text-lg font-semibold text-on-surface">Template</h2>
-
-      {#if template}
-        <div class="flex items-center justify-between p-4 rounded-lg bg-surface">
+    <!-- Edit Event Modal -->
+    {#if editingEvent}
+      <div class="mb-8 bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+        <h3 class="font-display font-bold text-lg mb-4">Edit Event</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p class="text-sm font-medium text-on-surface">
-              {template.file_path.split("/").pop()}
-            </p>
-            <div class="flex flex-wrap gap-1.5 mt-2">
-              {#each template.tokens as token}
-                <span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-container text-xs font-mono">
-                  {token}
-                </span>
-              {/each}
-            </div>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Title</label>
+            <input
+              type="text"
+              bind:value={editForm.title}
+              class="w-full px-3 py-2 rounded-lg bg-surface text-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
           </div>
+          <div>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Date</label>
+            <input
+              type="text"
+              bind:value={editForm.date}
+              placeholder="2026-03-29"
+              class="w-full px-3 py-2 rounded-lg bg-surface text-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">City</label>
+            <input
+              type="text"
+              bind:value={editForm.city}
+              class="w-full px-3 py-2 rounded-lg bg-surface text-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div>
+            <label class="block text-xs text-on-surface-variant font-medium uppercase tracking-wider mb-1">Description</label>
+            <input
+              type="text"
+              bind:value={editForm.description}
+              class="w-full px-3 py-2 rounded-lg bg-surface text-sm text-on-surface border border-outline-variant/30 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+        </div>
+        <div class="flex items-center gap-3 mt-4">
           <button
-            onclick={deleteTemplate}
-            class="text-xs text-error hover:underline shrink-0 ml-4"
+            onclick={saveEvent}
+            disabled={savingEvent || !editForm.title}
+            class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-br from-primary to-primary-container text-white shadow-lg shadow-primary/20 disabled:opacity-50 transition-all active:scale-95"
           >
-            Delete
+            {savingEvent ? "Saving..." : "Save Changes"}
+          </button>
+          <button
+            onclick={() => { editingEvent = false; }}
+            class="px-5 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors"
+          >
+            Cancel
           </button>
         </div>
-      {:else}
-        <div class="text-center py-6">
-          <p class="text-sm text-on-surface-variant mb-3">Upload a PPTX template for this event</p>
-          <label class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer
-                        bg-gradient-to-br from-primary to-primary-container text-on-primary
-                        hover:shadow-lg transition-shadow {uploading ? 'opacity-50 pointer-events-none' : ''}">
-            {uploading ? "Uploading..." : "Upload .pptx"}
-            <input type="file" accept=".pptx" onchange={uploadTemplate} class="sr-only" />
-          </label>
-        </div>
-      {/if}
-    </section>
+      </div>
+    {/if}
 
-    <!-- Batch Upload Section -->
-    <section class="bg-surface-lowest rounded-lg p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="font-display text-lg font-semibold text-on-surface">Import Batches</h2>
+    <!-- Bento Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left Column: Event Specs -->
+      <div class="lg:col-span-4 space-y-6">
+        <!-- Meta Card -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+          <h3 class="font-display font-bold text-lg mb-6">Event Logistics</h3>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="p-2 bg-surface-container rounded-lg">
+                <span class="material-symbols-outlined text-primary">calendar_today</span>
+              </div>
+              <div>
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Date</p>
+                <p class="font-semibold">{formatDate(event.date)}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="p-2 bg-surface-container rounded-lg">
+                <span class="material-symbols-outlined text-primary">location_on</span>
+              </div>
+              <div>
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">City</p>
+                <p class="font-semibold">{event.city || "—"}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="p-2 bg-surface-container rounded-lg">
+                <span class="material-symbols-outlined text-primary">fingerprint</span>
+              </div>
+              <div>
+                <p class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Event ID</p>
+                <p class="font-mono text-sm">EVT-{event.id}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Detected Tokens -->
         {#if template}
-          <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer
-                        bg-surface-low text-on-surface hover:bg-surface-high transition-colors
-                        {uploadingBatch ? 'opacity-50 pointer-events-none' : ''}">
-            {uploadingBatch ? "Uploading..." : "Upload CSV/XLSX"}
-            <input type="file" accept=".csv,.xlsx" onchange={uploadBatch} class="sr-only" />
-          </label>
+          <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="font-display font-bold text-lg">Detected Tokens</h3>
+              <span class="px-2 py-0.5 bg-secondary-container text-on-surface-variant text-[10px] font-bold rounded uppercase">Auto-parsed</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              {#each template.tokens as token}
+                <div class="px-3 py-1.5 bg-surface-container rounded flex items-center gap-2 border border-outline-variant/20">
+                  <span class="text-xs font-mono text-primary">{token}</span>
+                </div>
+              {/each}
+            </div>
+            <p class="mt-4 text-xs text-on-surface-variant leading-relaxed">
+              Tokens are automatically extracted from your uploaded PPTX template. Use these headers in your XLSX/CSV file.
+            </p>
+            <button
+              onclick={deleteTemplate}
+              class="mt-3 text-xs text-error hover:underline flex items-center gap-1"
+            >
+              <span class="material-symbols-outlined text-sm">delete</span>
+              Remove template
+            </button>
+          </section>
         {/if}
       </div>
 
-      {#if !template}
-        <p class="text-sm text-on-surface-variant">Upload a template first before importing participant data.</p>
-      {:else if batches.length === 0}
-        <p class="text-sm text-on-surface-variant">No batches uploaded yet.</p>
-      {:else}
-        <div class="space-y-2">
-          {#each batches as batch}
-            <div class="flex items-center justify-between p-3 rounded-lg bg-surface hover:bg-surface-low transition-colors">
-              <a
-                href="/staff/events/{eventId}/batches/{batch.id}"
-                class="flex items-center gap-3 flex-1"
-              >
-                <StatusBadge status={batch.status} />
-                <span class="text-sm text-on-surface">
-                  {batch.rows_total} rows
-                </span>
-              </a>
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-on-surface-variant">
-                  {new Date(batch.created_at).toLocaleString()}
-                </span>
-                <button
-                  onclick={() => deleteBatch(batch.id)}
-                  class="text-xs text-error hover:underline shrink-0"
-                >
-                  Delete
-                </button>
+      <!-- Right Column: Main Upload Zones -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- Template Upload Area -->
+        {#if !template}
+          <section class="bg-surface-container-lowest rounded-xl p-8 border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-center group hover:border-primary/50 transition-colors">
+            <div class="w-16 h-16 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-3xl">upload_file</span>
+            </div>
+            <h3 class="font-display font-bold text-xl mb-2">Certificate Template</h3>
+            <p class="text-on-surface-variant text-sm mb-6 max-w-sm">
+              Drag and drop your PowerPoint (.pptx) template here. Ensure all merge tokens are properly bracketed.
+            </p>
+            <div class="flex items-center gap-4">
+              <label class="px-6 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer {uploading ? 'opacity-50 pointer-events-none' : ''}">
+                {uploading ? "Uploading..." : "Browse Files"}
+                <input type="file" accept=".pptx" onchange={uploadTemplate} class="sr-only" />
+              </label>
+              <span class="text-xs text-on-surface-variant font-medium">Max 25MB</span>
+            </div>
+          </section>
+        {:else}
+          <section class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-sm">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-12 h-12 bg-primary-fixed rounded-xl flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-2xl">description</span>
+              </div>
+              <div>
+                <h3 class="font-display font-bold text-lg">Certificate Template</h3>
+                <p class="text-sm text-on-surface-variant">{template.file_path.split("/").pop()}</p>
               </div>
             </div>
-          {/each}
-        </div>
-      {/if}
-    </section>
+            <label class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer {uploading ? 'opacity-50 pointer-events-none' : ''}">
+              <span class="material-symbols-outlined text-lg">swap_horiz</span>
+              {uploading ? "Uploading..." : "Replace Template"}
+              <input type="file" accept=".pptx" onchange={uploadTemplate} class="sr-only" />
+            </label>
+          </section>
+        {/if}
+
+        <!-- Batch History -->
+        <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+          <div class="p-6 border-b border-surface-container flex items-center justify-between">
+            <div>
+              <h3 class="font-display font-bold text-lg">Batch History</h3>
+              <p class="text-sm text-on-surface-variant">Track data imports and certificate generation status.</p>
+            </div>
+            {#if template}
+              <label class="px-4 py-2 bg-primary/10 text-primary font-bold text-sm rounded-lg flex items-center gap-2 hover:bg-primary/20 transition-colors cursor-pointer {uploadingBatch ? 'opacity-50 pointer-events-none' : ''}">
+                <span class="material-symbols-outlined text-lg">add</span>
+                {uploadingBatch ? "Uploading..." : "Import Data"}
+                <input type="file" accept=".csv,.xlsx" onchange={uploadBatch} class="sr-only" />
+              </label>
+            {/if}
+          </div>
+
+          {#if !template}
+            <div class="p-8 text-center text-on-surface-variant text-sm">
+              Upload a template first before importing participant data.
+            </div>
+          {:else if batches.length === 0}
+            <div class="p-8 text-center text-on-surface-variant text-sm">
+              No batches uploaded yet. Click "Import Data" to start.
+            </div>
+          {:else}
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead class="bg-surface-container-low">
+                  <tr>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Batch ID</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">File Source</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Records</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-container">
+                  {#each batches as batch (batch.id)}
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                      <td class="px-6 py-5 font-mono text-sm text-on-surface">B-{batch.id}</td>
+                      <td class="px-6 py-5">
+                        <div class="flex items-center gap-2">
+                          <span class="material-symbols-outlined text-green-600">table_view</span>
+                          <span class="text-sm font-medium">{batch.file_path?.split("/").pop() || "—"}</span>
+                        </div>
+                      </td>
+                      <td class="px-6 py-5 text-sm">{batch.rows_total}</td>
+                      <td class="px-6 py-5">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase {batchStatusClasses(batch.status)}">
+                          {#if batch.status === "generating"}
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                          {:else if batchStatusIcon(batch.status)}
+                            <span class="material-symbols-outlined text-[12px]">{batchStatusIcon(batch.status)}</span>
+                          {/if}
+                          {batch.status}
+                        </span>
+                      </td>
+                      <td class="px-6 py-5 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                          <a
+                            href="/staff/events/{eventId}/batches/{batch.id}"
+                            class="text-on-surface-variant hover:text-primary transition-colors"
+                          >
+                            <span class="material-symbols-outlined">visibility</span>
+                          </a>
+                          <button
+                            onclick={() => deleteBatch(batch.id)}
+                            class="text-on-surface-variant hover:text-error transition-colors"
+                          >
+                            <span class="material-symbols-outlined">delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            </div>
+          {/if}
+        </section>
+      </div>
+    </div>
   </div>
 {:else}
   <div class="text-center py-12 text-error">Event not found</div>
