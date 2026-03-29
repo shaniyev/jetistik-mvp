@@ -29,6 +29,23 @@
   let stats = $state<Stats>({ weekly_growth: 0, new_orgs_this_week: 0, ledger_integrity: 0 });
   const perPage = 20;
 
+  // Create modal state
+  let showCreateModal = $state(false);
+  let createName = $state("");
+  let createDomain = $state("");
+  let createLoading = $state(false);
+  let createError = $state("");
+
+  // Edit state
+  let editingId = $state<number | null>(null);
+  let editName = $state("");
+  let editDomain = $state("");
+  let editStatus = $state("");
+  let editLoading = $state(false);
+
+  // More dropdown state
+  let openMenuId = $state<number | null>(null);
+
   async function loadOrgs() {
     loading = true;
     try {
@@ -61,6 +78,65 @@
   function handleSearch() {
     page = 1;
     loadOrgs();
+  }
+
+  async function handleCreate() {
+    createLoading = true;
+    createError = "";
+    try {
+      await api.post("/api/v1/admin/organizations", { name: createName, domain: createDomain });
+      showCreateModal = false;
+      createName = "";
+      createDomain = "";
+      await loadOrgs();
+    } catch (e: any) {
+      createError = e.message || "Failed to create organization";
+    } finally {
+      createLoading = false;
+    }
+  }
+
+  function startEdit(org: Organization) {
+    editingId = org.id;
+    editName = org.name;
+    editDomain = org.domain || "";
+    editStatus = org.status;
+  }
+
+  function cancelEdit() {
+    editingId = null;
+  }
+
+  async function saveEdit(orgId: number) {
+    editLoading = true;
+    try {
+      await api.patch(`/api/v1/admin/organizations/${orgId}`, {
+        name: editName,
+        domain: editDomain,
+        status: editStatus,
+      });
+      editingId = null;
+      await loadOrgs();
+    } catch (e: any) {
+      alert(e.message || "Failed to update organization");
+    } finally {
+      editLoading = false;
+    }
+  }
+
+  async function deleteOrg(org: Organization) {
+    openMenuId = null;
+    if (!confirm(`Delete "${org.name}"? This action cannot be undone.`)) return;
+    try {
+      await api.delete(`/api/v1/admin/organizations/${org.id}`);
+      await loadOrgs();
+    } catch (e: any) {
+      alert(e.message || "Failed to delete organization");
+    }
+  }
+
+  function toggleMenu(orgId: number) {
+    openMenuId = openMenuId === orgId ? null : orgId;
   }
 
   function formatDate(dateStr: string): string {
@@ -107,6 +183,7 @@
       <p class="text-sm text-on-surface-variant mt-1 max-w-xl">{$t("admin.orgs.subtitle")}</p>
     </div>
     <button
+      onclick={() => { showCreateModal = true; }}
       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
              bg-gradient-to-br from-primary to-primary-container text-on-primary
              hover:shadow-lg transition-shadow"
@@ -148,18 +225,45 @@
           <span class="text-xs text-on-surface-variant font-mono">{org.code || `#${org.id}`}</span>
         </td>
         <td class="px-4 py-3">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-surface-high flex items-center justify-center text-xs font-bold text-on-surface-variant shrink-0">
-              {getInitials(org.name)}
+          {#if editingId === org.id}
+            <div class="flex flex-col gap-1">
+              <input
+                type="text"
+                bind:value={editName}
+                class="px-2 py-1 rounded bg-surface-lowest text-sm text-on-surface border border-outline-variant focus:border-primary outline-none"
+              />
+              <input
+                type="text"
+                bind:value={editDomain}
+                placeholder={$t("admin.orgs.domain")}
+                class="px-2 py-1 rounded bg-surface-lowest text-xs text-on-surface-variant border border-outline-variant focus:border-primary outline-none"
+              />
             </div>
-            <div>
-              <p class="font-medium text-on-surface">{org.name}</p>
-              <p class="text-xs text-on-surface-variant">{org.domain || ""}</p>
+          {:else}
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-surface-high flex items-center justify-center text-xs font-bold text-on-surface-variant shrink-0">
+                {getInitials(org.name)}
+              </div>
+              <div>
+                <p class="font-medium text-on-surface">{org.name}</p>
+                <p class="text-xs text-on-surface-variant">{org.domain || ""}</p>
+              </div>
             </div>
-          </div>
+          {/if}
         </td>
         <td class="px-4 py-3">
-          <StatusBadge status={org.status} />
+          {#if editingId === org.id}
+            <select
+              bind:value={editStatus}
+              class="px-2 py-1 rounded bg-surface-lowest text-sm text-on-surface border border-outline-variant focus:border-primary outline-none"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          {:else}
+            <StatusBadge status={org.status} />
+          {/if}
         </td>
         <td class="px-4 py-3 text-on-surface-variant text-sm">
           {formatDate(org.created_at)}
@@ -168,18 +272,54 @@
           {org.members_count?.toLocaleString() ?? 0}
         </td>
         <td class="px-4 py-3">
-          <div class="flex items-center gap-2">
-            <button class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant hover:text-on-surface" title={$t("common.edit")}>
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-              </svg>
-            </button>
-            <button class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant hover:text-on-surface" title="More">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-              </svg>
-            </button>
-          </div>
+          {#if editingId === org.id}
+            <div class="flex items-center gap-1">
+              <button
+                onclick={() => saveEdit(org.id)}
+                disabled={editLoading}
+                class="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
+                title="Save"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+              </button>
+              <button
+                onclick={cancelEdit}
+                class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant"
+                title="Cancel"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          {:else}
+            <div class="flex items-center gap-2">
+              <button onclick={() => startEdit(org)} class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant hover:text-on-surface" title={$t("common.edit")}>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                </svg>
+              </button>
+              <div class="relative">
+                <button onclick={() => toggleMenu(org.id)} class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant hover:text-on-surface" title="More">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                  </svg>
+                </button>
+                {#if openMenuId === org.id}
+                  <div class="absolute right-0 top-full mt-1 z-50 bg-surface-lowest rounded-lg shadow-lg border border-outline-variant/20 py-1 min-w-[140px]">
+                    <button
+                      onclick={() => deleteOrg(org)}
+                      class="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container/30 transition-colors"
+                    >
+                      {$t("common.delete")}
+                    </button>
+                  </div>
+                {/if}
+              </div>
+            </div>
+          {/if}
         </td>
       </tr>
     {/snippet}
@@ -245,3 +385,57 @@
     </div>
   </div>
 </div>
+
+<!-- Create Organization Modal -->
+{#if showCreateModal}
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="absolute inset-0 bg-black/50" onclick={() => { showCreateModal = false; }}></div>
+    <div class="relative bg-surface-lowest rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+      <h2 class="text-lg font-display font-bold text-on-surface mb-4">{$t("admin.orgs.create")}</h2>
+
+      {#if createError}
+        <div class="bg-error-container text-on-error-container p-3 rounded-lg text-sm mb-4">{createError}</div>
+      {/if}
+
+      <form onsubmit={(e) => { e.preventDefault(); handleCreate(); }} class="space-y-4">
+        <div>
+          <label for="create-name" class="block text-sm font-medium text-on-surface mb-1">{$t("admin.orgs.name")}</label>
+          <input
+            id="create-name"
+            type="text"
+            bind:value={createName}
+            required
+            class="w-full px-3 py-2 rounded-lg bg-surface-low text-sm text-on-surface border border-outline-variant focus:border-primary outline-none transition-colors"
+          />
+        </div>
+        <div>
+          <label for="create-domain" class="block text-sm font-medium text-on-surface mb-1">{$t("admin.orgs.domain")}</label>
+          <input
+            id="create-domain"
+            type="text"
+            bind:value={createDomain}
+            placeholder="example.org"
+            class="w-full px-3 py-2 rounded-lg bg-surface-low text-sm text-on-surface border border-outline-variant focus:border-primary outline-none transition-colors"
+          />
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onclick={() => { showCreateModal = false; }}
+            class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-high transition-colors"
+          >
+            {$t("common.cancel")}
+          </button>
+          <button
+            type="submit"
+            disabled={createLoading || !createName.trim()}
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-br from-primary to-primary-container text-on-primary hover:shadow-lg transition-shadow disabled:opacity-50"
+          >
+            {createLoading ? "..." : $t("admin.orgs.create")}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
