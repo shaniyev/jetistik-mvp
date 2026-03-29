@@ -72,7 +72,7 @@
           <div class="flex gap-2">
             {#if certificates.length > 0}
               <a
-                href="{API_BASE}/api/v1/certificates/search?iin={data.code}&download=zip"
+                href="{API_BASE}/api/v1/certificates/download-zip?iin={data.code}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-br from-primary to-primary-container text-on-primary text-xs font-medium hover:opacity-90 transition-opacity"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

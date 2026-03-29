@@ -2,6 +2,7 @@ package certificate
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -32,6 +33,7 @@ func (h *Handler) PublicRoutes() chi.Router {
 	r.Get("/verify/{code}", h.Verify)
 	r.Get("/certificates/search", h.Search)
 	r.Get("/certificates/{code}/download", h.PublicDownload)
+	r.Get("/certificates/download-zip", h.DownloadZipByIIN)
 	return r
 }
 
@@ -82,6 +84,23 @@ func (h *Handler) Verify(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, result)
 }
 
+// DownloadZipByIIN handles GET /api/v1/certificates/download-zip?iin=...
+func (h *Handler) DownloadZipByIIN(w http.ResponseWriter, r *http.Request) {
+	iin := r.URL.Query().Get("iin")
+	if iin == "" || len(iin) != 12 {
+		response.Error(w, http.StatusBadRequest, "INVALID_IIN", "IIN must be exactly 12 digits")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/zip")
+	fileName, err := h.svc.DownloadZipByIIN(r.Context(), iin, w)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "INTERNAL", "download failed")
+		return
+	}
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+fileName+"\"")
+}
+
 // Search handles GET /api/v1/certificates/search?iin=...
 func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
 	iin := r.URL.Query().Get("iin")
@@ -100,17 +119,24 @@ func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
 // PublicDownload handles GET /api/v1/certificates/{code}/download
 func (h *Handler) PublicDownload(w http.ResponseWriter, r *http.Request) {
 	code := chi.URLParam(r, "code")
-	verifyResult, err := h.svc.Verify(r.Context(), code)
-	if err != nil || !verifyResult.Valid {
+	cert, err := h.svc.GetByCode(r.Context(), code)
+	if err != nil {
 		response.Error(w, http.StatusNotFound, "NOT_FOUND", "certificate not found")
 		return
 	}
-	url, err := h.svc.DownloadURLByCode(r.Context(), code)
+	if cert.PdfPath == "" {
+		response.Error(w, http.StatusNotFound, "NO_PDF", "certificate has no PDF file")
+		return
+	}
+	reader, err := h.svc.DownloadFile(r.Context(), cert.PdfPath)
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, "INTERNAL", "download failed")
 		return
 	}
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	defer reader.Close()
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+cert.Name+"_"+code[:8]+".pdf\"")
+	io.Copy(w, reader)
 }
 
 // ListByEvent handles GET /api/v1/staff/events/{id}/certificates
@@ -148,12 +174,24 @@ func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusBadRequest, "INVALID_ID", "invalid certificate id")
 		return
 	}
-	url, err := h.svc.DownloadURL(r.Context(), id)
+	cert, err := h.svc.GetByID(r.Context(), id)
+	if err != nil {
+		response.Error(w, http.StatusNotFound, "NOT_FOUND", "certificate not found")
+		return
+	}
+	if cert.PdfPath == "" {
+		response.Error(w, http.StatusNotFound, "NO_PDF", "certificate has no PDF file")
+		return
+	}
+	reader, err := h.svc.DownloadFile(r.Context(), cert.PdfPath)
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, "INTERNAL", "download failed")
 		return
 	}
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	defer reader.Close()
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+cert.Name+"_"+cert.Code[:8]+".pdf\"")
+	io.Copy(w, reader)
 }
 
 // Update handles PATCH /api/v1/staff/certificates/{id}

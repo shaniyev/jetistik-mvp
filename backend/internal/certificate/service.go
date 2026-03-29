@@ -1,10 +1,12 @@
 package certificate
 
 import (
+	"archive/zip"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -197,6 +199,51 @@ func (s *Service) SearchByIIN(ctx context.Context, iin string) ([]SearchResult, 
 		}
 	}
 	return results, nil
+}
+
+// DownloadFile returns a reader for the file at the given path.
+func (s *Service) DownloadFile(ctx context.Context, path string) (io.ReadCloser, error) {
+	return s.storage.Download(ctx, path)
+}
+
+// DownloadZipByIIN streams a ZIP archive of all valid certificate PDFs for the given IIN.
+func (s *Service) DownloadZipByIIN(ctx context.Context, iin string, w io.Writer) (string, error) {
+	rows, err := s.repo.ListCertificatesByIIN(ctx, iin)
+	if err != nil {
+		return "", fmt.Errorf("list by iin: %w", err)
+	}
+
+	zipWriter := zip.NewWriter(w)
+	defer zipWriter.Close()
+
+	for _, r := range rows {
+		pdfPath := r.PdfPath.String
+		if pdfPath == "" {
+			continue
+		}
+		reader, err := s.storage.Download(ctx, pdfPath)
+		if err != nil {
+			continue // skip missing files
+		}
+		name := r.Name.String
+		if name == "" {
+			name = "certificate"
+		}
+		fileName := fmt.Sprintf("%s_%s.pdf", name, r.Code[:8])
+		entry, err := zipWriter.Create(fileName)
+		if err != nil {
+			reader.Close()
+			continue
+		}
+		io.Copy(entry, reader)
+		reader.Close()
+	}
+
+	maskedIIN := iin
+	if len(iin) >= 6 {
+		maskedIIN = iin[:4] + "****" + iin[len(iin)-2:]
+	}
+	return fmt.Sprintf("certificates_%s.zip", maskedIIN), nil
 }
 
 func toCertResponse(cert sqlcdb.Certificate) *CertificateResponse {
