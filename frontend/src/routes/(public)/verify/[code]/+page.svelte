@@ -64,9 +64,33 @@
     {:else if isIIN}
       <!-- IIN search results -->
       <div class="bg-surface-lowest rounded-lg p-6 shadow-[0_4px_40px_rgba(0,74,198,0.04)]">
-        <div class="text-center mb-6">
-          <p class="text-sm text-on-surface-variant">Certificates for IIN</p>
-          <p class="font-mono text-lg font-semibold text-on-surface mt-1">{maskIIN(data.code)}</p>
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <p class="text-sm text-on-surface-variant">Certificates for IIN</p>
+            <p class="font-mono text-lg font-semibold text-on-surface mt-1">{maskIIN(data.code)}</p>
+          </div>
+          <div class="flex gap-2">
+            {#if certificates.length > 0}
+              <a
+                href="{API_BASE}/api/v1/certificates/search?iin={data.code}&download=zip"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-br from-primary to-primary-container text-on-primary text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                Download All
+              </a>
+            {/if}
+            <a
+              href="/"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-low text-on-surface text-xs font-medium hover:bg-surface-high transition-colors"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+              </svg>
+              Change IIN
+            </a>
+          </div>
         </div>
 
         {#if certificates.length === 0}
@@ -81,24 +105,41 @@
         {:else}
           <div class="space-y-3">
             {#each certificates as cert}
-              <a
-                href="/verify/{cert.code}"
-                class="block p-4 rounded-lg bg-surface hover:bg-surface-low transition-colors"
-              >
-                <div class="flex items-center justify-between">
-                  <div>
+              <div class="p-4 rounded-lg bg-surface">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
                     <p class="font-medium text-on-surface">{cert.name || '—'}</p>
                     <p class="text-xs text-on-surface-variant mt-1">
-                      {cert.event_title || ''} {cert.org_name ? `• ${cert.org_name}` : ''}
+                      {cert.org_name || ''}{cert.event_title ? ` • ${cert.event_title}` : ''}
+                    </p>
+                    <p class="text-xs text-on-surface-variant mt-0.5">
+                      {new Date(cert.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <StatusBadge status={cert.status || 'valid'} />
                 </div>
-                <div class="flex items-center justify-between mt-2">
-                  <span class="text-xs text-on-surface-variant font-mono">{cert.code?.slice(0, 12)}...</span>
-                  <span class="text-xs text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</span>
+                <div class="flex items-center gap-3 mt-3 pt-3 border-t border-surface-high/50">
+                  <a
+                    href="{API_BASE}/api/v1/certificates/{cert.code}/download"
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-br from-primary to-primary-container text-on-primary text-xs font-medium hover:opacity-90 transition-opacity"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    PDF
+                  </a>
+                  <a
+                    href="/verify/{cert.code}"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-low text-on-surface text-xs font-medium hover:bg-surface-high transition-colors"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                    </svg>
+                    Verify
+                  </a>
                 </div>
-              </a>
+              </div>
             {/each}
           </div>
         {/if}
