@@ -69,7 +69,7 @@
     addError = "";
     addSuccess = "";
     try {
-      await api.post("/api/v1/teacher/students", { iin: cleanIin });
+      await api.post("/api/v1/teacher/students", { student_iin: cleanIin });
       addSuccess = $t("teacher.studentAdded");
       iinInput = "";
       await loadStudents();

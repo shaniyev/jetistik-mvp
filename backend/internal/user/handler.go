@@ -54,7 +54,7 @@ func (h *Handler) GetPublicProfile(w http.ResponseWriter, r *http.Request) {
 // TeacherStudentRoutes registers teacher-student routes.
 func (h *Handler) TeacherStudentRoutes() chi.Router {
 	r := chi.NewRouter()
-	r.Use(middleware.RequireRole("teacher"))
+	r.Use(middleware.RequireRole("teacher", "admin"))
 	r.Get("/", h.ListStudents)
 	r.Post("/", h.AddStudent)
 	r.Delete("/{iin}", h.RemoveStudent)
