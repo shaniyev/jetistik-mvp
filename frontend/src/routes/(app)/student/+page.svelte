@@ -65,10 +65,8 @@
   }
 
   async function copyProfileLink() {
-    const iin = $currentUser?.iin;
-    const url = iin
-      ? `${window.location.origin}/verify/${iin}`
-      : `${window.location.origin}/verify`;
+    // Share link to the platform, never expose IIN
+    const url = `${window.location.origin}`;
     try {
       await navigator.clipboard.writeText(url);
       linkCopied = true;
@@ -330,9 +328,9 @@
         >
           {linkCopied ? $t("common.copied") : $t("student.copyLink")}
         </button>
-        <button class="bg-blue-600/30 border border-blue-400/30 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-blue-600/50 transition-colors active:scale-95">
-          Settings
-        </button>
+        <a href="/student" class="bg-blue-600/30 border border-blue-400/30 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-blue-600/50 transition-colors active:scale-95 inline-block">
+          {$t("staff.nav.settings")}
+        </a>
       </div>
     </div>
     <div class="shrink-0 w-56 h-56 md:w-64 md:h-64 bg-white p-5 rounded-[2rem] shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
