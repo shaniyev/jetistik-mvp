@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { auth, isAuthenticated, isLoading } from "$lib/stores/auth";
+  import { page } from "$app/stores";
+  import { auth, isAuthenticated, isLoading, currentUser } from "$lib/stores/auth";
 
   let { children } = $props();
   let initialized = $state(false);
@@ -20,6 +21,20 @@
   $effect(() => {
     if (initialized && !$isLoading && !$isAuthenticated) {
       goto("/login");
+    }
+  });
+
+  // Role-based redirect when landing on a generic path
+  $effect(() => {
+    if (!initialized || !$currentUser) return;
+    const path = $page.url.pathname;
+    // Only redirect from exact root-level app paths
+    if (path === "/") {
+      const role = $currentUser.role;
+      if (role === "student") goto("/student");
+      else if (role === "teacher") goto("/teacher");
+      else if (role === "staff") goto("/staff/events");
+      else if (role === "admin") goto("/admin/organizations");
     }
   });
 </script>
