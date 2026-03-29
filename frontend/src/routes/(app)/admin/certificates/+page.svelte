@@ -40,6 +40,17 @@
     }
   }
 
+  async function revoke(cert: any) {
+    const reason = prompt('Reason for revocation:');
+    if (reason === null) return;
+    try {
+      await api.post(`/api/v1/staff/certificates/${cert.id}/revoke`, { reason });
+      load();
+    } catch (e: any) {
+      alert(e.message || 'Failed to revoke');
+    }
+  }
+
   onMount(() => { load(); });
 </script>
 
@@ -60,10 +71,11 @@
       <td class="px-4 py-3 text-sm">{maskIIN(cert.iin)}</td>
       <td class="px-4 py-3"><StatusBadge status={cert.status || 'valid'} /></td>
       <td class="px-4 py-3 text-sm text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</td>
-      <td class="px-4 py-3">
-        {#if cert.pdf_path}
-          <a href={`/api/v1/staff/certificates/${cert.id}/download`} target="_blank" class="text-primary text-sm hover:underline">PDF</a>
-        {/if}
+      <td class="px-4 py-3 flex gap-2">
+        <a href={`http://localhost:8080/api/v1/verify/${cert.code}`} target="_blank" class="text-primary text-sm hover:underline">View</a>
+        <button onclick={() => revoke(cert)} class="text-error text-sm hover:underline" disabled={cert.status === 'revoked'}>
+          {cert.status === 'revoked' ? 'Revoked' : 'Revoke'}
+        </button>
       </td>
     </tr>
   {/snippet}

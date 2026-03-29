@@ -11,6 +11,7 @@
     email: string;
     iin: string;
     role: string;
+    is_active: boolean;
     status: string;
     created_at: string;
   }
@@ -34,6 +35,24 @@
       console.error("Failed to load users", e);
     } finally {
       loading = false;
+    }
+  }
+
+  async function changeRole(userId: number, newRole: string) {
+    try {
+      await api.patch(`/api/v1/admin/users/${userId}`, { role: newRole });
+      loadUsers();
+    } catch (e: any) {
+      alert(e.message || 'Failed to update role');
+    }
+  }
+
+  async function toggleActive(user: User) {
+    try {
+      await api.patch(`/api/v1/admin/users/${user.id}`, { is_active: !user.is_active });
+      loadUsers();
+    } catch (e: any) {
+      alert(e.message || 'Failed to update user');
     }
   }
 
@@ -150,11 +169,25 @@
           {formatDate(user.created_at)}
         </td>
         <td class="px-4 py-3">
-          <button class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant hover:text-on-surface" title={$t("common.edit")}>
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-            </svg>
-          </button>
+          <div class="flex gap-1">
+            <select
+              value={user.role}
+              onchange={(e) => changeRole(user.id, (e.target as HTMLSelectElement).value)}
+              class="text-xs px-1.5 py-1 rounded bg-surface-low border-0 text-on-surface cursor-pointer"
+            >
+              <option value="student">student</option>
+              <option value="teacher">teacher</option>
+              <option value="staff">staff</option>
+              <option value="admin">admin</option>
+            </select>
+            <button
+              onclick={() => toggleActive(user)}
+              class="p-1 rounded-md hover:bg-surface-high transition-colors text-xs {user.is_active ? 'text-error' : 'text-emerald-600'}"
+              title={user.is_active ? 'Deactivate' : 'Activate'}
+            >
+              {user.is_active ? 'Ban' : 'Unban'}
+            </button>
+          </div>
         </td>
       </tr>
     {/snippet}
