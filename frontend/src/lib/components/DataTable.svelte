@@ -18,27 +18,30 @@
   let { columns, data, loading = false, empty = "No data found.", row }: Props = $props();
 </script>
 
-<div class="overflow-x-auto rounded-lg bg-surface-lowest">
-  <table class="w-full text-sm text-left">
+<div class="bg-surface-container-low rounded-2xl overflow-hidden ring-1 ring-outline-variant/10 shadow-sm">
+  <table class="w-full text-left border-collapse">
     <thead>
-      <tr class="bg-surface-low">
+      <tr class="bg-surface-high/50 text-on-surface-variant uppercase tracking-[0.1em] text-[11px] font-bold">
         {#each columns as col}
-          <th class="px-4 py-3 font-medium text-on-surface-variant {col.class ?? ''}">
+          <th class="px-6 py-4 {col.class ?? ''}">
             {col.label}
           </th>
         {/each}
       </tr>
     </thead>
-    <tbody>
+    <tbody class="divide-y divide-outline-variant/10">
       {#if loading}
         <tr>
-          <td colspan={columns.length} class="px-4 py-12 text-center text-on-surface-variant">
-            Loading...
+          <td colspan={columns.length} class="px-6 py-12 text-center text-on-surface-variant">
+            <div class="flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+              <span>Loading...</span>
+            </div>
           </td>
         </tr>
       {:else if data.length === 0}
         <tr>
-          <td colspan={columns.length} class="px-4 py-12 text-center text-on-surface-variant">
+          <td colspan={columns.length} class="px-6 py-12 text-center text-on-surface-variant">
             {empty}
           </td>
         </tr>

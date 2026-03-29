@@ -3,8 +3,6 @@
   import { api } from "$lib/api/client";
   import { currentUser } from "$lib/stores/auth";
   import { t } from "$lib/i18n";
-  import StatusBadge from "$lib/components/StatusBadge.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
 
   interface Student {
     iin: string;
@@ -28,7 +26,6 @@
   let loadingCerts = $state(true);
 
   // Add student form
-  let showAddForm = $state(false);
   let iinInput = $state("");
   let addError = $state("");
   let addSuccess = $state("");
@@ -118,230 +115,363 @@
     iinInput = formatIinInput(target.value);
   }
 
+  function getIinPrefix(iin: string): string {
+    return iin.slice(0, 2);
+  }
+
   let filteredCertificates = $derived(
     filterStudent
       ? certificates.filter((c) => c.student_iin === filterStudent)
       : certificates
   );
 
+  async function downloadPdf(certId: number) {
+    try {
+      const token = (await import("$lib/api/client")).getAccessToken();
+      const apiBase = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+      const url = `${apiBase}/api/v1/teacher/certificates/${certId}/download`;
+      const a = document.createElement("a");
+      a.href = url;
+      a.setAttribute("download", "");
+      if (token) {
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Download failed");
+        const blob = await res.blob();
+        a.href = URL.createObjectURL(blob);
+      }
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (e) {
+      console.error("Download failed", e);
+    }
+  }
+
   onMount(() => {
     loadStudents();
     loadCertificates();
   });
-
-  const certColumns = [
-    { key: "student", label: "" },
-    { key: "event", label: "" },
-    { key: "organization", label: "" },
-    { key: "date", label: "" },
-    { key: "status", label: "" },
-  ];
 </script>
 
-<div class="space-y-8 max-w-5xl">
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div class="space-y-8 md:space-y-12">
+  <!-- Hero / Greeting -->
+  <section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
     <div>
-      <h1 class="font-display text-2xl sm:text-3xl font-bold text-on-surface">{$t("teacher.title")}</h1>
-      <div class="flex items-center gap-3 mt-2">
-        <span class="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md uppercase tracking-wide">{$t("teacher.role")}</span>
-        <span class="text-xs text-on-surface-variant">{$currentUser?.username ?? ""}</span>
+      <h2 class="text-2xl md:text-4xl font-extrabold font-display tracking-tight text-on-surface mb-2">{$t("teacher.title")}</h2>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded uppercase tracking-wider">{$t("teacher.role")}</span>
+        <span class="text-on-surface-variant text-xs md:text-sm font-medium">Jetistik Central Node</span>
       </div>
     </div>
-    <div class="flex items-center gap-3 text-xs text-on-surface-variant">
-      <span>{$t("teacher.systemStatus")}</span>
-      <span class="flex items-center gap-1.5 text-emerald-600">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+    <div class="flex flex-col items-start md:items-end w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 mt-2 md:mt-0">
+      <p class="text-[10px] md:text-xs text-on-surface-variant font-medium uppercase tracking-tight">{$t("teacher.systemStatus")}</p>
+      <p class="text-xs md:text-sm font-bold text-primary flex items-center gap-2 mt-1">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
         {$t("teacher.nodesSynchronized")}
-      </span>
+      </p>
     </div>
-  </div>
-
-  <!-- My Students Section -->
-  <section class="space-y-4">
-    <h2 class="font-display text-lg font-bold text-on-surface">{$t("teacher.myStudents")}</h2>
-
-    <!-- Add Student Toggle -->
-    <button
-      onclick={() => { showAddForm = !showAddForm; addError = ""; addSuccess = ""; }}
-      class="flex items-center gap-2 text-sm text-primary hover:text-primary-container transition-colors font-medium"
-    >
-      <svg class="w-4 h-4 transition-transform {showAddForm ? 'rotate-45' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      {$t("teacher.addStudent")}
-    </button>
-
-    <!-- Add Student Form -->
-    {#if showAddForm}
-      <div class="bg-surface-lowest rounded-lg p-5 space-y-4 max-w-md">
-        <div>
-          <label for="iin-input" class="block text-xs font-medium text-on-surface-variant mb-1.5 uppercase tracking-wide">
-            {$t("teacher.addStudentPlaceholder")}
-          </label>
-          <input
-            id="iin-input"
-            type="text"
-            value={iinInput}
-            oninput={handleIinInput}
-            placeholder="0000  0000  0000"
-            class="w-full px-3 py-2.5 bg-surface-lowest text-on-surface text-lg font-mono tracking-widest
-                   border-b-2 border-outline-variant/30 focus:border-primary outline-none transition-colors"
-          />
-        </div>
-
-        {#if addError}
-          <div class="flex items-start gap-2 bg-error-container/30 rounded-md px-3 py-2">
-            <svg class="w-4 h-4 text-error mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-            </svg>
-            <div>
-              <p class="text-sm font-medium text-error">{addError}</p>
-              <p class="text-xs text-on-surface-variant">{$t("teacher.invalidIinDesc")}</p>
-            </div>
-          </div>
-        {/if}
-
-        {#if addSuccess}
-          <div class="flex items-center gap-2 bg-emerald-50 rounded-md px-3 py-2">
-            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            <p class="text-sm text-emerald-700">{addSuccess}</p>
-          </div>
-        {/if}
-
-        <button
-          onclick={addStudent}
-          disabled={adding}
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium
-                 bg-gradient-to-br from-primary to-primary-container text-on-primary
-                 hover:shadow-lg transition-shadow disabled:opacity-50"
-        >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          {adding ? $t("common.loading") : $t("teacher.addStudentBtn")}
-        </button>
-      </div>
-    {/if}
-
-    <!-- Active Students List -->
-    {#if loadingStudents}
-      <p class="text-sm text-on-surface-variant">{$t("common.loading")}</p>
-    {:else if students.length === 0}
-      <p class="text-sm text-on-surface-variant">{$t("teacher.noStudents")}</p>
-    {:else}
-      <div class="space-y-2">
-        <p class="text-xs text-on-surface-variant uppercase tracking-wide font-medium">{$t("teacher.activeIdentity")}</p>
-        {#each students as student}
-          <div class="flex items-center justify-between bg-surface-lowest rounded-lg px-4 py-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
-                {student.username?.[0]?.toUpperCase() ?? "?"}
-              </div>
-              <div>
-                <span class="text-sm font-mono text-on-surface">{maskIin(student.iin)}</span>
-                {#if student.username}
-                  <p class="text-xs text-on-surface-variant">{student.username}</p>
-                {/if}
-              </div>
-              {#if student.status === "verified" || student.status === "active"}
-                <span class="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wide font-medium">
-                  {$t("teacher.verifiedIdentity")}
-                </span>
-              {/if}
-            </div>
-            <button
-              onclick={() => removeStudent(student.iin)}
-              aria-label={$t("teacher.removeStudent")}
-              class="text-xs text-on-surface-variant hover:text-error transition-colors"
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        {/each}
-      </div>
-    {/if}
   </section>
 
-  <!-- Student Certificates Section -->
-  <section class="space-y-4">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-      <div>
-        <h2 class="font-display text-lg font-bold text-on-surface">{$t("teacher.certificates")}</h2>
-        <p class="text-xs text-on-surface-variant mt-0.5">{$t("teacher.certificatesDesc")}</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <select
-          bind:value={filterStudent}
-          class="text-sm bg-surface-lowest text-on-surface rounded-lg px-3 py-2 border-b-2 border-outline-variant/30 focus:border-primary outline-none"
-        >
-          <option value="">{$t("teacher.filterByStudent")}</option>
-          {#each students as student}
-            <option value={student.iin}>{student.username ?? maskIin(student.iin)}</option>
-          {/each}
-        </select>
-      </div>
+  <!-- Section 1: My Students -->
+  <section id="students">
+    <div class="mb-6">
+      <h3 class="text-lg md:text-xl font-bold font-display text-on-surface">{$t("teacher.myStudents")}</h3>
+      <p class="text-[10px] md:text-xs text-on-surface-variant mt-1">{$t("teacher.myStudentsDesc")}</p>
     </div>
 
-    <!-- Desktop table -->
-    <div class="hidden sm:block">
-      <DataTable columns={certColumns} data={filteredCertificates} loading={loadingCerts} empty={$t("teacher.noCertificates")}>
-        {#snippet row(cert: Certificate)}
-          <tr class="hover:bg-surface-low/50 transition-colors">
-            <td class="px-4 py-3">
-              <div>
-                <p class="text-sm font-medium text-on-surface">{cert.student_name}</p>
-                <p class="text-xs text-on-surface-variant font-mono">{maskIin(cert.student_iin)}</p>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Add Student Form -->
+      <div class="lg:col-span-4">
+        <div class="bg-surface-container-lowest p-6 md:p-8 rounded-xl shadow-sm border border-outline-variant/10">
+          <h4 class="text-sm font-bold text-on-surface mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">person_add</span>
+            {$t("teacher.addStudent")}
+          </h4>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                {$t("teacher.addStudentPlaceholder")}
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  value={iinInput}
+                  oninput={handleIinInput}
+                  placeholder="0000  0000  0000"
+                  class="w-full bg-surface-container-low border-b-2 border-outline-variant focus:border-primary border-t-0 border-l-0 border-r-0 px-4 py-3 text-sm focus:ring-0 transition-all font-mono tracking-widest"
+                />
               </div>
-            </td>
-            <td class="px-4 py-3 text-sm text-on-surface">{cert.event_title}</td>
-            <td class="px-4 py-3 text-sm text-on-surface-variant">{cert.organization_name}</td>
-            <td class="px-4 py-3 text-sm text-on-surface-variant">{cert.event_date ?? "---"}</td>
-            <td class="px-4 py-3">
-              <StatusBadge status={cert.status} />
-            </td>
-          </tr>
-        {/snippet}
-      </DataTable>
-    </div>
+            </div>
+            <button
+              onclick={addStudent}
+              disabled={adding}
+              class="w-full bg-gradient-to-br from-primary to-primary-container text-white font-bold py-3 px-6 rounded-md shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-sm flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              <span class="material-symbols-outlined text-sm">add</span>
+              {adding ? $t("common.loading") : $t("teacher.addStudentBtn")}
+            </button>
 
-    <!-- Mobile cards -->
-    <div class="sm:hidden space-y-3">
-      {#if loadingCerts}
-        <p class="text-sm text-on-surface-variant text-center py-8">{$t("common.loading")}</p>
-      {:else if filteredCertificates.length === 0}
-        <p class="text-sm text-on-surface-variant text-center py-8">{$t("teacher.noCertificates")}</p>
-      {:else}
-        {#each filteredCertificates as cert}
-          <div class="bg-surface-lowest rounded-lg p-4 space-y-2">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-on-surface">{cert.student_name}</p>
-                <p class="text-xs text-on-surface-variant font-mono">{maskIin(cert.student_iin)}</p>
+            <!-- Error Message -->
+            {#if addError}
+              <div class="p-3 bg-error-container/50 rounded-lg flex items-start gap-3">
+                <span class="material-symbols-outlined text-error text-sm mt-0.5">error</span>
+                <div>
+                  <p class="text-[11px] font-bold text-on-error-container">{addError}</p>
+                  <p class="text-[10px] text-on-error-container/80 mt-1">{$t("teacher.invalidIinDesc")}</p>
+                </div>
               </div>
-              <StatusBadge status={cert.status} />
-            </div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <p class="text-on-surface-variant uppercase tracking-wide">{$t("teacher.col.event")}</p>
-                <p class="text-on-surface mt-0.5">{cert.event_title}</p>
+            {/if}
+
+            <!-- Success Message -->
+            {#if addSuccess}
+              <div class="p-3 bg-secondary-container/30 rounded-lg flex items-start gap-3">
+                <span class="material-symbols-outlined text-on-secondary-container text-sm mt-0.5">check_circle</span>
+                <div>
+                  <p class="text-[11px] font-bold text-on-secondary-container">{addSuccess}</p>
+                </div>
               </div>
-              <div>
-                <p class="text-on-surface-variant uppercase tracking-wide">{$t("teacher.col.date")}</p>
-                <p class="text-on-surface mt-0.5">{cert.event_date ?? "---"}</p>
-              </div>
-            </div>
-            <div class="text-xs">
-              <p class="text-on-surface-variant uppercase tracking-wide">{$t("teacher.col.organization")}</p>
-              <p class="text-on-surface mt-0.5">{cert.organization_name}</p>
-            </div>
+            {/if}
           </div>
-        {/each}
-      {/if}
+        </div>
+      </div>
+
+      <!-- Students List -->
+      <div class="lg:col-span-8">
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+          {#if loadingStudents}
+            <div class="p-8 text-center text-on-surface-variant text-sm">{$t("common.loading")}</div>
+          {:else if students.length === 0}
+            <div class="p-8 text-center text-on-surface-variant text-sm">{$t("teacher.noStudents")}</div>
+          {:else}
+            <!-- Desktop Table -->
+            <div class="hidden lg:block">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-surface-container-low border-b border-outline-variant/10">
+                  <tr>
+                    <th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">IIN</th>
+                    <th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-container-low">
+                  {#each students as student}
+                    <tr class="hover:bg-surface-container-low/30 transition-colors">
+                      <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                          <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
+                            {getIinPrefix(student.iin)}
+                          </div>
+                          <div>
+                            <span class="font-mono text-sm tracking-widest text-on-surface">{maskIin(student.iin)}</span>
+                            {#if student.username}
+                              <p class="text-[10px] text-on-surface-variant mt-0.5">{student.username}</p>
+                            {/if}
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-right">
+                        <button
+                          onclick={() => removeStudent(student.iin)}
+                          class="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg transition-all"
+                        >
+                          <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
+                      </td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile List -->
+            <div class="lg:hidden">
+              <div class="p-4 bg-surface-container-low border-b border-outline-variant/10">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("teacher.activeIdentity")}</span>
+              </div>
+              <div class="divide-y divide-surface-container-low">
+                {#each students as student}
+                  <div class="p-4 flex justify-between items-center hover:bg-surface-container-low/30 transition-colors">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                        {getIinPrefix(student.iin)}
+                      </div>
+                      <div>
+                        <p class="font-mono text-sm tracking-widest text-on-surface">{maskIin(student.iin)}</p>
+                        {#if student.username}
+                          <p class="text-[10px] text-on-surface-variant mt-0.5">{student.username}</p>
+                        {:else}
+                          <p class="text-[10px] text-on-surface-variant uppercase mt-0.5">{$t("teacher.verifiedIdentity")}</p>
+                        {/if}
+                      </div>
+                    </div>
+                    <button
+                      onclick={() => removeStudent(student.iin)}
+                      class="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg transition-all"
+                    >
+                      <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+        </div>
+      </div>
     </div>
+  </section>
+
+  <!-- Section 2: Student Certificates -->
+  <section class="pb-12" id="certificates">
+    <div class="flex flex-col gap-6 mb-8">
+      <div>
+        <h3 class="text-lg md:text-xl font-bold font-display text-on-surface">{$t("teacher.certificates")}</h3>
+        <p class="text-[10px] md:text-xs text-on-surface-variant mt-1">{$t("teacher.certificatesDesc")}</p>
+      </div>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+        <div class="relative flex-1">
+          <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">{$t("teacher.filterByStudent")}</label>
+          <select
+            bind:value={filterStudent}
+            class="w-full appearance-none bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-4 py-2 text-sm pr-10 focus:ring-primary focus:border-primary transition-all"
+          >
+            <option value="">{$t("teacher.filterByStudent")}</option>
+            {#each students as student}
+              <option value={student.iin}>{student.username ?? maskIin(student.iin)}</option>
+            {/each}
+          </select>
+          <span class="material-symbols-outlined absolute right-3 bottom-2 text-slate-400 pointer-events-none">expand_more</span>
+        </div>
+        <button class="bg-surface-container-lowest border border-outline-variant/30 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+          <span class="material-symbols-outlined text-sm">filter_list</span>
+          {$t("teacher.moreFilters")}
+        </button>
+      </div>
+    </div>
+
+    <!-- Certificates - Responsive Layout -->
+    {#if loadingCerts}
+      <div class="bg-surface-container-lowest rounded-2xl p-12 text-center text-on-surface-variant text-sm shadow-sm border border-outline-variant/10">
+        {$t("common.loading")}
+      </div>
+    {:else if filteredCertificates.length === 0}
+      <div class="bg-surface-container-lowest rounded-2xl p-12 text-center text-on-surface-variant text-sm shadow-sm border border-outline-variant/10">
+        {$t("teacher.noCertificates")}
+      </div>
+    {:else}
+      <div class="lg:bg-surface-container-lowest lg:rounded-2xl lg:shadow-sm lg:border lg:border-outline-variant/10 lg:overflow-hidden">
+        <!-- Desktop Table (lg and up) -->
+        <div class="hidden lg:block overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low/50">
+                <th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("teacher.col.student")}</th>
+                <th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("teacher.col.event")}</th>
+                <th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("teacher.col.organization")}</th>
+                <th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("teacher.col.date")}</th>
+                <th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("teacher.col.status")}</th>
+                <th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">PDF</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low">
+              {#each filteredCertificates as cert}
+                <tr class="hover:bg-surface-container-low/30 transition-all">
+                  <td class="px-6 py-5">
+                    <div class="flex flex-col">
+                      <span class="text-sm font-bold text-on-surface">{cert.student_name}</span>
+                      <span class="text-[10px] font-mono text-on-surface-variant tracking-wider">{maskIin(cert.student_iin)}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-5">
+                    <span class="text-sm font-medium text-on-surface">{cert.event_title}</span>
+                  </td>
+                  <td class="px-6 py-5">
+                    <span class="text-xs text-on-surface-variant">{cert.organization_name}</span>
+                  </td>
+                  <td class="px-6 py-5">
+                    <span class="text-xs text-on-surface-variant">{cert.event_date ?? "---"}</span>
+                  </td>
+                  <td class="px-6 py-5">
+                    {#if cert.status === "valid" || cert.status === "completed"}
+                      <span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded-full uppercase tracking-wider">VALID</span>
+                    {:else if cert.status === "revoked"}
+                      <span class="px-3 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase tracking-wider">REVOKED</span>
+                    {:else}
+                      <span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider">{cert.status.toUpperCase()}</span>
+                    {/if}
+                  </td>
+                  <td class="px-6 py-5 text-right">
+                    {#if cert.status === "valid" || cert.status === "completed"}
+                      <button
+                        onclick={() => downloadPdf(cert.id)}
+                        class="p-2 text-primary hover:bg-primary-container/10 rounded-lg transition-all"
+                        title="Download PDF"
+                      >
+                        <span class="material-symbols-outlined">download</span>
+                      </button>
+                    {:else}
+                      <button class="p-2 text-slate-300 cursor-not-allowed" disabled>
+                        <span class="material-symbols-outlined">download_for_offline</span>
+                      </button>
+                    {/if}
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards View (< lg) -->
+        <div class="lg:hidden space-y-4">
+          {#each filteredCertificates as cert}
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 p-5 space-y-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">{$t("teacher.col.student")}</p>
+                  <p class="text-sm font-bold text-on-surface">{cert.student_name}</p>
+                  <p class="text-[10px] font-mono text-on-surface-variant tracking-wider">{maskIin(cert.student_iin)}</p>
+                </div>
+                {#if cert.status === "valid" || cert.status === "completed"}
+                  <span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded-full uppercase tracking-wider">VALID</span>
+                {:else if cert.status === "revoked"}
+                  <span class="px-3 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase tracking-wider">REVOKED</span>
+                {:else}
+                  <span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider">{cert.status.toUpperCase()}</span>
+                {/if}
+              </div>
+              <div class="grid grid-cols-2 gap-4 pt-2 border-t border-surface-container-low">
+                <div>
+                  <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">{$t("teacher.col.event")}</p>
+                  <p class="text-xs font-medium text-on-surface">{cert.event_title}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">{$t("teacher.col.date")}</p>
+                  <p class="text-xs text-on-surface-variant">{cert.event_date ?? "---"}</p>
+                </div>
+              </div>
+              <div class="flex justify-between items-center pt-2">
+                <div>
+                  <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">{$t("teacher.col.organization")}</p>
+                  <p class="text-xs text-on-surface-variant">{cert.organization_name}</p>
+                </div>
+                {#if cert.status === "valid" || cert.status === "completed"}
+                  <button
+                    onclick={() => downloadPdf(cert.id)}
+                    class="p-3 bg-primary/10 text-primary rounded-lg transition-all"
+                  >
+                    <span class="material-symbols-outlined">download</span>
+                  </button>
+                {:else}
+                  <button class="p-3 bg-slate-100 text-slate-300 rounded-lg cursor-not-allowed" disabled>
+                    <span class="material-symbols-outlined">download_for_offline</span>
+                  </button>
+                {/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/if}
   </section>
 </div>

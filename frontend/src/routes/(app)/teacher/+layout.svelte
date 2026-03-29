@@ -13,28 +13,36 @@
   });
 
   const navItems = [
-    { href: "/teacher", label: "teacher.nav.students" as const, icon: "users" },
-    { href: "/teacher/certificates", label: "teacher.nav.certificates" as const, icon: "certificate" },
+    { href: "/teacher", label: "teacher.nav.students" as const, icon: "group" },
+    { href: "/teacher/certificates", label: "teacher.nav.certificates" as const, icon: "verified" },
   ];
 
   let currentPath = $derived($page.url.pathname);
+  let sidebarOpen = $state(false);
+
+  function closeSidebar() {
+    sidebarOpen = false;
+  }
 </script>
 
-<div class="min-h-screen bg-surface flex">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-surface-lowest flex-col shrink-0 hidden md:flex">
-    <div class="p-6">
-      <div class="flex items-center gap-2">
-        <div class="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
-          <svg class="w-4 h-4 text-on-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" />
-          </svg>
-        </div>
-        <div>
-          <h1 class="font-display text-base font-bold text-on-surface">Jetistik</h1>
-          <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">{$t("teacher.title")}</p>
-        </div>
+<div class="min-h-screen bg-surface font-body text-on-surface">
+  <!-- Sidebar (Desktop always visible, Mobile toggleable) -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  {#if sidebarOpen}
+    <div class="lg:hidden fixed inset-0 bg-black/30 z-40" onclick={closeSidebar}></div>
+  {/if}
+
+  <aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col py-6 z-50 transition-transform duration-300
+    {sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0">
+    <div class="px-6 mb-10 flex justify-between items-center">
+      <div>
+        <h1 class="text-xl font-bold text-blue-700 font-display tracking-tight">Sovereign Ledger</h1>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-1">{$t("teacher.title")}</p>
       </div>
+      <button class="lg:hidden text-slate-500 p-1" onclick={closeSidebar}>
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
 
     <nav class="flex-1 px-3 space-y-1">
@@ -42,70 +50,71 @@
         {@const isActive = currentPath === item.href || (item.href !== "/teacher" && currentPath.startsWith(item.href))}
         <a
           href={item.href}
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
+          onclick={closeSidebar}
+          class="flex items-center px-3 py-3 transition-colors duration-200
             {isActive
-              ? 'bg-primary/10 text-primary'
-              : 'text-on-surface-variant hover:bg-surface-low hover:text-on-surface'}"
+              ? 'text-blue-700 font-bold border-r-4 border-blue-600 bg-blue-50/50'
+              : 'text-slate-500 hover:text-blue-600 hover:bg-slate-100'}"
         >
-          {#if item.icon === "users"}
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-            </svg>
-          {:else if item.icon === "certificate"}
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-            </svg>
-          {/if}
-          {$t(item.label)}
+          <span class="material-symbols-outlined mr-3">{item.icon}</span>
+          <span class="font-display tracking-tight">{$t(item.label)}</span>
         </a>
       {/each}
     </nav>
 
-    <div class="p-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold">
+    <div class="px-3 pt-6 border-t border-slate-100">
+      <a class="flex items-center px-3 py-3 text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors duration-200" href="/teacher">
+        <span class="material-symbols-outlined mr-3">settings</span>
+        <span class="font-display tracking-tight text-sm">Settings</span>
+      </a>
+      <a class="flex items-center px-3 py-3 text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors duration-200" href="/teacher">
+        <span class="material-symbols-outlined mr-3">help_outline</span>
+        <span class="font-display tracking-tight text-sm">Support</span>
+      </a>
+      <div class="mt-6 px-3 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary text-xs font-bold shrink-0">
           {$currentUser?.username?.[0]?.toUpperCase() ?? "?"}
         </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-on-surface truncate">{$currentUser?.username ?? ""}</p>
-          <p class="text-xs text-on-surface-variant">{$t("teacher.role")}</p>
+        <div class="overflow-hidden">
+          <p class="text-xs font-bold truncate">{$currentUser?.username ?? ""}</p>
+          <p class="text-[10px] text-slate-500 truncate">{$t("teacher.role")}</p>
         </div>
       </div>
+    </div>
+  </aside>
+
+  <!-- TopAppBar -->
+  <header class="fixed top-0 right-0 left-0 lg:left-64 h-16 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100/50 shadow-sm shadow-blue-500/5 flex justify-between items-center px-4 md:px-8">
+    <div class="flex items-center gap-3 flex-1">
+      <button class="lg:hidden p-2 -ml-2 text-slate-600" onclick={() => { sidebarOpen = true; }}>
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <div class="relative w-full max-w-md hidden sm:block">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+        <input class="w-full bg-slate-100/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Search..." type="text" />
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4">
+      <button class="text-slate-500 hover:text-blue-700 transition-all opacity-80 hover:opacity-100 p-2">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button class="text-slate-500 hover:text-blue-700 transition-all opacity-80 hover:opacity-100 p-2">
+        <span class="material-symbols-outlined">translate</span>
+      </button>
+      <div class="h-6 w-px bg-slate-200 mx-1"></div>
       <button
         onclick={() => auth.logout()}
-        class="mt-3 w-full text-xs text-on-surface-variant hover:text-error transition-colors text-left"
+        class="text-blue-600 text-sm font-medium hover:text-blue-700 transition-all opacity-80 hover:opacity-100 px-2"
       >
         {$t("teacher.signout")}
       </button>
     </div>
-  </aside>
+  </header>
 
-  <!-- Mobile header -->
-  <div class="md:hidden fixed top-0 left-0 right-0 z-30 bg-surface-lowest/80 backdrop-blur-xl">
-    <div class="px-4 h-14 flex items-center justify-between">
-      <span class="font-display text-lg font-bold text-on-surface">Jetistik</span>
-      <div class="flex items-center gap-3">
-        {#each navItems as item}
-          {@const isActive = currentPath === item.href || (item.href !== "/teacher" && currentPath.startsWith(item.href))}
-          <a
-            href={item.href}
-            class="text-xs font-medium px-2 py-1 rounded transition-colors {isActive ? 'text-primary' : 'text-on-surface-variant'}"
-          >
-            {$t(item.label)}
-          </a>
-        {/each}
-        <button
-          onclick={() => auth.logout()}
-          class="text-xs text-on-surface-variant hover:text-error transition-colors"
-        >
-          {$t("nav.logout")}
-        </button>
-      </div>
+  <!-- Main Content -->
+  <main class="lg:ml-64 pt-20 pb-12 px-4 md:px-8 min-h-screen">
+    <div class="max-w-7xl mx-auto">
+      {@render children()}
     </div>
-  </div>
-
-  <!-- Main content -->
-  <main class="flex-1 p-4 sm:p-8 md:pt-8 pt-18">
-    {@render children()}
   </main>
 </div>

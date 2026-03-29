@@ -67,7 +67,7 @@
     if (!dateStr) return "\u2014";
     return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
-      day: "numeric",
+      day: "2-digit",
       year: "numeric",
     });
   }
@@ -84,6 +84,8 @@
     student: "bg-emerald-50 text-emerald-700",
   };
 
+  let totalPages = $derived(Math.ceil(total / perPage));
+
   const columns = [
     { key: "id", label: "ID", class: "w-20" },
     { key: "username", label: "" },
@@ -92,7 +94,7 @@
     { key: "role", label: "" },
     { key: "status", label: "" },
     { key: "created_at", label: "" },
-    { key: "actions", label: "", class: "w-20" },
+    { key: "actions", label: "", class: "text-right" },
   ];
 
   let resolvedColumns = $derived(columns.map((c) => {
@@ -107,120 +109,139 @@
   }));
 </script>
 
-<div class="space-y-6">
-  <!-- Header -->
-  <div>
-    <h1 class="font-display text-2xl font-bold text-on-surface">{$t("admin.users.title")}</h1>
-    <p class="text-sm text-on-surface-variant mt-1">{$t("admin.users.subtitle")}</p>
+<!-- Page Header -->
+<header class="flex justify-between items-end mb-10">
+  <div class="space-y-1">
+    <nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant/60 gap-2 mb-2">
+      <a class="hover:text-primary transition-colors" href="/admin">Admin</a>
+      <span>/</span>
+      <span class="text-on-surface-variant">{$t("admin.users")}</span>
+    </nav>
+    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-display">{$t("admin.users.title")}</h1>
+    <p class="text-on-surface-variant max-w-2xl">{$t("admin.users.subtitle")}</p>
   </div>
+</header>
 
-  <!-- Search -->
-  <div class="flex items-center gap-3">
-    <div class="relative flex-1 max-w-md">
-      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-      </svg>
-      <input
-        type="text"
-        bind:value={search}
-        onkeydown={(e) => { if (e.key === "Enter") handleSearch(); }}
-        placeholder={$t("admin.users.searchPlaceholder")}
-        class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-surface-lowest text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-shadow"
-      />
-    </div>
+<!-- Search and Filters -->
+<section class="mb-6 flex flex-wrap gap-4 items-center justify-between">
+  <div class="relative w-full max-w-md group">
+    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">search</span>
+    <input
+      type="text"
+      bind:value={search}
+      onkeydown={(e) => { if (e.key === "Enter") handleSearch(); }}
+      placeholder={$t("admin.users.searchPlaceholder")}
+      class="w-full pl-12 pr-4 py-3 bg-surface-container-lowest rounded-xl border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary/50 transition-all outline-none text-sm placeholder:text-on-surface-variant/40 shadow-sm"
+    />
+  </div>
+  <div class="flex gap-2">
     <button
       onclick={handleSearch}
-      class="px-4 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant bg-surface-low hover:bg-surface-high transition-colors"
+      class="px-4 py-2.5 bg-surface-container-low text-on-surface-variant rounded-lg border border-outline-variant/20 flex items-center gap-2 hover:bg-surface-container transition-colors text-sm font-medium"
     >
-      {$t("common.filter")}
+      <span class="material-symbols-outlined text-[18px]">filter_list</span>
+      <span>{$t("common.filter")}</span>
     </button>
   </div>
+</section>
 
-  <!-- Table -->
-  <DataTable columns={resolvedColumns} data={users} {loading} empty={$t("admin.users.empty")}>
-    {#snippet row(user: User)}
-      <tr class="hover:bg-surface-low/50 transition-colors">
-        <td class="px-4 py-3 text-xs text-on-surface-variant font-mono">
-          {user.id}
-        </td>
-        <td class="px-4 py-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
-              {user.username?.[0]?.toUpperCase() ?? "?"}
-            </div>
-            <span class="font-medium text-on-surface">{user.username}</span>
+<!-- Table -->
+<DataTable columns={resolvedColumns} data={users} {loading} empty={$t("admin.users.empty")}>
+  {#snippet row(user: User, index: number)}
+    <tr class="{index % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container-low'} hover:bg-white transition-colors group">
+      <td class="px-6 py-5 text-xs text-on-surface-variant font-mono">
+        {user.id}
+      </td>
+      <td class="px-6 py-5">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+            {user.username?.[0]?.toUpperCase() ?? "?"}
           </div>
-        </td>
-        <td class="px-4 py-3 text-on-surface-variant text-sm">
-          {user.email || "\u2014"}
-        </td>
-        <td class="px-4 py-3 text-on-surface-variant text-sm font-mono">
-          {maskIin(user.iin)}
-        </td>
-        <td class="px-4 py-3">
-          <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize {roleBadgeColors[user.role] ?? 'bg-surface-high text-on-surface-variant'}">
-            {user.role}
-          </span>
-        </td>
-        <td class="px-4 py-3">
-          <StatusBadge status={user.status ?? "active"} />
-        </td>
-        <td class="px-4 py-3 text-on-surface-variant text-sm">
-          {formatDate(user.created_at)}
-        </td>
-        <td class="px-4 py-3">
-          <div class="flex gap-1">
-            <select
-              value={user.role}
-              onchange={(e) => changeRole(user.id, (e.target as HTMLSelectElement).value)}
-              class="text-xs px-1.5 py-1 rounded bg-surface-low border-0 text-on-surface cursor-pointer"
-            >
-              <option value="student">student</option>
-              <option value="teacher">teacher</option>
-              <option value="staff">staff</option>
-              <option value="admin">admin</option>
-            </select>
-            <button
-              onclick={() => toggleActive(user)}
-              class="p-1 rounded-md hover:bg-surface-high transition-colors text-xs {user.is_active ? 'text-error' : 'text-emerald-600'}"
-              title={user.is_active ? 'Deactivate' : 'Activate'}
-            >
-              {user.is_active ? 'Ban' : 'Unban'}
-            </button>
-          </div>
-        </td>
-      </tr>
-    {/snippet}
-  </DataTable>
-
-  <!-- Pagination -->
-  {#if total > perPage}
-    <div class="flex items-center justify-between text-sm text-on-surface-variant">
-      <span>{$t("common.showing")} {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} {$t("common.of")} {total}</span>
-      <div class="flex gap-1">
-        <button
-          disabled={page <= 1}
-          onclick={() => { page--; loadUsers(); }}
-          class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
-        >
-          {$t("common.previous")}
-        </button>
-        {#each Array.from({ length: Math.min(5, Math.ceil(total / perPage)) }, (_, i) => i + 1) as p}
-          <button
-            onclick={() => { page = p; loadUsers(); }}
-            class="w-8 h-8 rounded-md text-sm transition-colors {p === page ? 'bg-primary text-on-primary font-medium' : 'hover:bg-surface-high'}"
+          <span class="font-semibold text-on-surface">{user.username}</span>
+        </div>
+      </td>
+      <td class="px-6 py-5 text-on-surface-variant text-sm">
+        {user.email || "\u2014"}
+      </td>
+      <td class="px-6 py-5 text-on-surface-variant text-sm font-mono">
+        {maskIin(user.iin)}
+      </td>
+      <td class="px-6 py-5">
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider capitalize {roleBadgeColors[user.role] ?? 'bg-surface-high text-on-surface-variant'}">
+          {user.role}
+        </span>
+      </td>
+      <td class="px-6 py-5">
+        <StatusBadge status={user.status ?? "active"} />
+      </td>
+      <td class="px-6 py-5 text-on-surface-variant text-sm">
+        {formatDate(user.created_at)}
+      </td>
+      <td class="px-6 py-5 text-right">
+        <div class="flex items-center justify-end gap-1">
+          <select
+            value={user.role}
+            onchange={(e) => changeRole(user.id, (e.target as HTMLSelectElement).value)}
+            class="text-xs px-2 py-1.5 rounded-lg bg-surface-container-lowest ring-1 ring-outline-variant/20 text-on-surface cursor-pointer outline-none focus:ring-primary/50"
           >
-            {p}
+            <option value="student">student</option>
+            <option value="teacher">teacher</option>
+            <option value="staff">staff</option>
+            <option value="admin">admin</option>
+          </select>
+          <button
+            onclick={() => toggleActive(user)}
+            class="p-2 rounded-lg transition-all text-sm font-medium {user.is_active ? 'text-error hover:bg-error-container/30' : 'text-emerald-600 hover:bg-emerald-50'}"
+            title={user.is_active ? 'Deactivate' : 'Activate'}
+          >
+            <span class="material-symbols-outlined text-[20px]">{user.is_active ? 'block' : 'check_circle'}</span>
           </button>
-        {/each}
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
+
+<!-- Pagination -->
+{#if total > 0}
+  <footer class="px-6 py-4 bg-surface-container-high/30 border-t border-outline-variant/10 flex items-center justify-between -mt-[1px] rounded-b-2xl">
+    <p class="text-xs text-on-surface-variant">
+      {$t("common.showing")} {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} of {total} entries
+    </p>
+    <div class="flex items-center gap-1">
+      <button
+        disabled={page <= 1}
+        onclick={() => { page--; loadUsers(); }}
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30"
+      >
+        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+      </button>
+      {#each Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1) as p}
         <button
-          disabled={page * perPage >= total}
-          onclick={() => { page++; loadUsers(); }}
-          class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
+          onclick={() => { page = p; loadUsers(); }}
+          class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
+            {p === page ? 'bg-primary text-white font-bold' : 'hover:bg-surface-container text-on-surface'}"
         >
-          {$t("common.next")}
+          {p}
         </button>
-      </div>
+      {/each}
+      {#if totalPages > 4}
+        <span class="px-2 text-outline text-xs">...</span>
+        <button
+          onclick={() => { page = totalPages; loadUsers(); }}
+          class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
+            {totalPages === page ? 'bg-primary text-white font-bold' : 'hover:bg-surface-container text-on-surface'}"
+        >
+          {totalPages}
+        </button>
+      {/if}
+      <button
+        disabled={page * perPage >= total}
+        onclick={() => { page++; loadUsers(); }}
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30"
+      >
+        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+      </button>
     </div>
-  {/if}
-</div>
+  </footer>
+{/if}

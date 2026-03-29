@@ -17,11 +17,13 @@
     { key: 'iin', label: 'IIN' },
     { key: 'status', label: 'Status' },
     { key: 'created_at', label: 'Created' },
-    { key: 'actions', label: 'Actions' },
+    { key: 'actions', label: 'Actions', class: 'text-right' },
   ];
 
+  let totalPages = $derived(Math.ceil(total / perPage));
+
   function maskIIN(iin: string) {
-    if (!iin || iin.length < 6) return iin || '—';
+    if (!iin || iin.length < 6) return iin || '\u2014';
     return iin.slice(0, 4) + '****' + iin.slice(-2);
   }
 
@@ -54,45 +56,76 @@
   onMount(() => { load(); });
 </script>
 
-<div class="space-y-6">
-  <h1 class="text-2xl font-display font-bold text-on-surface">Certificates</h1>
-  <p class="text-on-surface-variant">Total: {total}</p>
+<header class="flex justify-between items-end mb-10">
+  <div class="space-y-1">
+    <nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant/60 gap-2 mb-2">
+      <a class="hover:text-primary transition-colors" href="/admin">Admin</a>
+      <span>/</span>
+      <span class="text-on-surface-variant">Certificates</span>
+    </nav>
+    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-display">Certificates</h1>
+    <p class="text-on-surface-variant max-w-2xl">Browse and manage all issued certificates. Total: {total}</p>
+  </div>
+</header>
 
-  {#if error}
-    <div class="bg-error-container text-on-error-container p-4 rounded-lg text-sm">{error}</div>
-  {/if}
+{#if error}
+  <div class="bg-error-container text-on-error-container p-4 rounded-2xl text-sm mb-6 ring-1 ring-error/20">{error}</div>
+{/if}
 
-  {#snippet row(cert: any)}
-    <tr class="hover:bg-surface-low transition-colors">
-      <td class="px-4 py-3 text-sm font-mono text-on-surface-variant">{cert.code?.slice(0, 8)}...</td>
-      <td class="px-4 py-3">
-        <div class="font-medium text-on-surface">{cert.name || '—'}</div>
-      </td>
-      <td class="px-4 py-3 text-sm">{maskIIN(cert.iin)}</td>
-      <td class="px-4 py-3"><StatusBadge status={cert.status || 'valid'} /></td>
-      <td class="px-4 py-3 text-sm text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</td>
-      <td class="px-4 py-3 flex gap-2">
-        <a href={`/verify/${cert.code}`} target="_blank" class="text-primary text-sm hover:underline">View</a>
-        <button onclick={() => revoke(cert)} class="text-error text-sm hover:underline" disabled={cert.status === 'revoked'}>
-          {cert.status === 'revoked' ? 'Revoked' : 'Revoke'}
+{#snippet row(cert: any, index: number)}
+  <tr class="{index % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container-low'} hover:bg-white transition-colors">
+    <td class="px-6 py-5 text-xs font-mono text-on-surface-variant">{cert.code?.slice(0, 8)}...</td>
+    <td class="px-6 py-5">
+      <span class="font-semibold text-on-surface">{cert.name || '\u2014'}</span>
+    </td>
+    <td class="px-6 py-5 text-sm font-mono text-on-surface-variant">{maskIIN(cert.iin)}</td>
+    <td class="px-6 py-5"><StatusBadge status={cert.status || 'valid'} /></td>
+    <td class="px-6 py-5 text-sm text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</td>
+    <td class="px-6 py-5 text-right">
+      <a href={`/verify/${cert.code}`} target="_blank" class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all inline-block" title="View">
+        <span class="material-symbols-outlined">visibility</span>
+      </a>
+      <button
+        onclick={() => revoke(cert)}
+        disabled={cert.status === 'revoked'}
+        class="p-2 text-outline hover:text-error hover:bg-error-container/30 rounded-lg transition-all disabled:opacity-30"
+        title={cert.status === 'revoked' ? 'Already revoked' : 'Revoke'}
+      >
+        <span class="material-symbols-outlined">block</span>
+      </button>
+    </td>
+  </tr>
+{/snippet}
+
+<DataTable
+  {columns}
+  data={certs}
+  {loading}
+  {row}
+  empty="No certificates found"
+/>
+
+{#if total > 0}
+  <footer class="px-6 py-4 bg-surface-container-high/30 border-t border-outline-variant/10 flex items-center justify-between -mt-[1px] rounded-b-2xl">
+    <p class="text-xs text-on-surface-variant">Showing {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} of {total} entries</p>
+    <div class="flex items-center gap-1">
+      <button disabled={page <= 1} onclick={() => { page--; load(); }} class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30">
+        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+      </button>
+      {#each Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1) as p}
+        <button onclick={() => { page = p; load(); }} class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors {p === page ? 'bg-primary text-white font-bold' : 'hover:bg-surface-container text-on-surface'}">
+          {p}
         </button>
-      </td>
-    </tr>
-  {/snippet}
-
-  <DataTable
-    {columns}
-    data={certs}
-    {loading}
-    {row}
-    empty="No certificates found"
-  />
-
-  {#if total > perPage}
-    <div class="flex justify-center gap-2 mt-4">
-      <button onclick={() => { page--; load(); }} disabled={page <= 1} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Previous</button>
-      <span class="px-3 py-1 text-sm text-on-surface-variant">Page {page} of {Math.ceil(total / perPage)}</span>
-      <button onclick={() => { page++; load(); }} disabled={page * perPage >= total} class="px-3 py-1 rounded-md bg-surface-low text-sm disabled:opacity-50">Next</button>
+      {/each}
+      {#if totalPages > 4}
+        <span class="px-2 text-outline text-xs">...</span>
+        <button onclick={() => { page = totalPages; load(); }} class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors {totalPages === page ? 'bg-primary text-white font-bold' : 'hover:bg-surface-container text-on-surface'}">
+          {totalPages}
+        </button>
+      {/if}
+      <button disabled={page * perPage >= total} onclick={() => { page++; load(); }} class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30">
+        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+      </button>
     </div>
-  {/if}
-</div>
+  </footer>
+{/if}

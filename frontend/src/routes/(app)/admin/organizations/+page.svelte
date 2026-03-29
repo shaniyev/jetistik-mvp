@@ -143,7 +143,7 @@
     if (!dateStr) return "\u2014";
     return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
-      day: "numeric",
+      day: "2-digit",
       year: "numeric",
     });
   }
@@ -156,13 +156,25 @@
       .join("");
   }
 
+  const avatarColors = [
+    "bg-primary-fixed text-primary",
+    "bg-secondary-fixed text-secondary",
+    "bg-tertiary-fixed text-tertiary",
+  ];
+
+  function getAvatarColor(index: number): string {
+    return avatarColors[index % avatarColors.length];
+  }
+
+  let totalPages = $derived(Math.ceil(total / perPage));
+
   const columns = [
     { key: "id", label: "ID", class: "w-28" },
     { key: "name", label: "" },
     { key: "status", label: "" },
     { key: "created_at", label: "" },
     { key: "members", label: "" },
-    { key: "actions", label: "", class: "w-24" },
+    { key: "actions", label: "", class: "text-right" },
   ];
 
   let resolvedColumns = $derived(columns.map((c) => {
@@ -175,223 +187,244 @@
   }));
 </script>
 
-<div class="space-y-6">
-  <!-- Header -->
-  <div class="flex items-start justify-between">
-    <div>
-      <h1 class="font-display text-2xl font-bold text-on-surface">{$t("admin.orgs.title")}</h1>
-      <p class="text-sm text-on-surface-variant mt-1 max-w-xl">{$t("admin.orgs.subtitle")}</p>
-    </div>
-    <button
-      onclick={() => { showCreateModal = true; }}
-      class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
-             bg-gradient-to-br from-primary to-primary-container text-on-primary
-             hover:shadow-lg transition-shadow"
-    >
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      {$t("admin.orgs.create")}
-    </button>
+<!-- Page Header -->
+<header class="flex justify-between items-end mb-10">
+  <div class="space-y-1">
+    <nav class="flex text-[10px] uppercase tracking-widest text-on-surface-variant/60 gap-2 mb-2">
+      <a class="hover:text-primary transition-colors" href="/admin">Admin</a>
+      <span>/</span>
+      <span class="text-on-surface-variant">{$t("admin.organizations")}</span>
+    </nav>
+    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-display">{$t("admin.orgs.title")}</h1>
+    <p class="text-on-surface-variant max-w-2xl">{$t("admin.orgs.subtitle")}</p>
   </div>
+  <button
+    onclick={() => { showCreateModal = true; }}
+    class="bg-gradient-to-br from-primary to-primary-container text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 shadow-sm hover:shadow-md active:scale-95 transition-all"
+  >
+    <span class="material-symbols-outlined text-[20px]">add_business</span>
+    <span>{$t("admin.orgs.create")}</span>
+  </button>
+</header>
 
-  <!-- Search -->
-  <div class="flex items-center gap-3">
-    <div class="relative flex-1 max-w-md">
-      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-      </svg>
-      <input
-        type="text"
-        bind:value={search}
-        onkeydown={(e) => { if (e.key === "Enter") handleSearch(); }}
-        placeholder={$t("admin.orgs.searchPlaceholder")}
-        class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-surface-lowest text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-shadow"
-      />
-    </div>
+<!-- Search and Filters -->
+<section class="mb-6 flex flex-wrap gap-4 items-center justify-between">
+  <div class="relative w-full max-w-md group">
+    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">search</span>
+    <input
+      type="text"
+      bind:value={search}
+      onkeydown={(e) => { if (e.key === "Enter") handleSearch(); }}
+      placeholder={$t("admin.orgs.searchPlaceholder")}
+      class="w-full pl-12 pr-4 py-3 bg-surface-container-lowest rounded-xl border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary/50 transition-all outline-none text-sm placeholder:text-on-surface-variant/40 shadow-sm"
+    />
+  </div>
+  <div class="flex gap-2">
     <button
       onclick={handleSearch}
-      class="px-4 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant bg-surface-low hover:bg-surface-high transition-colors"
+      class="px-4 py-2.5 bg-surface-container-low text-on-surface-variant rounded-lg border border-outline-variant/20 flex items-center gap-2 hover:bg-surface-container transition-colors text-sm font-medium"
     >
-      {$t("common.filter")}
+      <span class="material-symbols-outlined text-[18px]">filter_list</span>
+      <span>{$t("common.filter")}</span>
+    </button>
+    <button
+      class="px-4 py-2.5 bg-surface-container-low text-on-surface-variant rounded-lg border border-outline-variant/20 flex items-center gap-2 hover:bg-surface-container transition-colors text-sm font-medium"
+    >
+      <span class="material-symbols-outlined text-[18px]">file_download</span>
+      <span>Export CSV</span>
     </button>
   </div>
+</section>
 
-  <!-- Table -->
-  <DataTable columns={resolvedColumns} data={orgs} {loading} empty={$t("admin.orgs.empty")}>
-    {#snippet row(org: Organization)}
-      <tr class="hover:bg-surface-low/50 transition-colors">
-        <td class="px-4 py-3">
-          <span class="text-xs text-on-surface-variant font-mono">{org.code || `#${org.id}`}</span>
-        </td>
-        <td class="px-4 py-3">
-          {#if editingId === org.id}
-            <div class="flex flex-col gap-1">
-              <input
-                type="text"
-                bind:value={editName}
-                class="px-2 py-1 rounded bg-surface-lowest text-sm text-on-surface border border-outline-variant focus:border-primary outline-none"
-              />
-              <input
-                type="text"
-                bind:value={editDomain}
-                placeholder={$t("admin.orgs.domain")}
-                class="px-2 py-1 rounded bg-surface-lowest text-xs text-on-surface-variant border border-outline-variant focus:border-primary outline-none"
-              />
+<!-- Organizations Table -->
+<DataTable columns={resolvedColumns} data={orgs} {loading} empty={$t("admin.orgs.empty")}>
+  {#snippet row(org: Organization, index: number)}
+    <tr class="{index % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container-low'} hover:bg-white transition-colors group">
+      <td class="px-6 py-5 font-mono text-xs text-on-surface-variant">
+        {org.code || `#ORG-${String(org.id).padStart(4, '0')}`}
+      </td>
+      <td class="px-6 py-5">
+        {#if editingId === org.id}
+          <div class="flex flex-col gap-1">
+            <input
+              type="text"
+              bind:value={editName}
+              class="px-2 py-1 rounded bg-surface-container-lowest text-sm text-on-surface border border-outline-variant focus:border-primary outline-none"
+            />
+            <input
+              type="text"
+              bind:value={editDomain}
+              placeholder={$t("admin.orgs.domain")}
+              class="px-2 py-1 rounded bg-surface-container-lowest text-xs text-on-surface-variant border border-outline-variant focus:border-primary outline-none"
+            />
+          </div>
+        {:else}
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded {getAvatarColor(index)} flex items-center justify-center font-bold text-xs">
+              {getInitials(org.name)}
             </div>
-          {:else}
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg bg-surface-high flex items-center justify-center text-xs font-bold text-on-surface-variant shrink-0">
-                {getInitials(org.name)}
-              </div>
-              <div>
-                <p class="font-medium text-on-surface">{org.name}</p>
-                <p class="text-xs text-on-surface-variant">{org.domain || ""}</p>
-              </div>
+            <div class="flex flex-col">
+              <span class="font-semibold text-on-surface">{org.name}</span>
+              <span class="text-xs text-on-surface-variant">{org.domain || ""}</span>
             </div>
-          {/if}
-        </td>
-        <td class="px-4 py-3">
-          {#if editingId === org.id}
-            <select
-              bind:value={editStatus}
-              class="px-2 py-1 rounded bg-surface-lowest text-sm text-on-surface border border-outline-variant focus:border-primary outline-none"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="suspended">Suspended</option>
-            </select>
-          {:else}
-            <StatusBadge status={org.status} />
-          {/if}
-        </td>
-        <td class="px-4 py-3 text-on-surface-variant text-sm">
-          {formatDate(org.created_at)}
-        </td>
-        <td class="px-4 py-3 text-on-surface text-sm font-medium">
-          {org.members_count?.toLocaleString() ?? 0}
-        </td>
-        <td class="px-4 py-3">
-          {#if editingId === org.id}
-            <div class="flex items-center gap-1">
-              <button
-                onclick={() => saveEdit(org.id)}
-                disabled={editLoading}
-                class="p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
-                title="Save"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-              </button>
-              <button
-                onclick={cancelEdit}
-                class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant"
-                title="Cancel"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          {:else}
-            <div class="flex items-center gap-2">
-              <button onclick={() => startEdit(org)} class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant hover:text-on-surface" title={$t("common.edit")}>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                </svg>
-              </button>
-              <div class="relative">
-                <button onclick={() => toggleMenu(org.id)} class="p-1.5 rounded-md hover:bg-surface-high transition-colors text-on-surface-variant hover:text-on-surface" title="More">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                  </svg>
-                </button>
-                {#if openMenuId === org.id}
-                  <div class="absolute right-0 top-full mt-1 z-50 bg-surface-lowest rounded-lg shadow-lg border border-outline-variant/20 py-1 min-w-[140px]">
-                    <button
-                      onclick={() => deleteOrg(org)}
-                      class="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container/30 transition-colors"
-                    >
-                      {$t("common.delete")}
-                    </button>
-                  </div>
-                {/if}
-              </div>
-            </div>
-          {/if}
-        </td>
-      </tr>
-    {/snippet}
-  </DataTable>
-
-  <!-- Pagination -->
-  {#if total > perPage}
-    <div class="flex items-center justify-between text-sm text-on-surface-variant">
-      <span>{$t("common.showing")} {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} {$t("common.of")} {total}</span>
-      <div class="flex gap-1">
-        <button
-          disabled={page <= 1}
-          onclick={() => { page--; loadOrgs(); }}
-          class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
-        >
-          {$t("common.previous")}
-        </button>
-        {#each Array.from({ length: Math.min(5, Math.ceil(total / perPage)) }, (_, i) => i + 1) as p}
-          <button
-            onclick={() => { page = p; loadOrgs(); }}
-            class="w-8 h-8 rounded-md text-sm transition-colors {p === page ? 'bg-primary text-on-primary font-medium' : 'hover:bg-surface-high'}"
+          </div>
+        {/if}
+      </td>
+      <td class="px-6 py-5">
+        {#if editingId === org.id}
+          <select
+            bind:value={editStatus}
+            class="px-2 py-1 rounded bg-surface-container-lowest text-sm text-on-surface border border-outline-variant focus:border-primary outline-none"
           >
-            {p}
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
+            <option value="archived">Archived</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        {:else}
+          <StatusBadge status={org.status} />
+        {/if}
+      </td>
+      <td class="px-6 py-5 text-sm text-on-surface-variant">
+        {formatDate(org.created_at)}
+      </td>
+      <td class="px-6 py-5 text-sm text-on-surface font-medium">
+        {org.members_count?.toLocaleString() ?? 0}
+      </td>
+      <td class="px-6 py-5 text-right">
+        {#if editingId === org.id}
+          <div class="flex items-center justify-end gap-1">
+            <button
+              onclick={() => saveEdit(org.id)}
+              disabled={editLoading}
+              class="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all"
+              title="Save"
+            >
+              <span class="material-symbols-outlined">check</span>
+            </button>
+            <button
+              onclick={cancelEdit}
+              class="p-2 text-outline hover:bg-slate-100 rounded-lg transition-all"
+              title="Cancel"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        {:else}
+          <button onclick={() => startEdit(org)} class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+            <span class="material-symbols-outlined">edit</span>
           </button>
-        {/each}
+          <div class="relative inline-block">
+            <button onclick={() => toggleMenu(org.id)} class="p-2 text-outline hover:text-on-surface hover:bg-slate-100 rounded-lg transition-all">
+              <span class="material-symbols-outlined">more_vert</span>
+            </button>
+            {#if openMenuId === org.id}
+              <div class="absolute right-0 top-full mt-1 z-50 bg-surface-container-lowest rounded-lg shadow-lg border border-outline-variant/20 py-1 min-w-[140px]">
+                <button
+                  onclick={() => deleteOrg(org)}
+                  class="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container/30 transition-colors flex items-center gap-2"
+                >
+                  <span class="material-symbols-outlined text-[18px]">delete</span>
+                  {$t("common.delete")}
+                </button>
+              </div>
+            {/if}
+          </div>
+        {/if}
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
+
+<!-- Pagination -->
+{#if total > 0}
+  <footer class="px-6 py-4 bg-surface-container-high/30 border-t border-outline-variant/10 flex items-center justify-between -mt-[1px] rounded-b-2xl">
+    <p class="text-xs text-on-surface-variant">
+      {$t("common.showing")} {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} of {total} entries
+    </p>
+    <div class="flex items-center gap-1">
+      <button
+        disabled={page <= 1}
+        onclick={() => { page--; loadOrgs(); }}
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30"
+      >
+        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+      </button>
+      {#each Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1) as p}
         <button
-          disabled={page * perPage >= total}
-          onclick={() => { page++; loadOrgs(); }}
-          class="px-3 py-1.5 rounded-md bg-surface-low hover:bg-surface-high disabled:opacity-50 transition-colors"
+          onclick={() => { page = p; loadOrgs(); }}
+          class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
+            {p === page ? 'bg-primary text-white font-bold' : 'hover:bg-surface-container text-on-surface'}"
         >
-          {$t("common.next")}
+          {p}
         </button>
-      </div>
+      {/each}
+      {#if totalPages > 4}
+        <span class="px-2 text-outline text-xs">...</span>
+        <button
+          onclick={() => { page = totalPages; loadOrgs(); }}
+          class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
+            {totalPages === page ? 'bg-primary text-white font-bold' : 'hover:bg-surface-container text-on-surface'}"
+        >
+          {totalPages}
+        </button>
+      {/if}
+      <button
+        disabled={page * perPage >= total}
+        onclick={() => { page++; loadOrgs(); }}
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-outline disabled:opacity-30"
+      >
+        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+      </button>
     </div>
-  {/if}
+  </footer>
+{/if}
 
-  <!-- Stats Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-    <div class="bg-surface-lowest rounded-lg p-5">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center">
-          <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
-          </svg>
-        </div>
-        <span class="text-xs uppercase tracking-wider text-on-surface-variant font-medium">{$t("admin.weeklyGrowth")}</span>
-      </div>
-      <p class="text-2xl font-display font-bold text-on-surface">+{stats.weekly_growth}%</p>
-      <p class="text-xs text-primary mt-1">{stats.new_orgs_this_week} {$t("admin.newOrgsThisWeek")}</p>
+<!-- System Stats Grid (Bento Style) -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="bg-surface-container-lowest p-6 rounded-2xl ring-1 ring-outline-variant/10 shadow-sm flex flex-col gap-4">
+    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-primary">
+      <span class="material-symbols-outlined">analytics</span>
     </div>
-
-    <div class="bg-surface-lowest rounded-lg p-5">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center">
-          <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-          </svg>
-        </div>
-        <span class="text-xs uppercase tracking-wider text-on-surface-variant font-medium">{$t("admin.ledgerIntegrity")}</span>
-      </div>
-      <p class="text-2xl font-display font-bold text-on-surface">{stats.ledger_integrity || 99.9}%</p>
-      <p class="text-xs text-on-surface-variant mt-1">{$t("admin.allCertsVerified")}</p>
+    <div>
+      <h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">{$t("admin.weeklyGrowth")}</h3>
+      <p class="text-3xl font-extrabold text-on-surface font-display">+{stats.weekly_growth}%</p>
+      <p class="text-xs text-primary font-semibold mt-2 flex items-center gap-1">
+        <span class="material-symbols-outlined text-xs">trending_up</span>
+        <span>{stats.new_orgs_this_week} {$t("admin.newOrgsThisWeek")}</span>
+      </p>
     </div>
   </div>
-</div>
+
+  <div class="bg-surface-container-lowest p-6 rounded-2xl ring-1 ring-outline-variant/10 shadow-sm flex flex-col gap-4">
+    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-secondary">
+      <span class="material-symbols-outlined">security</span>
+    </div>
+    <div>
+      <h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">{$t("admin.ledgerIntegrity")}</h3>
+      <p class="text-3xl font-extrabold text-on-surface font-display">{stats.ledger_integrity || 99.9}%</p>
+      <p class="text-xs text-on-surface-variant mt-2">{$t("admin.allCertsVerified")}</p>
+    </div>
+  </div>
+
+  <div class="md:col-span-1 bg-gradient-to-br from-primary/5 to-primary-container/5 p-6 rounded-2xl ring-1 ring-primary/20 flex flex-col justify-between">
+    <div>
+      <h3 class="text-sm font-bold text-on-surface mb-2">Need bulk import?</h3>
+      <p class="text-xs text-on-surface-variant leading-relaxed">Download our CSV template for faster organization onboarding and member mapping.</p>
+    </div>
+    <button class="mt-4 text-xs font-bold text-primary flex items-center gap-1 hover:underline">
+      Get Template <span class="material-symbols-outlined text-xs">arrow_forward</span>
+    </button>
+  </div>
+</section>
 
 <!-- Create Organization Modal -->
 {#if showCreateModal}
   <div class="fixed inset-0 z-50 flex items-center justify-center">
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="absolute inset-0 bg-black/50" onclick={() => { showCreateModal = false; }}></div>
-    <div class="relative bg-surface-lowest rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick={() => { showCreateModal = false; }}></div>
+    <div class="relative bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-md mx-4 ring-1 ring-outline-variant/10">
       <h2 class="text-lg font-display font-bold text-on-surface mb-4">{$t("admin.orgs.create")}</h2>
 
       {#if createError}
@@ -406,7 +439,7 @@
             type="text"
             bind:value={createName}
             required
-            class="w-full px-3 py-2 rounded-lg bg-surface-low text-sm text-on-surface border border-outline-variant focus:border-primary outline-none transition-colors"
+            class="w-full px-3 py-2.5 rounded-xl bg-surface-container-lowest text-sm text-on-surface ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary/50 outline-none transition-all"
           />
         </div>
         <div>
@@ -416,21 +449,21 @@
             type="text"
             bind:value={createDomain}
             placeholder="example.org"
-            class="w-full px-3 py-2 rounded-lg bg-surface-low text-sm text-on-surface border border-outline-variant focus:border-primary outline-none transition-colors"
+            class="w-full px-3 py-2.5 rounded-xl bg-surface-container-lowest text-sm text-on-surface ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary/50 outline-none transition-all"
           />
         </div>
         <div class="flex justify-end gap-3 pt-2">
           <button
             type="button"
             onclick={() => { showCreateModal = false; }}
-            class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-high transition-colors"
+            class="px-4 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors"
           >
             {$t("common.cancel")}
           </button>
           <button
             type="submit"
             disabled={createLoading || !createName.trim()}
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-br from-primary to-primary-container text-on-primary hover:shadow-lg transition-shadow disabled:opacity-50"
+            class="px-6 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-br from-primary to-primary-container text-white hover:shadow-md transition-all disabled:opacity-50"
           >
             {createLoading ? "..." : $t("admin.orgs.create")}
           </button>
