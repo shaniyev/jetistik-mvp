@@ -17,7 +17,7 @@
   <!-- Top Navigation Bar -->
   <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
     <div class="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 max-w-screen-2xl mx-auto">
-      <a href="/student" class="text-2xl font-display font-bold tracking-tighter text-blue-700">Jetistik</a>
+      <a href="/" class="text-2xl font-display font-bold tracking-tighter text-blue-700">Jetistik</a>
 
       <!-- Desktop Links -->
       <div class="hidden md:flex gap-8 items-center font-display font-semibold tracking-tight">

@@ -36,7 +36,7 @@
   <!-- Sidebar -->
   <aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col p-4 gap-2 border-r border-slate-100 z-40">
     <div class="mb-8 px-2 py-4">
-      <span class="text-2xl font-bold tracking-tighter text-primary font-display">Jetistik</span>
+      <a href="/" class="text-2xl font-bold tracking-tighter text-primary font-display hover:opacity-80 transition-opacity">Jetistik</a>
       <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">{$t("admin.title")}</p>
     </div>
 

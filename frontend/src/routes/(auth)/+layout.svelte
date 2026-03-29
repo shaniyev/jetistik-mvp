@@ -23,9 +23,9 @@
   <!-- Header -->
   <header class="fixed top-0 w-full z-50 glass-effect border-b border-outline-variant/15">
     <div class="flex justify-between items-center px-6 py-4 max-w-screen-2xl mx-auto">
-      <div class="text-2xl font-display font-extrabold tracking-tighter text-primary">
+      <a href="/" class="text-2xl font-display font-extrabold tracking-tighter text-primary hover:opacity-80 transition-opacity">
         Jetistik
-      </div>
+      </a>
       <div class="flex items-center gap-4">
         <span class="text-xs font-body font-semibold text-on-surface-variant tracking-wider uppercase">Merit Ledger</span>
       </div>
