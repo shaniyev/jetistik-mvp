@@ -12,11 +12,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"jetistik/internal/audit"
 	"jetistik/internal/auth"
+	"jetistik/internal/batch"
+	"jetistik/internal/certificate"
+	"jetistik/internal/event"
+	"jetistik/internal/organization"
 	"jetistik/internal/platform/config"
 	"jetistik/internal/platform/db"
 	"jetistik/internal/platform/middleware"
 	"jetistik/internal/platform/response"
+	"jetistik/internal/storage"
+	tmpl "jetistik/internal/template"
 	"jetistik/internal/user"
 )
 
@@ -54,6 +61,16 @@ func run() error {
 
 	slog.Info("connected to database")
 
+	// MinIO storage
+	storageClient, err := storage.NewClient(
+		cfg.MinioEndpoint, cfg.MinioAccessKey, cfg.MinioSecretKey,
+		cfg.MinioBucket, cfg.MinioUseSSL,
+	)
+	if err != nil {
+		return fmt.Errorf("connect to minio: %w", err)
+	}
+	slog.Info("connected to MinIO", "bucket", cfg.MinioBucket)
+
 	// Wire modules
 	authRepo := auth.NewRepository(pool)
 	authSvc := auth.NewService(authRepo, cfg.JWTSecret, cfg.JWTAccessTTL, cfg.JWTRefreshTTL)
@@ -62,6 +79,30 @@ func run() error {
 	userRepo := user.NewRepository(pool)
 	userSvc := user.NewService(userRepo)
 	userHandler := user.NewHandler(userSvc)
+
+	auditRepo := audit.NewRepository(pool)
+	auditSvc := audit.NewService(auditRepo)
+	auditHandler := audit.NewHandler(auditSvc)
+
+	orgRepo := organization.NewRepository(pool)
+	orgSvc := organization.NewService(orgRepo)
+	orgHandler := organization.NewHandler(orgSvc)
+
+	eventRepo := event.NewRepository(pool)
+	eventSvc := event.NewService(eventRepo)
+	eventHandler := event.NewHandler(eventSvc, orgSvc, auditSvc)
+
+	tmplRepo := tmpl.NewRepository(pool)
+	tmplSvc := tmpl.NewService(tmplRepo, storageClient)
+	tmplHandler := tmpl.NewHandler(tmplSvc, auditSvc)
+
+	batchRepo := batch.NewRepository(pool)
+	batchSvc := batch.NewService(batchRepo, storageClient)
+	batchHandler := batch.NewHandler(batchSvc, tmplSvc, auditSvc)
+
+	certRepo := certificate.NewRepository(pool)
+	certSvc := certificate.NewService(certRepo, storageClient, cfg.PublicBaseURL)
+	certHandler := certificate.NewHandler(certSvc, auditSvc)
 
 	r := chi.NewRouter()
 
@@ -87,12 +128,57 @@ func run() error {
 			r.Mount("/auth", authHandler.Routes())
 		})
 
+		// Public certificate routes (rate-limited)
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.RateLimit(10, time.Minute))
+			r.Mount("/", certHandler.PublicRoutes())
+		})
+
 		// Protected routes
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.JWTAuth(cfg.JWTSecret))
 
 			r.Mount("/profile", userHandler.ProfileRoutes())
 			r.Mount("/teacher/students", userHandler.TeacherStudentRoutes())
+
+			// Staff routes
+			r.Route("/staff", func(r chi.Router) {
+				r.Use(middleware.RequireRole("staff", "admin"))
+
+				r.Mount("/events", eventHandler.StaffRoutes())
+
+				// Template upload/delete on events
+				r.Post("/events/{id}/template", tmplHandler.Upload)
+				r.Delete("/events/{id}/template", tmplHandler.Delete)
+				r.Get("/events/{id}/template", tmplHandler.GetByEvent)
+
+				// Batch upload on events
+				r.Post("/events/{id}/batches", batchHandler.Upload)
+
+				// Batch operations
+				r.Get("/batches/{id}", batchHandler.GetByID)
+				r.Patch("/batches/{id}/mapping", batchHandler.UpdateMapping)
+				r.Delete("/batches/{id}", batchHandler.Delete)
+
+				// Certificates per event
+				r.Route("/events/{id}/certificates", func(r chi.Router) {
+					r.Mount("/", certHandler.StaffCertificateRoutes())
+				})
+
+				// Individual certificate operations
+				r.Mount("/certificates", certHandler.StaffCertificateItemRoutes())
+
+				// Audit log
+				r.Mount("/audit-log", auditHandler.Routes())
+			})
+
+			// Admin routes
+			r.Route("/admin", func(r chi.Router) {
+				r.Use(middleware.RequireRole("admin"))
+
+				r.Mount("/organizations", orgHandler.AdminRoutes())
+				r.Mount("/audit-log", auditHandler.Routes())
+			})
 		})
 	})
 
