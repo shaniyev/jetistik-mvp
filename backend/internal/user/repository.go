@@ -17,6 +17,7 @@ type Repository interface {
 	AddTeacherStudent(ctx context.Context, teacherID int64, studentIIN string) (sqlcdb.TeacherStudent, error)
 	RemoveTeacherStudent(ctx context.Context, teacherID int64, studentIIN string) error
 	ListCertificatesByUserID(ctx context.Context, userID int64) ([]sqlcdb.ListCertificatesByUserIDRow, error)
+	ListCertificatesForTeacher(ctx context.Context, teacherID int64) ([]sqlcdb.ListCertificatesForTeacherRow, error)
 }
 
 type pgRepository struct {
@@ -72,6 +73,14 @@ func (r *pgRepository) RemoveTeacherStudent(ctx context.Context, teacherID int64
 		return fmt.Errorf("remove teacher student: %w", err)
 	}
 	return nil
+}
+
+func (r *pgRepository) ListCertificatesForTeacher(ctx context.Context, teacherID int64) ([]sqlcdb.ListCertificatesForTeacherRow, error) {
+	certs, err := r.q.ListCertificatesForTeacher(ctx, teacherID)
+	if err != nil {
+		return nil, fmt.Errorf("list certs for teacher: %w", err)
+	}
+	return certs, nil
 }
 
 func (r *pgRepository) ListCertificatesByUserID(ctx context.Context, userID int64) ([]sqlcdb.ListCertificatesByUserIDRow, error) {

@@ -452,6 +452,71 @@ func (q *Queries) ListCertificatesByUserID(ctx context.Context, id int64) ([]Lis
 	return items, nil
 }
 
+const listCertificatesForTeacher = `-- name: ListCertificatesForTeacher :many
+SELECT c.id, c.event_id, c.organization_id, c.iin, c.name, c.code, c.pdf_path, c.status, c.revoked_reason, c.payload, c.created_at, c.updated_at, e.title as event_title, o.name as org_name
+FROM certificates c
+JOIN events e ON e.id = c.event_id
+LEFT JOIN organizations o ON o.id = c.organization_id
+WHERE c.iin IN (
+  SELECT ts.student_iin FROM teacher_students ts WHERE ts.teacher_id = $1
+  UNION
+  SELECT u.iin FROM users u WHERE u.id = $1 AND u.iin IS NOT NULL AND u.iin != ''
+)
+ORDER BY c.created_at DESC
+`
+
+type ListCertificatesForTeacherRow struct {
+	ID             int64              `json:"id"`
+	EventID        int64              `json:"event_id"`
+	OrganizationID pgtype.Int8        `json:"organization_id"`
+	Iin            pgtype.Text        `json:"iin"`
+	Name           pgtype.Text        `json:"name"`
+	Code           string             `json:"code"`
+	PdfPath        pgtype.Text        `json:"pdf_path"`
+	Status         pgtype.Text        `json:"status"`
+	RevokedReason  pgtype.Text        `json:"revoked_reason"`
+	Payload        []byte             `json:"payload"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	EventTitle     string             `json:"event_title"`
+	OrgName        pgtype.Text        `json:"org_name"`
+}
+
+func (q *Queries) ListCertificatesForTeacher(ctx context.Context, teacherID int64) ([]ListCertificatesForTeacherRow, error) {
+	rows, err := q.db.Query(ctx, listCertificatesForTeacher, teacherID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListCertificatesForTeacherRow{}
+	for rows.Next() {
+		var i ListCertificatesForTeacherRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventID,
+			&i.OrganizationID,
+			&i.Iin,
+			&i.Name,
+			&i.Code,
+			&i.PdfPath,
+			&i.Status,
+			&i.RevokedReason,
+			&i.Payload,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.EventTitle,
+			&i.OrgName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const searchCertificatesByIIN = `-- name: SearchCertificatesByIIN :many
 SELECT c.id, c.event_id, c.iin, c.name, c.code, c.status, c.created_at,
        e.title as event_title, o.name as org_name

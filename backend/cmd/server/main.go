@@ -189,6 +189,7 @@ func run() error {
 
 			r.Mount("/profile", userHandler.ProfileRoutes())
 			r.Mount("/teacher/students", userHandler.TeacherStudentRoutes())
+			r.Mount("/teacher/certificates", userHandler.TeacherCertificateRoutes())
 
 			// Staff routes
 			r.Route("/staff", func(r chi.Router) {

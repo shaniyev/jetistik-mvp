@@ -121,6 +121,26 @@ func toProfileResponseFromRow(u sqlcdb.UpdateUserProfileRow) *ProfileResponse {
 	}
 }
 
+// ListTeacherCertificates returns certificates for teacher's linked students + own.
+func (s *Service) ListTeacherCertificates(ctx context.Context, teacherID int64) ([]PublicCertificateEntry, error) {
+	rows, err := s.repo.ListCertificatesForTeacher(ctx, teacherID)
+	if err != nil {
+		return nil, fmt.Errorf("list teacher certs: %w", err)
+	}
+	result := make([]PublicCertificateEntry, len(rows))
+	for i, r := range rows {
+		result[i] = PublicCertificateEntry{
+			Code:       r.Code,
+			Name:       r.Name.String,
+			EventTitle: r.EventTitle,
+			OrgName:    r.OrgName.String,
+			Status:     r.Status.String,
+			CreatedAt:  r.CreatedAt.Time,
+		}
+	}
+	return result, nil
+}
+
 // GetPublicProfile returns a public portfolio for a user (no sensitive data).
 func (s *Service) GetPublicProfile(ctx context.Context, userID int64) (*PublicProfileResponse, error) {
 	user, err := s.repo.GetUserByID(ctx, userID)

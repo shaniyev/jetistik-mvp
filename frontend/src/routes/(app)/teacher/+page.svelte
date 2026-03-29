@@ -101,18 +101,9 @@
     return iin.slice(0, 4) + "****" + iin.slice(8);
   }
 
-  function formatIinInput(value: string): string {
-    const digits = value.replace(/\D/g, "").slice(0, 12);
-    const groups = [];
-    for (let i = 0; i < digits.length; i += 4) {
-      groups.push(digits.slice(i, i + 4));
-    }
-    return groups.join("  ");
-  }
-
   function handleIinInput(e: Event) {
     const target = e.target as HTMLInputElement;
-    iinInput = formatIinInput(target.value);
+    iinInput = target.value.replace(/\D/g, "").slice(0, 12);
   }
 
   function getIinPrefix(iin: string): string {
@@ -198,10 +189,12 @@
               <div class="relative">
                 <input
                   type="text"
-                  value={iinInput}
+                  bind:value={iinInput}
                   oninput={handleIinInput}
-                  placeholder="0000  0000  0000"
-                  class="w-full bg-surface-container-low border-b-2 border-outline-variant focus:border-primary border-t-0 border-l-0 border-r-0 px-4 py-3 text-sm focus:ring-0 transition-all font-mono tracking-widest"
+                  maxlength="12"
+                  inputmode="numeric"
+                  placeholder="123456789012"
+                  class="w-full bg-surface-container-low rounded-lg px-4 py-3 text-sm font-mono tracking-wider border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all"
                 />
               </div>
             </div>

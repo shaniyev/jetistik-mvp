@@ -61,6 +61,25 @@ func (h *Handler) TeacherStudentRoutes() chi.Router {
 	return r
 }
 
+// TeacherCertificateRoutes registers teacher certificate routes.
+func (h *Handler) TeacherCertificateRoutes() chi.Router {
+	r := chi.NewRouter()
+	r.Use(middleware.RequireRole("teacher", "admin"))
+	r.Get("/", h.ListTeacherCertificates)
+	return r
+}
+
+// ListTeacherCertificates handles GET /api/v1/teacher/certificates
+func (h *Handler) ListTeacherCertificates(w http.ResponseWriter, r *http.Request) {
+	user := middleware.MustGetUser(r.Context())
+	certs, err := h.svc.ListTeacherCertificates(r.Context(), user.UserID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "INTERNAL", "failed to load certificates")
+		return
+	}
+	response.JSON(w, http.StatusOK, certs)
+}
+
 // GetProfile handles GET /api/v1/profile
 func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	uc := middleware.MustGetUser(r.Context())
