@@ -3,6 +3,7 @@ package certificate
 import (
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -11,6 +12,8 @@ import (
 	"jetistik/internal/platform/middleware"
 	"jetistik/internal/platform/response"
 )
+
+var iinRegex = regexp.MustCompile(`^\d{12}$`)
 
 // Handler holds certificate HTTP handlers.
 type Handler struct {
@@ -51,12 +54,26 @@ func (h *Handler) StaffCertificateItemRoutes() chi.Router {
 }
 
 // Verify handles GET /api/v1/verify/{code}
+// If code is a 12-digit IIN, returns list of certificates for that IIN.
+// Otherwise treats it as a certificate verification code.
 func (h *Handler) Verify(w http.ResponseWriter, r *http.Request) {
 	code := chi.URLParam(r, "code")
 	if code == "" {
 		response.Error(w, http.StatusBadRequest, "MISSING_CODE", "verification code is required")
 		return
 	}
+
+	// If it's an IIN (12 digits), search by IIN
+	if iinRegex.MatchString(code) {
+		results, err := h.svc.SearchByIIN(r.Context(), code)
+		if err != nil {
+			response.Error(w, http.StatusInternalServerError, "INTERNAL", "search failed")
+			return
+		}
+		response.JSON(w, http.StatusOK, results)
+		return
+	}
+
 	result, err := h.svc.Verify(r.Context(), code)
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, "INTERNAL", "verification failed")

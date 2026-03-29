@@ -1,23 +1,7 @@
 import type { PageLoad } from "./$types";
-import { browser } from "$app/environment";
 
 export const ssr = false;
 
-export const load: PageLoad = async ({ params, fetch }) => {
-  if (!browser) {
-    return { result: null, code: params.code };
-  }
-
-  const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
-
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/verify/${params.code}`);
-    if (!res.ok) {
-      return { result: null, code: params.code };
-    }
-    const body = await res.json();
-    return { result: body.data, code: params.code };
-  } catch {
-    return { result: null, code: params.code };
-  }
+export const load: PageLoad = async ({ params }) => {
+  return { code: params.code };
 };
