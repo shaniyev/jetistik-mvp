@@ -1,13 +1,24 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { auth } from "$lib/stores/auth";
+  import { auth, currentUser } from "$lib/stores/auth";
   import { t } from "$lib/i18n";
   import { ApiError } from "$lib/api/client";
+  import { get } from "svelte/store";
 
   let username = $state("");
   let password = $state("");
   let error = $state("");
   let loading = $state(false);
+
+  function getDashboardPath(role: string): string {
+    switch (role) {
+      case "admin": return "/admin/organizations";
+      case "staff": return "/staff/events";
+      case "teacher": return "/teacher";
+      case "student": return "/student";
+      default: return "/";
+    }
+  }
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -16,7 +27,8 @@
 
     try {
       await auth.login(username, password);
-      goto("/");
+      const user = get(currentUser);
+      goto(getDashboardPath(user?.role ?? ""));
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === "INVALID_CREDENTIALS") {

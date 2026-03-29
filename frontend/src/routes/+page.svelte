@@ -1,6 +1,28 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
   import { t, language, setLanguage, type Language } from "$lib/i18n";
+  import { auth, isAuthenticated, currentUser } from "$lib/stores/auth";
+
+  let loggedIn = $state(false);
+  let userRole = $state("");
+
+  onMount(() => {
+    const unsub = isAuthenticated.subscribe(val => { loggedIn = val; });
+    const unsub2 = currentUser.subscribe(u => { userRole = u?.role ?? ""; });
+    auth.refresh();
+    return () => { unsub(); unsub2(); };
+  });
+
+  function getDashboardPath(role: string): string {
+    switch (role) {
+      case "admin": return "/admin/organizations";
+      case "staff": return "/staff/events";
+      case "teacher": return "/teacher";
+      case "student": return "/student";
+      default: return "/";
+    }
+  }
 
   let iin = $state("");
   let iinError = $state("");
@@ -118,12 +140,18 @@
             </button>
           {/each}
         </div>
-        <a href="/login" class="hidden sm:inline-flex text-sm font-semibold text-slate-600 hover:bg-slate-50/50 px-4 py-2 rounded-lg transition-all active:scale-95">
-          {$t("nav.login")}
-        </a>
-        <a href="/register" class="bg-primary text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm hover:opacity-90 transition-all active:scale-95">
+        {#if loggedIn}
+          <a href={getDashboardPath(userRole)} class="bg-primary text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm hover:opacity-90 transition-all active:scale-95">
+            Dashboard
+          </a>
+        {:else}
+          <a href="/login" class="hidden sm:inline-flex text-sm font-semibold text-slate-600 hover:bg-slate-50/50 px-4 py-2 rounded-lg transition-all active:scale-95">
+            {$t("nav.login")}
+          </a>
+          <a href="/register" class="bg-primary text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm hover:opacity-90 transition-all active:scale-95">
           {$t("nav.register")}
         </a>
+        {/if}
       </div>
     </div>
   </header>
