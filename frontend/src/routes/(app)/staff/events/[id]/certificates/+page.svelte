@@ -1,9 +1,10 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-  import { api, ApiError, type PaginatedResponse } from "$lib/api/client";
+  import { api, ApiError, getAccessToken, type PaginatedResponse } from "$lib/api/client";
   import StatusBadge from "$lib/components/StatusBadge.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
+  import JSZip from "jszip";
 
   interface Certificate {
     id: number;
@@ -20,6 +21,8 @@
   let currentPage = $state(1);
   let total = $state(0);
   let error = $state("");
+  let downloading = $state(false);
+  let downloadProgress = $state("");
   const perPage = 20;
 
   async function loadCerts() {
@@ -57,6 +60,64 @@
     }
   }
 
+  async function downloadAll() {
+    downloading = true;
+    downloadProgress = "Fetching certificates...";
+    try {
+      const apiBase = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+      const token = getAccessToken();
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      // Fetch all pages of certificates
+      let allCerts: Certificate[] = [];
+      let p = 1;
+      while (true) {
+        const res = await api.get<Certificate[]>(
+          `/api/v1/staff/events/${eventId}/certificates?page=${p}&per_page=100`
+        ) as PaginatedResponse<Certificate>;
+        allCerts = allCerts.concat(res.data);
+        if (allCerts.length >= res.pagination.total) break;
+        p++;
+      }
+
+      const zip = new JSZip();
+      let done = 0;
+      for (const cert of allCerts) {
+        downloadProgress = `Downloading ${done + 1} / ${allCerts.length}...`;
+        try {
+          const res = await fetch(`${apiBase}/api/v1/staff/certificates/${cert.id}/download`, {
+            headers,
+            credentials: "include",
+          });
+          if (res.ok) {
+            const blob = await res.blob();
+            const name = `${cert.name}_${cert.code.slice(0, 8)}.pdf`;
+            zip.file(name, blob);
+          }
+        } catch {
+          // Skip failed downloads
+        }
+        done++;
+      }
+
+      downloadProgress = "Creating ZIP...";
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(zipBlob);
+      a.download = `certificates_event_${eventId}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Failed to download certificates");
+    } finally {
+      downloading = false;
+      downloadProgress = "";
+    }
+  }
+
   onMount(loadCerts);
 
   const columns = [
@@ -70,12 +131,28 @@
 </script>
 
 <div class="space-y-6">
-  <div>
-    <a href="/staff/events/{eventId}" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
-      &larr; Back to event
-    </a>
-    <h1 class="font-display text-2xl font-bold text-on-surface mt-2">Certificates</h1>
-    <p class="text-sm text-on-surface-variant mt-1">{total} total certificates</p>
+  <div class="flex items-start justify-between">
+    <div>
+      <a href="/staff/events/{eventId}" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
+        &larr; Back to event
+      </a>
+      <h1 class="font-display text-2xl font-bold text-on-surface mt-2">Certificates</h1>
+      <p class="text-sm text-on-surface-variant mt-1">{total} total certificates</p>
+    </div>
+    {#if total > 0}
+      <button
+        onclick={downloadAll}
+        disabled={downloading}
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
+               bg-gradient-to-br from-primary to-primary-container text-on-primary
+               hover:shadow-lg transition-shadow disabled:opacity-50"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+        {downloading ? downloadProgress : "Download All"}
+      </button>
+    {/if}
   </div>
 
   {#if error}
