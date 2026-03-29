@@ -13,6 +13,11 @@ v1/.venv/
 v1/venv/
 v1/frontend/**/node_modules/
 v1/frontend/**/.vite/
+v1/deploy/terraform/.terraform/
+v1/deploy/terraform/.terraform.lock.hcl
+v1/deploy/terraform/terraform.tfstate*
+v1/deploy/terraform/terraform.tfvars
+v1/deploy/ansible/group_vars/jetistik.yml
 
 # === V2 Backend (Go) ===
 backend/tmp/
