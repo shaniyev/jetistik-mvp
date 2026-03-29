@@ -27,11 +27,7 @@
       if (res.data?.access_token) {
         const { setAccessToken } = await import('$lib/api/client');
         setAccessToken(res.data.access_token);
-        auth.set({
-          user: res.data.user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        await auth.refresh();
         goto('/staff/events');
       }
     } catch (e: any) {
