@@ -64,6 +64,11 @@ func (s *Service) Verify(ctx context.Context, code string) (*VerifyResponse, err
 		}
 		return nil, fmt.Errorf("verify: %w", err)
 	}
+	var payload map[string]interface{}
+	if len(cert.Payload) > 0 {
+		json.Unmarshal(cert.Payload, &payload)
+	}
+
 	return &VerifyResponse{
 		Valid:         cert.Status.String == "valid",
 		Code:          cert.Code,
@@ -73,6 +78,7 @@ func (s *Service) Verify(ctx context.Context, code string) (*VerifyResponse, err
 		RevokedReason: cert.RevokedReason.String,
 		EventTitle:    cert.EventTitle,
 		OrgName:       cert.OrgName.String,
+		Payload:       payload,
 		CreatedAt:     cert.CreatedAt.Time,
 	}, nil
 }

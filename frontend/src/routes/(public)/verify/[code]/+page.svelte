@@ -178,48 +178,119 @@
 
     {:else if result.valid}
       <!-- Valid certificate -->
-      <div class="bg-surface-lowest rounded-lg p-8 shadow-[0_4px_40px_rgba(0,74,198,0.04)]">
-        <div class="text-center space-y-4">
-          <div class="w-16 h-16 mx-auto rounded-full bg-emerald-50 flex items-center justify-center">
-            <svg class="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <div class="bg-surface-lowest rounded-lg shadow-[0_4px_40px_rgba(0,74,198,0.04)] overflow-hidden">
+        <!-- Status header -->
+        <div class="bg-emerald-50 px-8 py-6 text-center">
+          <div class="w-14 h-14 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-3">
+            <svg class="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
             </svg>
           </div>
-          <h2 class="font-display text-xl font-semibold text-emerald-700">Valid Certificate</h2>
+          <span class="inline-block bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Valid / Жарамды</span>
+        </div>
 
-          <div class="space-y-3 text-left mt-6">
-            <div class="flex justify-between py-2">
-              <span class="text-sm text-on-surface-variant">Recipient</span>
-              <span class="text-sm font-medium text-on-surface">{result.name}</span>
+        <div class="p-8 space-y-0">
+          <!-- Name -->
+          <div class="text-center pb-4 mb-4" style="border-bottom: 1px solid var(--color-surface-high);">
+            <p class="text-xs text-on-surface-variant uppercase tracking-wider mb-1">Recipient / Алушы</p>
+            <p class="font-display text-xl font-bold text-on-surface">{result.name}</p>
+          </div>
+
+          <!-- IIN -->
+          {#if result.iin}
+            <div class="flex justify-between py-2.5">
+              <span class="text-sm text-on-surface-variant">ЖСН / IIN</span>
+              <span class="text-sm font-mono font-medium text-on-surface">{maskIIN(result.iin)}</span>
             </div>
-            {#if result.iin}
-              <div class="flex justify-between py-2">
-                <span class="text-sm text-on-surface-variant">IIN</span>
-                <span class="text-sm font-mono text-on-surface">{maskIIN(result.iin)}</span>
+          {/if}
+
+          <!-- Organization -->
+          {#if result.org_name}
+            <div class="flex justify-between py-2.5">
+              <span class="text-sm text-on-surface-variant">Ұйым / Организация</span>
+              <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.org_name}</span>
+            </div>
+          {/if}
+
+          <!-- Event -->
+          {#if result.event_title}
+            <div class="flex justify-between py-2.5">
+              <span class="text-sm text-on-surface-variant">Іс-шара / Мероприятие</span>
+              <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.event_title}</span>
+            </div>
+          {/if}
+
+          <!-- Payload details -->
+          {#if result.payload}
+            {#if result.payload.school}
+              <div class="flex justify-between py-2.5">
+                <span class="text-sm text-on-surface-variant">Мектеп / Школа</span>
+                <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.payload.school}</span>
               </div>
             {/if}
-            {#if result.event_title}
-              <div class="flex justify-between py-2">
-                <span class="text-sm text-on-surface-variant">Event</span>
-                <span class="text-sm font-medium text-on-surface">{result.event_title}</span>
+            {#if result.payload.class}
+              <div class="flex justify-between py-2.5">
+                <span class="text-sm text-on-surface-variant">Сынып / Класс</span>
+                <span class="text-sm font-medium text-on-surface">{result.payload.class}</span>
               </div>
             {/if}
-            {#if result.org_name}
-              <div class="flex justify-between py-2">
-                <span class="text-sm text-on-surface-variant">Organization</span>
-                <span class="text-sm font-medium text-on-surface">{result.org_name}</span>
+            {#if result.payload.text}
+              <div class="flex justify-between py-2.5">
+                <span class="text-sm text-on-surface-variant">Сипаттама / Описание</span>
+                <span class="text-sm font-medium text-on-surface text-right max-w-[60%]">{result.payload.text}</span>
               </div>
             {/if}
+            {#if result.payload.diplom}
+              <div class="flex justify-between py-2.5">
+                <span class="text-sm text-on-surface-variant">Түрі / Тип</span>
+                <span class="text-sm font-medium text-on-surface">{result.payload.diplom}</span>
+              </div>
+            {/if}
+            {#if result.payload.id}
+              <div class="flex justify-between py-2.5">
+                <span class="text-sm text-on-surface-variant">Нөмірі / Номер</span>
+                <span class="text-sm font-mono font-medium text-on-surface">{result.payload.id}</span>
+              </div>
+            {/if}
+            {#if result.payload.data || result.payload.event_date}
+              <div class="flex justify-between py-2.5">
+                <span class="text-sm text-on-surface-variant">Күні / Дата</span>
+                <span class="text-sm font-medium text-on-surface">{result.payload.data || result.payload.event_date}</span>
+              </div>
+            {/if}
+            {#if result.payload.event_city}
+              <div class="flex justify-between py-2.5">
+                <span class="text-sm text-on-surface-variant">Қала / Город</span>
+                <span class="text-sm font-medium text-on-surface">{result.payload.event_city}</span>
+              </div>
+            {/if}
+          {/if}
+
+          <!-- Dates & code -->
+          <div class="mt-4 pt-4" style="border-top: 1px solid var(--color-surface-high);">
             <div class="flex justify-between py-2">
-              <span class="text-sm text-on-surface-variant">Issued</span>
+              <span class="text-sm text-on-surface-variant">Берілген / Выдан</span>
               <span class="text-sm font-medium text-on-surface">
                 {new Date(result.created_at).toLocaleDateString()}
               </span>
             </div>
             <div class="flex justify-between py-2">
-              <span class="text-sm text-on-surface-variant">Code</span>
-              <span class="text-sm font-mono text-on-surface-variant">{result.code}</span>
+              <span class="text-sm text-on-surface-variant">Код</span>
+              <span class="text-xs font-mono text-on-surface-variant">{result.code}</span>
             </div>
+          </div>
+
+          <!-- Download button -->
+          <div class="mt-4 pt-4 text-center" style="border-top: 1px solid var(--color-surface-high);">
+            <a
+              href="{API_BASE}/api/v1/certificates/{result.code}/download"
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Жүктеу / Скачать PDF
+            </a>
           </div>
         </div>
       </div>
