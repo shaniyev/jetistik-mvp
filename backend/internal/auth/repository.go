@@ -22,6 +22,8 @@ type Repository interface {
 	GetRefreshTokenByHash(ctx context.Context, hash string) (sqlcdb.RefreshToken, error)
 	DeleteRefreshToken(ctx context.Context, hash string) error
 	DeleteRefreshTokensByUser(ctx context.Context, userID int64) error
+	CreateOrganization(ctx context.Context, params sqlcdb.CreateOrganizationParams) (sqlcdb.Organization, error)
+	AddOrganizationMember(ctx context.Context, params sqlcdb.AddOrganizationMemberParams) error
 }
 
 type pgRepository struct {
@@ -112,6 +114,22 @@ func (r *pgRepository) DeleteRefreshTokensByUser(ctx context.Context, userID int
 	err := r.q.DeleteRefreshTokensByUser(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("delete user refresh tokens: %w", err)
+	}
+	return nil
+}
+
+func (r *pgRepository) CreateOrganization(ctx context.Context, params sqlcdb.CreateOrganizationParams) (sqlcdb.Organization, error) {
+	org, err := r.q.CreateOrganization(ctx, params)
+	if err != nil {
+		return sqlcdb.Organization{}, fmt.Errorf("create organization: %w", err)
+	}
+	return org, nil
+}
+
+func (r *pgRepository) AddOrganizationMember(ctx context.Context, params sqlcdb.AddOrganizationMemberParams) error {
+	_, err := r.q.AddOrganizationMember(ctx, params)
+	if err != nil {
+		return fmt.Errorf("add organization member: %w", err)
 	}
 	return nil
 }

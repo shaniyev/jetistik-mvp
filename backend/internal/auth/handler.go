@@ -32,6 +32,7 @@ func (h *Handler) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Post("/login", h.Login)
 	r.Post("/register", h.Register)
+	r.Post("/register/org", h.RegisterOrg)
 	r.Post("/refresh", h.Refresh)
 	r.Post("/logout", h.Logout)
 	return r
@@ -81,6 +82,36 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, rawRefresh, err := h.svc.Register(r.Context(), req)
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrUsernameExists):
+			response.Error(w, http.StatusConflict, "USERNAME_EXISTS", "username already taken")
+		case errors.Is(err, ErrEmailExists):
+			response.Error(w, http.StatusConflict, "EMAIL_EXISTS", "email already taken")
+		default:
+			response.Error(w, http.StatusInternalServerError, "INTERNAL", "registration failed")
+		}
+		return
+	}
+
+	h.setRefreshCookie(w, rawRefresh)
+	response.JSON(w, http.StatusCreated, resp)
+}
+
+// RegisterOrg handles POST /api/v1/auth/register/org
+func (h *Handler) RegisterOrg(w http.ResponseWriter, r *http.Request) {
+	var req RegisterOrgRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		response.Error(w, http.StatusBadRequest, "INVALID_JSON", "invalid request body")
+		return
+	}
+
+	if errs := req.Validate(); len(errs) > 0 {
+		response.ValidationError(w, errs)
+		return
+	}
+
+	resp, rawRefresh, err := h.svc.RegisterOrg(r.Context(), req)
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrUsernameExists):

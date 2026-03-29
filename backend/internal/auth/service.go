@@ -120,6 +120,68 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*AuthRespo
 	return s.issueTokens(ctx, user)
 }
 
+// RegisterOrg creates a new staff user and organization.
+func (s *Service) RegisterOrg(ctx context.Context, req RegisterOrgRequest) (*AuthResponse, string, error) {
+	exists, err := s.repo.UsernameExists(ctx, req.Username)
+	if err != nil {
+		return nil, "", fmt.Errorf("register org: %w", err)
+	}
+	if exists {
+		return nil, "", ErrUsernameExists
+	}
+
+	if req.Email != "" {
+		emailExists, err := s.repo.EmailExists(ctx, req.Email)
+		if err != nil {
+			return nil, "", fmt.Errorf("register org: %w", err)
+		}
+		if emailExists {
+			return nil, "", ErrEmailExists
+		}
+	}
+
+	hashedPassword, err := HashPassword(req.Password)
+	if err != nil {
+		return nil, "", fmt.Errorf("register org: %w", err)
+	}
+
+	lang := req.Language
+	if lang == "" {
+		lang = "kz"
+	}
+
+	// Create staff user
+	user, err := s.repo.CreateUser(ctx, sqlcdb.CreateUserParams{
+		Username: req.Username,
+		Email:    pgtype.Text{String: req.Email, Valid: req.Email != ""},
+		Password: hashedPassword,
+		Role:     "staff",
+		Language: pgtype.Text{String: lang, Valid: true},
+	})
+	if err != nil {
+		return nil, "", fmt.Errorf("register org: %w", err)
+	}
+
+	// Create organization
+	org, err := s.repo.CreateOrganization(ctx, sqlcdb.CreateOrganizationParams{
+		Name: req.OrgName,
+	})
+	if err != nil {
+		return nil, "", fmt.Errorf("register org: create org: %w", err)
+	}
+
+	// Link user to organization as owner
+	if err := s.repo.AddOrganizationMember(ctx, sqlcdb.AddOrganizationMemberParams{
+		OrganizationID: org.ID,
+		UserID:         user.ID,
+		Role:           pgtype.Text{String: "owner", Valid: true},
+	}); err != nil {
+		return nil, "", fmt.Errorf("register org: add member: %w", err)
+	}
+
+	return s.issueTokens(ctx, user)
+}
+
 // Refresh validates a refresh token and issues a new token pair.
 func (s *Service) Refresh(ctx context.Context, rawRefreshToken string) (*AuthResponse, string, error) {
 	hash := HashRefreshToken(rawRefreshToken)
