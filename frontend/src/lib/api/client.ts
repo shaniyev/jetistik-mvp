@@ -34,6 +34,7 @@ interface PaginatedResponse<T> {
 }
 
 let accessToken: string | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
@@ -43,9 +44,32 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
+async function refreshAccessToken(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      accessToken = null;
+      return false;
+    }
+
+    const body = (await res.json()) as ApiResponse<{ access_token: string }>;
+    accessToken = body.data.access_token;
+    return true;
+  } catch {
+    accessToken = null;
+    return false;
+  }
+}
+
 async function request<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retry = true
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -61,6 +85,20 @@ async function request<T>(
     headers,
     credentials: "include",
   });
+
+  if (res.status === 401 && retry && !path.includes("/auth/")) {
+    // Deduplicate concurrent refresh calls
+    if (!refreshPromise) {
+      refreshPromise = refreshAccessToken().finally(() => {
+        refreshPromise = null;
+      });
+    }
+
+    const refreshed = await refreshPromise;
+    if (refreshed) {
+      return request<T>(path, options, false);
+    }
+  }
 
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as ApiErrorResponse | null;
