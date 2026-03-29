@@ -49,3 +49,18 @@ SELECT EXISTS(SELECT 1 FROM users WHERE username = $1);
 
 -- name: EmailExists :one
 SELECT EXISTS(SELECT 1 FROM users WHERE email = $1);
+
+-- name: ListTeacherStudents :many
+SELECT id, teacher_id, student_iin, created_at
+FROM teacher_students
+WHERE teacher_id = $1
+ORDER BY created_at DESC;
+
+-- name: AddTeacherStudent :one
+INSERT INTO teacher_students (teacher_id, student_iin)
+VALUES ($1, $2)
+RETURNING id, teacher_id, student_iin, created_at;
+
+-- name: RemoveTeacherStudent :exec
+DELETE FROM teacher_students
+WHERE teacher_id = $1 AND student_iin = $2;

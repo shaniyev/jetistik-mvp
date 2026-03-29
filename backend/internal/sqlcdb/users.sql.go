@@ -11,6 +11,29 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addTeacherStudent = `-- name: AddTeacherStudent :one
+INSERT INTO teacher_students (teacher_id, student_iin)
+VALUES ($1, $2)
+RETURNING id, teacher_id, student_iin, created_at
+`
+
+type AddTeacherStudentParams struct {
+	TeacherID  int64  `json:"teacher_id"`
+	StudentIin string `json:"student_iin"`
+}
+
+func (q *Queries) AddTeacherStudent(ctx context.Context, arg AddTeacherStudentParams) (TeacherStudent, error) {
+	row := q.db.QueryRow(ctx, addTeacherStudent, arg.TeacherID, arg.StudentIin)
+	var i TeacherStudent
+	err := row.Scan(
+		&i.ID,
+		&i.TeacherID,
+		&i.StudentIin,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const countUsers = `-- name: CountUsers :one
 SELECT count(*) FROM users
 `
@@ -169,6 +192,38 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	return i, err
 }
 
+const listTeacherStudents = `-- name: ListTeacherStudents :many
+SELECT id, teacher_id, student_iin, created_at
+FROM teacher_students
+WHERE teacher_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListTeacherStudents(ctx context.Context, teacherID int64) ([]TeacherStudent, error) {
+	rows, err := q.db.Query(ctx, listTeacherStudents, teacherID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TeacherStudent{}
+	for rows.Next() {
+		var i TeacherStudent
+		if err := rows.Scan(
+			&i.ID,
+			&i.TeacherID,
+			&i.StudentIin,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, username, email, iin, role, is_active, language, created_at, updated_at
 FROM users
@@ -221,6 +276,21 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 		return nil, err
 	}
 	return items, nil
+}
+
+const removeTeacherStudent = `-- name: RemoveTeacherStudent :exec
+DELETE FROM teacher_students
+WHERE teacher_id = $1 AND student_iin = $2
+`
+
+type RemoveTeacherStudentParams struct {
+	TeacherID  int64  `json:"teacher_id"`
+	StudentIin string `json:"student_iin"`
+}
+
+func (q *Queries) RemoveTeacherStudent(ctx context.Context, arg RemoveTeacherStudentParams) error {
+	_, err := q.db.Exec(ctx, removeTeacherStudent, arg.TeacherID, arg.StudentIin)
+	return err
 }
 
 const updateUserPassword = `-- name: UpdateUserPassword :exec
