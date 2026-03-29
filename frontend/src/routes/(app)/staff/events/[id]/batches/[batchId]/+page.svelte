@@ -134,6 +134,14 @@
       >
         {saving ? "Saving..." : "Save Mapping"}
       </button>
+      {#if batch.mapping && Object.keys(batch.mapping).length > 0}
+        <a
+          href="/staff/events/{eventId}/batches/{batchId}/generate"
+          class="px-6 py-2.5 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+        >
+          Generate
+        </a>
+      {/if}
       <a
         href="/staff/events/{eventId}"
         class="px-6 py-2.5 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"

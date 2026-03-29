@@ -16,7 +16,10 @@
     mapped: "bg-indigo-50 text-indigo-700",
     generating: "bg-purple-50 text-purple-700",
     completed: "bg-emerald-50 text-emerald-700",
+    done: "bg-emerald-50 text-emerald-700",
+    done_with_errors: "bg-amber-50 text-amber-700",
     failed: "bg-red-50 text-red-700",
+    ok: "bg-emerald-50 text-emerald-700",
     archived: "bg-on-surface-variant/10 text-on-surface-variant",
   };
 
