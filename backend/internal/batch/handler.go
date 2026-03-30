@@ -33,6 +33,21 @@ func NewHandler(svc *Service, tmplSvc *tmpl.Service, auditSvc *audit.Service, en
 }
 
 // Upload handles POST /api/v1/staff/events/{id}/batches
+// ListByEvent handles GET /api/v1/staff/events/{id}/batches
+func (h *Handler) ListByEvent(w http.ResponseWriter, r *http.Request) {
+	eventID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, "INVALID_ID", "invalid event id")
+		return
+	}
+	batches, err := h.svc.ListByEvent(r.Context(), eventID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "INTERNAL", "failed to list batches")
+		return
+	}
+	response.JSON(w, http.StatusOK, batches)
+}
+
 func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 	uc := middleware.MustGetUser(r.Context())
 	eventID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)

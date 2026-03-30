@@ -203,7 +203,8 @@ func run() error {
 				r.Get("/events/{id}/template", tmplHandler.GetByEvent)
 
 				// Batch upload on events
-				r.Post("/events/{id}/batches", batchHandler.Upload)
+				r.Get("/events/{id}/batches", batchHandler.ListByEvent)
+			r.Post("/events/{id}/batches", batchHandler.Upload)
 
 				// Batch operations
 				r.Get("/batches/{id}", batchHandler.GetByID)
