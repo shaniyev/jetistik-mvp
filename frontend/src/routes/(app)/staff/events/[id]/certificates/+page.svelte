@@ -65,7 +65,7 @@
     downloading = true;
     downloadProgress = $t("staff.certs.fetching");
     try {
-      const apiBase = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+      const apiBase = import.meta.env.VITE_API_URL || "";
       const token = getAccessToken();
       const headers: Record<string, string> = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;

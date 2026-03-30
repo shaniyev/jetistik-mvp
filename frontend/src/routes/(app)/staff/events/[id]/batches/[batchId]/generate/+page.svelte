@@ -4,7 +4,7 @@
   import { api, ApiError } from "$lib/api/client";
   import { t } from "$lib/i18n";
 
-  const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+  const API_BASE = import.meta.env.VITE_API_URL || "";
 
   interface Batch {
     id: number;

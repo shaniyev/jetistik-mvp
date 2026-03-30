@@ -31,7 +31,7 @@
   let error = $state(false);
   let linkCopied = $state(false);
 
-  const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   onMount(async () => {
     try {

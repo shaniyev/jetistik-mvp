@@ -9,7 +9,7 @@
   let isIIN = $state(false);
   let currentCode = $state('');
 
-  const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   function maskIIN(iin: string) {
     if (!iin || iin.length < 6) return iin || '—';

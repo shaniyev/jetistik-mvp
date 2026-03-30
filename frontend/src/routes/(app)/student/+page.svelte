@@ -37,7 +37,7 @@
   async function downloadPdf(id: number) {
     try {
       const token = (await import("$lib/api/client")).getAccessToken();
-      const apiBase = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+      const apiBase = import.meta.env.VITE_API_URL || "";
       const url = `${apiBase}/api/v1/student/certificates/${id}/download`;
       const a = document.createElement("a");
       a.href = url;
