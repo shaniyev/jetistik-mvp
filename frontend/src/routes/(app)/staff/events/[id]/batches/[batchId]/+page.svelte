@@ -78,79 +78,91 @@
 </script>
 
 {#if loading}
-  <div class="text-center py-12 text-on-surface-variant">{$t("staff.batch.loading")}</div>
+  <div class="flex items-center justify-center py-24 text-on-surface-variant">
+    <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+    {$t("staff.batch.loading")}
+  </div>
 {:else if batch}
-  <div class="max-w-2xl space-y-6">
-    <div>
-      <a href="/staff/events/{eventId}" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
-        &larr; {$t("staff.batch.back_to_event")}
+  <div class="p-6 lg:p-10 pb-32 max-w-3xl">
+    <!-- Header -->
+    <header class="mb-12">
+      <a href="/staff/events/{eventId}" class="flex items-center gap-2 text-primary font-semibold text-sm mb-2 hover:underline">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        <span>{$t("staff.batch.back_to_event")}</span>
       </a>
-      <h1 class="font-display text-2xl font-bold text-on-surface mt-2">{$t("staff.mapping.title")}</h1>
-      <p class="text-sm text-on-surface-variant mt-1">
-        {$t("staff.batch.map_hint")} {batch.rows_total} {$t("staff.batch.rows_found")}
+      <h1 class="font-display text-4xl font-extrabold tracking-tight text-on-surface">{$t("staff.mapping.title")}</h1>
+      <div class="flex items-center gap-3 mt-2">
+        <p class="text-on-surface-variant">
+          {batch.rows_total} {$t("staff.batch.rows_found")}
+        </p>
         <StatusBadge status={batch.status} />
-      </p>
-    </div>
+      </div>
+    </header>
 
     {#if error}
-      <div class="p-3 rounded-lg bg-error-container text-on-error-container text-sm">{error}</div>
+      <div class="p-3 rounded-lg bg-error-container text-on-error-container text-sm mb-6">{error}</div>
     {/if}
 
-    <div class="bg-surface-lowest rounded-lg p-6 space-y-4">
-      <div class="grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm font-medium text-on-surface-variant">
-        <span>{$t("staff.mapping.templateToken")}</span>
-        <span></span>
-        <span>{$t("staff.mapping.csvColumn")}</span>
+    <!-- Mapping Card -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+      <!-- Card Header -->
+      <div class="px-6 py-5 border-b border-outline-variant/10">
+        <div class="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+          <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant">{$t("staff.mapping.templateToken")}</span>
+          <span></span>
+          <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant">{$t("staff.mapping.csvColumn")}</span>
+        </div>
       </div>
 
-      {#each templateTokens as token}
-        <div class="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
-          <div class="px-3 py-2.5 rounded-md bg-primary-fixed text-on-primary-container text-sm font-mono">
-            {token}
+      <!-- Mapping Rows -->
+      <div class="divide-y divide-outline-variant/10">
+        {#each templateTokens as token}
+          <div class="grid grid-cols-[1fr_auto_1fr] gap-4 items-center px-6 py-4">
+            <div class="px-4 py-2.5 rounded-lg bg-primary-fixed text-on-primary-container text-sm font-mono font-medium">
+              {token}
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant/50">arrow_forward</span>
+            <select
+              bind:value={mapping[token]}
+              class="w-full px-4 py-2.5 rounded-xl bg-surface border border-outline-variant/20 text-on-surface text-sm font-medium
+                     focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow"
+            >
+              <option value="">{$t("staff.mapping.notMapped")}</option>
+              {#each batch.tokens ?? [] as col}
+                <option value={col}>{col}</option>
+              {/each}
+            </select>
           </div>
-          <svg class="w-5 h-5 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-          </svg>
-          <select
-            bind:value={mapping[token]}
-            class="w-full px-3 py-2.5 rounded-md bg-surface text-on-surface text-sm
-                   focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-          >
-            <option value="">{$t("staff.mapping.notMapped")}</option>
-            {#each batch.tokens ?? [] as col}
-              <option value={col}>{col}</option>
-            {/each}
-          </select>
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
+    </section>
 
-    <div class="flex gap-3">
+    <!-- Actions -->
+    <div class="flex items-center gap-3 mt-8">
       <button
         onclick={saveMapping}
         disabled={saving}
-        class="flex-1 py-2.5 rounded-lg text-sm font-medium
-               bg-gradient-to-br from-primary to-primary-container text-on-primary
-               hover:shadow-lg disabled:opacity-50 transition-all"
+        class="px-6 py-3 rounded-xl bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all disabled:opacity-50 active:scale-95"
       >
         {saving ? $t("staff.batch.saving") : $t("staff.mapping.save")}
       </button>
       {#if batch.mapping && Object.keys(batch.mapping).length > 0}
         <a
           href="/staff/events/{eventId}/batches/{batchId}/generate"
-          class="px-6 py-2.5 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+          class="px-6 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold text-sm hover:bg-emerald-100 transition-colors flex items-center gap-2"
         >
+          <span class="material-symbols-outlined text-lg">play_arrow</span>
           {$t("staff.mapping.generate")}
         </a>
       {/if}
       <a
         href="/staff/events/{eventId}"
-        class="px-6 py-2.5 rounded-lg text-sm font-medium bg-surface-low text-on-surface hover:bg-surface-high transition-colors"
+        class="px-6 py-3 rounded-xl border border-outline-variant/20 text-on-surface-variant font-semibold text-sm hover:bg-surface-container transition-colors"
       >
         {$t("common.cancel")}
       </a>
     </div>
   </div>
 {:else}
-  <div class="text-center py-12 text-error">{$t("staff.mapping.batchNotFound")}</div>
+  <div class="flex items-center justify-center py-24 text-error">{$t("staff.mapping.batchNotFound")}</div>
 {/if}
