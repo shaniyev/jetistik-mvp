@@ -35,76 +35,83 @@
   }
 </script>
 
-<div class="max-w-xl space-y-6">
-  <div>
-    <a href="/staff/events" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
-      &larr; {$t("staff.create.backToEvents")}
+<div class="p-6 lg:p-10 pb-32 max-w-2xl">
+  <!-- Header -->
+  <header class="mb-12">
+    <a href="/staff/events" class="flex items-center gap-2 text-primary font-semibold text-sm mb-2 hover:underline">
+      <span class="material-symbols-outlined text-sm">arrow_back</span>
+      <span>{$t("staff.create.backToEvents")}</span>
     </a>
-    <h1 class="font-display text-2xl font-bold text-on-surface mt-2">{$t("staff.create.title")}</h1>
-  </div>
+    <h1 class="font-display text-4xl font-extrabold tracking-tight text-on-surface">{$t("staff.create.title")}</h1>
+  </header>
 
   {#if error}
-    <div class="p-3 rounded-lg bg-error-container text-on-error-container text-sm">
+    <div class="p-3 rounded-lg bg-error-container text-on-error-container text-sm mb-6">
       {error}
     </div>
   {/if}
 
-  <form onsubmit={handleSubmit} class="space-y-5 bg-surface-lowest rounded-lg p-6">
-    <div>
-      <label for="title" class="block text-sm font-medium text-on-surface mb-1.5">{$t("staff.create.titleLabel")} *</label>
-      <input
-        id="title"
-        bind:value={title}
-        required
-        class="w-full px-3 py-2.5 rounded-md bg-surface text-on-surface text-sm
-               focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-        placeholder={$t("staff.create.titlePlaceholder")}
-      />
-    </div>
-
-    <div class="grid grid-cols-2 gap-4">
+  <!-- Form Card -->
+  <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+    <form onsubmit={handleSubmit} class="p-8 space-y-6">
       <div>
-        <label for="date" class="block text-sm font-medium text-on-surface mb-1.5">{$t("staff.create.dateLabel")}</label>
+        <label for="title" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">{$t("staff.create.titleLabel")} *</label>
         <input
-          id="date"
-          type="date"
-          bind:value={date}
-          class="w-full px-3 py-2.5 rounded-md bg-surface text-on-surface text-sm
-                 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+          id="title"
+          bind:value={title}
+          required
+          class="w-full px-4 py-3 rounded-xl bg-surface border border-outline-variant/20 text-on-surface text-sm
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow"
+          placeholder={$t("staff.create.titlePlaceholder")}
         />
       </div>
-      <div>
-        <label for="city" class="block text-sm font-medium text-on-surface mb-1.5">{$t("staff.create.cityLabel")}</label>
-        <input
-          id="city"
-          bind:value={city}
-          class="w-full px-3 py-2.5 rounded-md bg-surface text-on-surface text-sm
-                 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-          placeholder={$t("staff.create.cityPlaceholder")}
-        />
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label for="date" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">{$t("staff.create.dateLabel")}</label>
+          <input
+            id="date"
+            type="date"
+            bind:value={date}
+            class="w-full px-4 py-3 rounded-xl bg-surface border border-outline-variant/20 text-on-surface text-sm
+                   focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow"
+          />
+        </div>
+        <div>
+          <label for="city" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">{$t("staff.create.cityLabel")}</label>
+          <input
+            id="city"
+            bind:value={city}
+            class="w-full px-4 py-3 rounded-xl bg-surface border border-outline-variant/20 text-on-surface text-sm
+                   focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow"
+            placeholder={$t("staff.create.cityPlaceholder")}
+          />
+        </div>
       </div>
-    </div>
 
-    <div>
-      <label for="desc" class="block text-sm font-medium text-on-surface mb-1.5">{$t("staff.create.descLabel")}</label>
-      <textarea
-        id="desc"
-        bind:value={description}
-        rows="3"
-        class="w-full px-3 py-2.5 rounded-md bg-surface text-on-surface text-sm
-               focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow resize-none"
-        placeholder={$t("staff.create.descPlaceholder")}
-      ></textarea>
-    </div>
+      <div>
+        <label for="desc" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">{$t("staff.create.descLabel")}</label>
+        <textarea
+          id="desc"
+          bind:value={description}
+          rows="3"
+          class="w-full px-4 py-3 rounded-xl bg-surface border border-outline-variant/20 text-on-surface text-sm
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow resize-none"
+          placeholder={$t("staff.create.descPlaceholder")}
+        ></textarea>
+      </div>
 
-    <button
-      type="submit"
-      disabled={submitting || !title}
-      class="w-full py-2.5 rounded-lg text-sm font-medium
-             bg-gradient-to-br from-primary to-primary-container text-on-primary
-             hover:shadow-lg disabled:opacity-50 transition-all"
-    >
-      {submitting ? $t("staff.create.creating") : $t("staff.create.submit")}
-    </button>
-  </form>
+      <div class="pt-2">
+        <button
+          type="submit"
+          disabled={submitting || !title}
+          class="w-full py-3 rounded-xl text-sm font-semibold
+                 bg-gradient-to-br from-primary to-primary-container text-white
+                 shadow-lg shadow-primary/20 hover:shadow-xl transition-all disabled:opacity-50 active:scale-[0.98]"
+        >
+          {submitting ? $t("staff.create.creating") : $t("staff.create.submit")}
+        </button>
+      </div>
+    </form>
+  </section>
 </div>
