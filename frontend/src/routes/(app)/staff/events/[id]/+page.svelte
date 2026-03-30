@@ -458,15 +458,30 @@
                         <div class="flex items-center justify-end gap-2">
                           <a
                             href="/staff/events/{eventId}/batches/{batch.id}"
-                            class="text-on-surface-variant hover:text-primary transition-colors"
+                            class="px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors"
                           >
-                            <span class="material-symbols-outlined">visibility</span>
+                            Mapping
                           </a>
+                          {#if batch.status === "validated" || batch.status === "uploaded" || batch.status === "done_with_errors"}
+                            <a
+                              href="/staff/events/{eventId}/batches/{batch.id}/generate"
+                              class="px-3 py-1.5 rounded-lg bg-gradient-to-br from-primary to-primary-container text-white text-xs font-semibold hover:shadow-md transition-all"
+                            >
+                              Generate
+                            </a>
+                          {:else if batch.status === "done"}
+                            <a
+                              href="/staff/events/{eventId}/certificates"
+                              class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition-colors"
+                            >
+                              {$t("staff.nav.certificates")}
+                            </a>
+                          {/if}
                           <button
                             onclick={() => deleteBatch(batch.id)}
                             class="text-on-surface-variant hover:text-error transition-colors"
                           >
-                            <span class="material-symbols-outlined">delete</span>
+                            <span class="material-symbols-outlined text-lg">delete</span>
                           </button>
                         </div>
                       </td>
