@@ -484,7 +484,5 @@ export default {
   "student.verifiedDesc": "Бұл профильдегі барлық сертификаттар Jetistik платформасы арқылы расталған.",
   "common.refresh": "Жаңарту",
   "common.unavailable": "Қол жетімсіз",
-  "common.copied": "Көшірілді!",
-  "common.status": "Мәртебе",
-  "common.actions": "Әрекеттер",
+  "common.unexpectedError": "Күтпеген қате орын алды",
 } as const;

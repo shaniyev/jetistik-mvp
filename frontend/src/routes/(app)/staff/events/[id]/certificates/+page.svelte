@@ -35,7 +35,7 @@
       certs = res.data;
       total = res.pagination.total;
     } catch (e) {
-      error = "Failed to load certificates";
+      error = $t("common.unexpectedError");
     } finally {
       loading = false;
     }
@@ -48,7 +48,7 @@
       await api.post(`/api/v1/staff/certificates/${id}/revoke`, { reason });
       loadCerts();
     } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to revoke");
+      alert(err instanceof ApiError ? err.message : $t("common.unexpectedError"));
     }
   }
 
@@ -57,7 +57,7 @@
       await api.post(`/api/v1/staff/certificates/${id}/unrevoke`);
       loadCerts();
     } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to unrevoke");
+      alert(err instanceof ApiError ? err.message : $t("common.unexpectedError"));
     }
   }
 
@@ -112,7 +112,7 @@
       a.remove();
       URL.revokeObjectURL(a.href);
     } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to download certificates");
+      alert(err instanceof ApiError ? err.message : $t("common.unexpectedError"));
     } finally {
       downloading = false;
       downloadProgress = "";
@@ -123,7 +123,7 @@
 
   let columns = $derived([
     { key: "name", label: $t("common.name") },
-    { key: "iin", label: "IIN" },
+    { key: "iin", label: $t("auth.iin") },
     { key: "code", label: $t("common.code") },
     { key: "status", label: $t("common.status") },
     { key: "created_at", label: $t("common.created") },

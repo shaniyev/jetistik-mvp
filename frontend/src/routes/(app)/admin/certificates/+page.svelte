@@ -83,7 +83,7 @@
     <td class="px-6 py-5"><StatusBadge status={cert.status || 'valid'} /></td>
     <td class="px-6 py-5 text-sm text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</td>
     <td class="px-6 py-5 text-right">
-      <a href={`/verify/${cert.code}`} target="_blank" class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all inline-block" title="View">
+      <a href={`/verify/${cert.code}`} target="_blank" class="p-2 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all inline-block" title={$t("common.view")}>
         <span class="material-symbols-outlined">visibility</span>
       </a>
       <button

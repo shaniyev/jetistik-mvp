@@ -55,7 +55,7 @@
         }
       }
     } catch (e) {
-      error = "Failed to load batch";
+      error = $t("common.unexpectedError");
     } finally {
       loading = false;
     }
@@ -68,7 +68,7 @@
       await api.patch(`/api/v1/staff/batches/${batchId}/mapping`, { mapping });
       goto(`/staff/events/${eventId}`);
     } catch (err) {
-      error = err instanceof ApiError ? err.message : "Failed to save mapping";
+      error = err instanceof ApiError ? err.message : $t("common.unexpectedError");
     } finally {
       saving = false;
     }

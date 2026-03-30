@@ -81,7 +81,7 @@
         progress = total;
       }
     } catch {
-      error = "Failed to load batch";
+      error = $t("common.unexpectedError");
     } finally {
       loading = false;
     }
@@ -100,7 +100,7 @@
       await api.post(`/api/v1/staff/batches/${batchId}/generate`);
       connectSSE();
     } catch (err) {
-      error = err instanceof ApiError ? err.message : "Failed to start generation";
+      error = err instanceof ApiError ? err.message : $t("common.unexpectedError");
       generating = false;
     }
   }
@@ -347,7 +347,7 @@
                         {#if entry.error}
                           {entry.status}: {entry.error}
                         {:else}
-                          {entry.status === "ok" ? "Valid" : entry.status}
+                          {entry.status === "ok" ? $t("staff.generate.ok") : entry.status}
                         {/if}
                       </span>
                     </td>

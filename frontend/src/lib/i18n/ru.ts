@@ -484,7 +484,5 @@ export default {
   "student.verifiedDesc": "Все сертификаты в этом профиле верифицированы через платформу Jetistik.",
   "common.refresh": "Обновить",
   "common.unavailable": "Недоступно",
-  "common.copied": "Скопировано!",
-  "common.status": "Статус",
-  "common.actions": "Действия",
+  "common.unexpectedError": "Произошла непредвиденная ошибка",
 } as const;

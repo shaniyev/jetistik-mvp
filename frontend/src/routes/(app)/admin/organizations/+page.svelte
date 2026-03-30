@@ -90,7 +90,7 @@
       createDomain = "";
       await loadOrgs();
     } catch (e: any) {
-      createError = e.message || "Failed to create organization";
+      createError = e.message || $t("common.unexpectedError");
     } finally {
       createLoading = false;
     }
@@ -118,7 +118,7 @@
       editingId = null;
       await loadOrgs();
     } catch (e: any) {
-      alert(e.message || "Failed to update organization");
+      alert(e.message || $t("common.unexpectedError"));
     } finally {
       editLoading = false;
     }
@@ -126,12 +126,12 @@
 
   async function deleteOrg(org: Organization) {
     openMenuId = null;
-    if (!confirm(`Delete "${org.name}"? This action cannot be undone.`)) return;
+    if (!confirm($t("admin.orgs.delete_confirm"))) return;
     try {
       await api.delete(`/api/v1/admin/organizations/${org.id}`);
       await loadOrgs();
     } catch (e: any) {
-      alert(e.message || "Failed to delete organization");
+      alert(e.message || $t("common.unexpectedError"));
     }
   }
 
@@ -299,14 +299,14 @@
               onclick={() => saveEdit(org.id)}
               disabled={editLoading}
               class="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all"
-              title="Save"
+              title={$t("common.save")}
             >
               <span class="material-symbols-outlined">check</span>
             </button>
             <button
               onclick={cancelEdit}
               class="p-2 text-outline hover:bg-slate-100 rounded-lg transition-all"
-              title="Cancel"
+              title={$t("common.cancel")}
             >
               <span class="material-symbols-outlined">close</span>
             </button>

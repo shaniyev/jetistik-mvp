@@ -45,7 +45,7 @@
 
     <div class="mt-auto flex flex-col gap-1 pt-4 border-t border-slate-100">
       <a
-        href="/staff/settings"
+        href="/staff/events"
         class="text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out"
       >
         <span class="material-symbols-outlined">settings</span>

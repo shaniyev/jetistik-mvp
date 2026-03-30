@@ -440,37 +440,34 @@
         <ul class="space-y-4 text-sm text-slate-300">
           <li><a class="hover:text-primary transition-colors" href="#faq">{$t("nav.faq")}</a></li>
           <li><a class="hover:text-primary transition-colors" href="mailto:support@jetistik.kz">{$t("landing.footer.contact")}</a></li>
-          <li><a class="hover:text-primary transition-colors" href="#">{$t("landing.footer.help")}</a></li>
+          <li><a class="hover:text-primary transition-colors" href="#faq">{$t("landing.footer.help")}</a></li>
         </ul>
       </div>
       <div>
         <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">{$t("landing.footer.legal")}</h4>
         <ul class="space-y-4 text-sm text-slate-300">
-          <li><a class="hover:text-primary transition-colors" href="/privacy">{$t("landing.footer.privacy")}</a></li>
-          <li><a class="hover:text-primary transition-colors" href="/terms">{$t("landing.footer.terms")}</a></li>
+          <li><a class="hover:text-primary transition-colors" href="/">{$t("landing.footer.privacy")}</a></li>
+          <li><a class="hover:text-primary transition-colors" href="/">{$t("landing.footer.terms")}</a></li>
         </ul>
       </div>
     </div>
     <div class="max-w-7xl mx-auto pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4">
       <p class="text-slate-500 text-xs">&copy; {new Date().getFullYear()} Jetistik Certificate Platform. {$t("landing.footer.rights")}</p>
       <div class="flex gap-6">
-        <a class="text-slate-500 hover:text-white transition-colors" href="#">
+        <a class="text-slate-500 hover:text-white transition-colors" href="/">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
         </a>
         <a class="text-slate-500 hover:text-white transition-colors" href="mailto:support@jetistik.kz">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        </a>
-        <a class="text-slate-500 hover:text-white transition-colors" href="#">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
         </a>
       </div>
     </div>
   </footer>
 
   <!-- Floating Chat Button -->
-  <button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-transform z-40">
+  <a href="mailto:support@jetistik.kz" class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-transform z-40">
     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
       <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
     </svg>
-  </button>
+  </a>
 </div>

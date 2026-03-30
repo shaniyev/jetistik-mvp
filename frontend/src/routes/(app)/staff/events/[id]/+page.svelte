@@ -63,7 +63,7 @@
         batches = [];
       }
     } catch {
-      error = "Failed to load event";
+      error = $t("common.unexpectedError");
     } finally {
       loading = false;
     }
@@ -82,7 +82,7 @@
       const res = await api.upload<Template>(`/api/v1/staff/events/${eventId}/template`, formData);
       template = res.data;
     } catch (err) {
-      error = err instanceof ApiError ? err.message : "Failed to upload template";
+      error = err instanceof ApiError ? err.message : $t("common.unexpectedError");
     } finally {
       uploading = false;
       input.value = "";
@@ -95,7 +95,7 @@
       await api.delete(`/api/v1/staff/events/${eventId}/template`);
       template = null;
     } catch (err) {
-      error = err instanceof ApiError ? err.message : "Failed to delete template";
+      error = err instanceof ApiError ? err.message : $t("common.unexpectedError");
     }
   }
 
@@ -115,7 +115,7 @@
       // Redirect to mapping page
       window.location.href = `/staff/events/${eventId}/batches/${batch.id}`;
     } catch (err) {
-      error = err instanceof ApiError ? err.message : "Failed to upload batch";
+      error = err instanceof ApiError ? err.message : $t("common.unexpectedError");
     } finally {
       uploadingBatch = false;
       input.value = "";
@@ -128,7 +128,7 @@
       await api.delete(`/api/v1/staff/batches/${batchId}`);
       batches = batches.filter((b) => b.id !== batchId);
     } catch (err) {
-      error = err instanceof ApiError ? err.message : "Failed to delete batch";
+      error = err instanceof ApiError ? err.message : $t("common.unexpectedError");
     }
   }
 
@@ -151,7 +151,7 @@
       event = res.data;
       editingEvent = false;
     } catch (err) {
-      error = err instanceof ApiError ? err.message : "Failed to update event";
+      error = err instanceof ApiError ? err.message : $t("common.unexpectedError");
     } finally {
       savingEvent = false;
     }

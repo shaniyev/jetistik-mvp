@@ -640,7 +640,5 @@ export default {
   "student.verifiedDesc": "All certificates on this profile are verified through Jetistik platform.",
   "common.refresh": "Refresh",
   "common.unavailable": "Unavailable",
-  "common.copied": "Copied!",
-  "common.status": "Status",
-  "common.actions": "Actions",
+  "common.unexpectedError": "An unexpected error occurred",
 } as const;

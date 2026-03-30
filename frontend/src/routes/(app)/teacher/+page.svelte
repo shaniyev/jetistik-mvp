@@ -82,7 +82,7 @@
       if (err.status === 409) {
         addError = $t("teacher.studentAlreadyAdded");
       } else {
-        addError = err.message ?? "Failed to add student";
+        addError = err.message ?? $t("common.unexpectedError");
       }
     } finally {
       adding = false;

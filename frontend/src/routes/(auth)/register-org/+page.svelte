@@ -31,7 +31,7 @@
         goto('/staff/events');
       }
     } catch (e: any) {
-      error = e.message || 'Registration failed';
+      error = e.message || $t("common.unexpectedError");
     } finally {
       loading = false;
     }
@@ -39,7 +39,7 @@
 </script>
 
 <svelte:head>
-  <title>Register Organization — Jetistik</title>
+  <title>{$t("registerOrg.title")} — Jetistik</title>
 </svelte:head>
 
 <div class="w-full max-w-md">

@@ -65,11 +65,11 @@
     <div class="px-3 pt-6 border-t border-slate-100">
       <a class="flex items-center px-3 py-3 text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors duration-200" href="/teacher">
         <span class="material-symbols-outlined mr-3">settings</span>
-        <span class="font-display tracking-tight text-sm">Settings</span>
+        <span class="font-display tracking-tight text-sm">{$t("teacher.layout.settings")}</span>
       </a>
-      <a class="flex items-center px-3 py-3 text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors duration-200" href="/teacher">
+      <a class="flex items-center px-3 py-3 text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors duration-200" href="mailto:support@jetistik.kz">
         <span class="material-symbols-outlined mr-3">help_outline</span>
-        <span class="font-display tracking-tight text-sm">Support</span>
+        <span class="font-display tracking-tight text-sm">{$t("teacher.layout.support")}</span>
       </a>
       <div class="mt-6 px-3 flex items-center gap-3">
         <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary text-xs font-bold shrink-0">
@@ -91,7 +91,7 @@
       </button>
       <div class="relative w-full max-w-md hidden sm:block">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-        <input class="w-full bg-slate-100/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Search..." type="text" />
+        <input class="w-full bg-slate-100/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder={$t("teacher.layout.searchPlaceholder")} type="text" />
       </div>
     </div>
     <div class="flex items-center gap-2 md:gap-4">

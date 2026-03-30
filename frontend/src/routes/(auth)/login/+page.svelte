@@ -37,7 +37,7 @@
           error = err.message;
         }
       } else {
-        error = "An unexpected error occurred";
+        error = $t("common.unexpectedError");
       }
     } finally {
       loading = false;

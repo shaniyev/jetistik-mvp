@@ -42,7 +42,7 @@
   <footer class="w-full py-8 px-6 mt-auto border-t border-outline-variant/15 bg-surface-container-low">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
       <p class="font-body text-xs text-on-surface-variant opacity-70">
-        &copy; 2024 Jetistik Certificate Platform. All rights reserved.
+        &copy; {new Date().getFullYear()} {$t("auth.layout.copyright")}
       </p>
       <div class="flex gap-6">
         <a class="text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors" href="/verify">{$t("nav.verification")}</a>

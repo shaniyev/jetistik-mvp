@@ -2,9 +2,15 @@
   import { goto } from "$app/navigation";
   import { currentUser } from "$lib/stores/auth";
   import { auth } from "$lib/stores/auth";
-  import { t } from "$lib/i18n";
+  import { t, language, setLanguage, type Language } from "$lib/i18n";
 
   let { children } = $props();
+
+  const languages: { code: Language; label: string }[] = [
+    { code: "kz", label: "KZ" },
+    { code: "ru", label: "RU" },
+    { code: "en", label: "EN" },
+  ];
 
   $effect(() => {
     if ($currentUser && $currentUser.role !== "student") {
@@ -21,9 +27,9 @@
 
       <!-- Desktop Links -->
       <div class="hidden md:flex gap-8 items-center font-display font-semibold tracking-tight">
-        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">{$t("student.layout.howItWorks")}</a>
-        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">{$t("student.layout.faq")}</a>
-        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/">{$t("student.layout.forOrganizers")}</a>
+        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/#how-it-works">{$t("student.layout.howItWorks")}</a>
+        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/#faq">{$t("student.layout.faq")}</a>
+        <a class="text-slate-600 hover:text-blue-500 transition-colors duration-200" href="/#organizers">{$t("student.layout.forOrganizers")}</a>
         <a class="text-blue-600 border-b-2 border-blue-600" href="/student">{$t("student.layout.dashboard")}</a>
       </div>
 
@@ -50,19 +56,19 @@
   <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl flex justify-around items-center px-4 pb-8 pt-4 border-t border-slate-200/60 z-50">
     <a class="flex flex-col items-center justify-center text-slate-500 group" href="/">
       <span class="material-symbols-outlined transition-colors group-hover:text-primary">home</span>
-      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Home</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">{$t("student.layout.home")}</span>
     </a>
     <a class="flex flex-col items-center justify-center text-slate-500 group" href="/student">
       <span class="material-symbols-outlined transition-colors group-hover:text-primary">calendar_month</span>
-      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Events</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">{$t("student.layout.events")}</span>
     </a>
     <a class="flex flex-col items-center justify-center bg-blue-50 text-blue-700 rounded-2xl px-5 py-2.5 -mt-2 shadow-sm border border-blue-100" href="/student">
       <span class="material-symbols-outlined">workspace_premium</span>
-      <span class="text-[10px] font-bold uppercase tracking-widest mt-1">Certs</span>
+      <span class="text-[10px] font-bold uppercase tracking-widest mt-1">{$t("student.layout.certs")}</span>
     </a>
     <a class="flex flex-col items-center justify-center text-slate-500 group" href="/student">
       <span class="material-symbols-outlined transition-colors group-hover:text-primary">person</span>
-      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+      <span class="text-[10px] font-semibold uppercase tracking-widest mt-1">{$t("student.layout.profile")}</span>
     </a>
   </nav>
 
@@ -76,36 +82,41 @@
         </p>
       </div>
       <div class="space-y-4">
-        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-[0.2em]">Platform</h4>
+        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-[0.2em]">{$t("student.layout.platform")}</h4>
         <nav class="flex flex-col gap-3">
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">Privacy Policy</a>
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">Terms of Service</a>
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/verify">Verification</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">{$t("student.layout.privacyPolicy")}</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">{$t("student.layout.termsOfService")}</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/verify">{$t("landing.footer.verification")}</a>
         </nav>
       </div>
       <div class="space-y-4">
-        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-[0.2em]">Support</h4>
+        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-[0.2em]">{$t("student.layout.support")}</h4>
         <nav class="flex flex-col gap-3">
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">Contact Us</a>
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">FAQ</a>
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">Guidelines</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="mailto:support@jetistik.kz">{$t("student.layout.contactUs")}</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/#faq">{$t("nav.faq")}</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">{$t("student.layout.guidelines")}</a>
         </nav>
       </div>
       <div class="space-y-4">
-        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-[0.2em]">Language / Til</h4>
+        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-[0.2em]">{$t("student.layout.language")}</h4>
         <div class="flex gap-2">
-          <button class="bg-white border border-slate-200 px-4 py-2 rounded-lg text-xs font-bold hover:border-primary transition-colors shadow-sm">KZ</button>
-          <button class="bg-white border border-slate-200 px-4 py-2 rounded-lg text-xs font-bold hover:border-primary transition-colors shadow-sm">RU</button>
-          <button class="bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md shadow-primary/20">EN</button>
+          {#each languages as lang}
+            <button
+              onclick={() => setLanguage(lang.code)}
+              class="{$language === lang.code
+                ? 'bg-primary text-white shadow-md shadow-primary/20'
+                : 'bg-white border border-slate-200 hover:border-primary shadow-sm'} px-4 py-2 rounded-lg text-xs font-bold transition-colors"
+            >{lang.label}</button>
+          {/each}
         </div>
       </div>
     </div>
     <div class="max-w-7xl mx-auto mt-12 sm:mt-16 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
-      <p class="text-slate-400 text-xs">2024 Jetistik Certificate Platform. All rights reserved.</p>
+      <p class="text-slate-400 text-xs">&copy; {new Date().getFullYear()} {$t("student.layout.copyright")}</p>
       <div class="flex gap-8">
-        <span class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer transition-colors">public</span>
-        <span class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer transition-colors">shield</span>
-        <span class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer transition-colors">history</span>
+        <a href="/" class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer transition-colors">public</a>
+        <a href="/" class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer transition-colors">shield</a>
+        <a href="/" class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer transition-colors">history</a>
       </div>
     </div>
   </footer>
