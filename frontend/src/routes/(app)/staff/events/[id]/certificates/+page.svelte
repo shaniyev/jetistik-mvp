@@ -131,29 +131,31 @@
   ]);
 </script>
 
-<div class="space-y-6">
-  <div class="flex items-start justify-between">
-    <div>
-      <a href="/staff/events/{eventId}" class="text-sm text-on-surface-variant hover:text-primary transition-colors">
-        &larr; {$t("staff.certs.back_to_event")}
-      </a>
-      <h1 class="font-display text-2xl font-bold text-on-surface mt-2">{$t("staff.certs.title")}</h1>
-      <p class="text-sm text-on-surface-variant mt-1">{total} {$t("staff.certs.total")}</p>
+<div class="space-y-8">
+  <!-- Header -->
+  <div>
+    <a href="/staff/events/{eventId}" class="inline-flex items-center gap-1 text-primary text-sm font-medium hover:underline mb-3">
+      <span class="material-symbols-outlined text-sm">arrow_back</span>
+      {$t("staff.event.backToEvents")}
+    </a>
+    <div class="flex items-end justify-between">
+      <div>
+        <h1 class="font-display text-3xl font-extrabold tracking-tight text-on-surface">{$t("staff.certs.title")}</h1>
+        <p class="text-on-surface-variant mt-1">{total} {$t("staff.certs.total")}</p>
+      </div>
+      {#if total > 0}
+        <button
+          onclick={downloadAll}
+          disabled={downloading}
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+                 bg-gradient-to-br from-primary to-primary-container text-on-primary
+                 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
+        >
+          <span class="material-symbols-outlined text-lg">download</span>
+          {downloading ? downloadProgress : $t("staff.certs.downloadAll")}
+        </button>
+      {/if}
     </div>
-    {#if total > 0}
-      <button
-        onclick={downloadAll}
-        disabled={downloading}
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
-               bg-gradient-to-br from-primary to-primary-container text-on-primary
-               hover:shadow-lg transition-shadow disabled:opacity-50"
-      >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        {downloading ? downloadProgress : $t("staff.certs.downloadAll")}
-      </button>
-    {/if}
   </div>
 
   {#if error}
