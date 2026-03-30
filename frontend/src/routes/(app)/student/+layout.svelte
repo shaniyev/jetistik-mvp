@@ -84,8 +84,8 @@
       <div class="space-y-4">
         <h4 class="font-bold text-slate-900 text-xs uppercase tracking-[0.2em]">{$t("student.layout.platform")}</h4>
         <nav class="flex flex-col gap-3">
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">{$t("student.layout.privacyPolicy")}</a>
-          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/">{$t("student.layout.termsOfService")}</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/privacy">{$t("student.layout.privacyPolicy")}</a>
+          <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/terms">{$t("student.layout.termsOfService")}</a>
           <a class="text-slate-500 hover:text-blue-600 text-sm transition-colors" href="/verify">{$t("landing.footer.verification")}</a>
         </nav>
       </div>

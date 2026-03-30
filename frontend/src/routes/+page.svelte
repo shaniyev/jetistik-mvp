@@ -446,8 +446,8 @@
       <div>
         <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">{$t("landing.footer.legal")}</h4>
         <ul class="space-y-4 text-sm text-slate-300">
-          <li><a class="hover:text-primary transition-colors" href="/">{$t("landing.footer.privacy")}</a></li>
-          <li><a class="hover:text-primary transition-colors" href="/">{$t("landing.footer.terms")}</a></li>
+          <li><a class="hover:text-primary transition-colors" href="/privacy">{$t("landing.footer.privacy")}</a></li>
+          <li><a class="hover:text-primary transition-colors" href="/terms">{$t("landing.footer.terms")}</a></li>
         </ul>
       </div>
     </div>
