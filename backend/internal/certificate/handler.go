@@ -196,6 +196,7 @@ func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 
 // Update handles PATCH /api/v1/staff/certificates/{id}
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+	uc := middleware.MustGetUser(r.Context())
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		response.Error(w, http.StatusBadRequest, "INVALID_ID", "invalid certificate id")
@@ -206,16 +207,31 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusBadRequest, "INVALID_JSON", "invalid request body")
 		return
 	}
-	if req.Status == nil {
-		response.Error(w, http.StatusBadRequest, "MISSING_STATUS", "status is required")
+
+	// Update name/iin if provided
+	if req.Name != nil || req.IIN != nil {
+		cert, err := h.svc.UpdateFields(r.Context(), id, req.Name, req.IIN)
+		if err != nil {
+			response.Error(w, http.StatusInternalServerError, "INTERNAL", "failed to update certificate")
+			return
+		}
+		h.auditSvc.Log(r.Context(), uc.UserID, "certificate_edit", "certificate", strconv.FormatInt(id, 10), nil)
+		response.JSON(w, http.StatusOK, cert)
 		return
 	}
-	cert, err := h.svc.UpdateStatus(r.Context(), id, *req.Status)
-	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "INTERNAL", "failed to update certificate")
+
+	// Update status if provided
+	if req.Status != nil {
+		cert, err := h.svc.UpdateStatus(r.Context(), id, *req.Status)
+		if err != nil {
+			response.Error(w, http.StatusInternalServerError, "INTERNAL", "failed to update certificate")
+			return
+		}
+		response.JSON(w, http.StatusOK, cert)
 		return
 	}
-	response.JSON(w, http.StatusOK, cert)
+
+	response.Error(w, http.StatusBadRequest, "EMPTY_REQUEST", "nothing to update")
 }
 
 // Delete handles DELETE /api/v1/staff/certificates/{id}

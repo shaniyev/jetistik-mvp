@@ -21,6 +21,7 @@ type Repository interface {
 	UpdateCertificateStatus(ctx context.Context, id int64, status, revokedReason string) (sqlcdb.Certificate, error)
 	DeleteCertificate(ctx context.Context, id int64) error
 	SearchCertificatesByIIN(ctx context.Context, iin string) ([]sqlcdb.SearchCertificatesByIINRow, error)
+	UpdateCertificateFields(ctx context.Context, params sqlcdb.UpdateCertificateFieldsParams) (sqlcdb.Certificate, error)
 	ListCertificatesByIIN(ctx context.Context, iin string) ([]sqlcdb.ListCertificatesByIINRow, error)
 }
 
@@ -110,6 +111,14 @@ func (r *pgRepository) SearchCertificatesByIIN(ctx context.Context, iin string) 
 		return nil, fmt.Errorf("search certificates: %w", err)
 	}
 	return results, nil
+}
+
+func (r *pgRepository) UpdateCertificateFields(ctx context.Context, params sqlcdb.UpdateCertificateFieldsParams) (sqlcdb.Certificate, error) {
+	cert, err := r.q.UpdateCertificateFields(ctx, params)
+	if err != nil {
+		return sqlcdb.Certificate{}, fmt.Errorf("update certificate fields: %w", err)
+	}
+	return cert, nil
 }
 
 func (r *pgRepository) ListCertificatesByIIN(ctx context.Context, iin string) ([]sqlcdb.ListCertificatesByIINRow, error) {

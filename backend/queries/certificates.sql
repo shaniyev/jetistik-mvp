@@ -87,3 +87,11 @@ WHERE c.iin IN (
   SELECT u.iin FROM users u WHERE u.id = $1 AND u.iin IS NOT NULL AND u.iin != ''
 )
 ORDER BY c.created_at DESC;
+
+-- name: UpdateCertificateFields :one
+UPDATE certificates
+SET name = COALESCE(sqlc.narg('name'), name),
+    iin = COALESCE(sqlc.narg('iin'), iin),
+    updated_at = now()
+WHERE id = sqlc.arg('id')
+RETURNING *;

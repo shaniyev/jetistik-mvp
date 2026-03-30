@@ -5,6 +5,8 @@ import "time"
 // --- Requests ---
 
 type UpdateCertificateRequest struct {
+	Name   *string `json:"name"`
+	IIN    *string `json:"iin"`
 	Status *string `json:"status"`
 }
 

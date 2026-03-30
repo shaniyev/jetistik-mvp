@@ -569,6 +569,41 @@ func (q *Queries) SearchCertificatesByIIN(ctx context.Context, iin pgtype.Text) 
 	return items, nil
 }
 
+const updateCertificateFields = `-- name: UpdateCertificateFields :one
+UPDATE certificates
+SET name = COALESCE($1, name),
+    iin = COALESCE($2, iin),
+    updated_at = now()
+WHERE id = $3
+RETURNING id, event_id, organization_id, iin, name, code, pdf_path, status, revoked_reason, payload, created_at, updated_at
+`
+
+type UpdateCertificateFieldsParams struct {
+	Name pgtype.Text `json:"name"`
+	Iin  pgtype.Text `json:"iin"`
+	ID   int64       `json:"id"`
+}
+
+func (q *Queries) UpdateCertificateFields(ctx context.Context, arg UpdateCertificateFieldsParams) (Certificate, error) {
+	row := q.db.QueryRow(ctx, updateCertificateFields, arg.Name, arg.Iin, arg.ID)
+	var i Certificate
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.OrganizationID,
+		&i.Iin,
+		&i.Name,
+		&i.Code,
+		&i.PdfPath,
+		&i.Status,
+		&i.RevokedReason,
+		&i.Payload,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateCertificateStatus = `-- name: UpdateCertificateStatus :one
 UPDATE certificates
 SET status = $2, revoked_reason = $3, updated_at = now()

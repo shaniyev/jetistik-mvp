@@ -61,6 +61,52 @@
     }
   }
 
+  async function downloadPdf(cert: Certificate) {
+    try {
+      const token = getAccessToken();
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`/api/v1/staff/certificates/${cert.id}/download`, { headers, credentials: "include" });
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${cert.name}_${cert.code.slice(0, 8)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      alert($t("common.unexpectedError"));
+    }
+  }
+
+  // Edit
+  let editingCert = $state<Certificate | null>(null);
+  let editName = $state("");
+  let editIIN = $state("");
+  let editSaving = $state(false);
+
+  function startEdit(cert: Certificate) {
+    editingCert = cert;
+    editName = cert.name;
+    editIIN = cert.iin;
+  }
+
+  async function saveEdit() {
+    if (!editingCert) return;
+    editSaving = true;
+    try {
+      await api.patch(`/api/v1/staff/certificates/${editingCert.id}`, { name: editName, iin: editIIN });
+      editingCert = null;
+      loadCerts();
+    } catch (e: any) {
+      alert(e.message || $t("common.unexpectedError"));
+    } finally {
+      editSaving = false;
+    }
+  }
+
   async function downloadAll() {
     downloading = true;
     downloadProgress = $t("staff.certs.fetching");
@@ -176,19 +222,18 @@
         </td>
         <td class="px-4 py-3">
           <div class="flex items-center gap-2">
-            <a
-              href="/api/v1/staff/certificates/{cert.id}/download"
-              target="_blank"
-              class="text-xs text-primary hover:underline"
-            >
+            <button onclick={() => downloadPdf(cert)} class="text-xs text-primary hover:underline font-medium">
               PDF
-            </a>
+            </button>
+            <button onclick={() => startEdit(cert)} class="text-xs text-on-surface-variant hover:text-primary hover:underline font-medium">
+              {$t("common.edit")}
+            </button>
             {#if cert.status === "valid"}
-              <button onclick={() => revoke(cert.id)} class="text-xs text-error hover:underline">
+              <button onclick={() => revoke(cert.id)} class="text-xs text-error hover:underline font-medium">
                 {$t("staff.certs.revoke")}
               </button>
             {:else if cert.status === "revoked"}
-              <button onclick={() => unrevoke(cert.id)} class="text-xs text-emerald-600 hover:underline">
+              <button onclick={() => unrevoke(cert.id)} class="text-xs text-emerald-600 hover:underline font-medium">
                 {$t("staff.certs.restore")}
               </button>
             {/if}
@@ -220,3 +265,47 @@
     </div>
   {/if}
 </div>
+
+<!-- Edit Modal -->
+{#if editingCert}
+  <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onclick={() => { editingCert = null; }}>
+    <div class="bg-surface-container-lowest rounded-2xl p-8 w-full max-w-md shadow-2xl" onclick={(e) => e.stopPropagation()}>
+      <h3 class="font-display text-xl font-bold text-on-surface mb-6">{$t("common.edit")} — {editingCert.code.slice(0, 8)}</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{$t("common.name")}</label>
+          <input
+            type="text"
+            bind:value={editName}
+            class="w-full px-4 py-3 rounded-xl bg-surface border border-outline-variant/20 text-on-surface text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">IIN</label>
+          <input
+            type="text"
+            bind:value={editIIN}
+            maxlength="12"
+            inputmode="numeric"
+            class="w-full px-4 py-3 rounded-xl bg-surface border border-outline-variant/20 text-on-surface text-sm font-mono focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+          />
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button
+          onclick={saveEdit}
+          disabled={editSaving}
+          class="flex-1 py-3 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-semibold text-sm hover:shadow-lg transition-all disabled:opacity-50"
+        >
+          {editSaving ? '...' : $t("common.save")}
+        </button>
+        <button
+          onclick={() => { editingCert = null; }}
+          class="px-6 py-3 rounded-xl bg-surface-container-low text-on-surface-variant font-semibold text-sm hover:bg-surface-container-high transition-colors"
+        >
+          {$t("common.cancel")}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}

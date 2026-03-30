@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"jetistik/internal/sqlcdb"
 	"jetistik/internal/storage"
@@ -205,6 +206,22 @@ func (s *Service) SearchByIIN(ctx context.Context, iin string) ([]SearchResult, 
 		}
 	}
 	return results, nil
+}
+
+// UpdateFields updates name/iin of a certificate.
+func (s *Service) UpdateFields(ctx context.Context, id int64, name, iin *string) (*CertificateResponse, error) {
+	params := sqlcdb.UpdateCertificateFieldsParams{ID: id}
+	if name != nil {
+		params.Name = pgtype.Text{String: *name, Valid: true}
+	}
+	if iin != nil {
+		params.Iin = pgtype.Text{String: *iin, Valid: true}
+	}
+	cert, err := s.repo.UpdateCertificateFields(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("update fields: %w", err)
+	}
+	return toCertResponse(cert), nil
 }
 
 // DownloadFile returns a reader for the file at the given path.
