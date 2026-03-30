@@ -56,52 +56,65 @@
   onMount(load);
 </script>
 
-<header class="mb-8">
-  <h1 class="font-display text-2xl font-bold text-on-surface">{$t("staff.certs.title")}</h1>
-  <p class="text-on-surface-variant text-sm mt-1">{total} {$t("staff.certs.total")}</p>
-</header>
+<div class="p-6 lg:p-10 pb-32">
+  <!-- Header -->
+  <header class="mb-12">
+    <h1 class="font-display text-4xl font-extrabold tracking-tight text-on-surface">{$t("staff.certs.title")}</h1>
+    <p class="text-on-surface-variant mt-1">{total} {$t("staff.certs.total")}</p>
+  </header>
 
-{#if loading}
-  <div class="text-center py-16 text-on-surface-variant">{$t("common.loading")}</div>
-{:else if certs.length === 0}
-  <div class="text-center py-16 text-on-surface-variant">{$t("staff.certs.empty")}</div>
-{:else}
-  <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden">
+  <!-- Table Card -->
+  <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="w-full text-sm text-left">
+      <table class="w-full text-left">
         <thead class="bg-surface-container-low">
           <tr>
-            <th class="px-5 py-3.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("common.name")}</th>
-            <th class="px-5 py-3.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("common.event")}</th>
-            <th class="px-5 py-3.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("common.status")}</th>
-            <th class="px-5 py-3.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{$t("common.date")}</th>
-            <th class="px-5 py-3.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">{$t("common.actions")}</th>
+            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant">{$t("common.name")}</th>
+            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant">{$t("common.event")}</th>
+            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant">{$t("common.status")}</th>
+            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant">{$t("common.date")}</th>
+            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant text-right">{$t("common.actions")}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-outline-variant/10">
-          {#each certs as cert}
-            <tr class="hover:bg-surface-container-low/30 transition-colors">
-              <td class="px-5 py-4">
-                <p class="font-medium text-on-surface text-sm">{cert.name || '—'}</p>
-                <p class="text-xs text-on-surface-variant font-mono mt-0.5">{maskIIN(cert.iin)}</p>
-              </td>
-              <td class="px-5 py-4 text-sm text-on-surface-variant max-w-[200px] truncate">{cert.event_title || '—'}</td>
-              <td class="px-5 py-4"><StatusBadge status={cert.status || 'valid'} /></td>
-              <td class="px-5 py-4 text-sm text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex gap-2 justify-end">
-                  <a href="/verify/{cert.code}" class="text-primary text-xs font-medium hover:underline">{$t("verify.verify")}</a>
-                  {#if cert.status === 'valid'}
-                    <button onclick={() => revoke(cert)} class="text-error text-xs font-medium hover:underline">{$t("staff.certs.revoke")}</button>
-                  {:else if cert.status === 'revoked'}
-                    <button onclick={() => unrevoke(cert)} class="text-emerald-600 text-xs font-medium hover:underline">{$t("staff.certs.restore")}</button>
-                  {/if}
+          {#if loading}
+            <tr>
+              <td colspan="5" class="px-6 py-16 text-center text-on-surface-variant">
+                <div class="flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+                  <span>{$t("common.loading")}</span>
                 </div>
               </td>
             </tr>
-          {/each}
+          {:else if certs.length === 0}
+            <tr>
+              <td colspan="5" class="px-6 py-16 text-center text-on-surface-variant">{$t("staff.certs.empty")}</td>
+            </tr>
+          {:else}
+            {#each certs as cert (cert.id)}
+              <tr class="hover:bg-surface-container-low/30 transition-colors">
+                <td class="px-6 py-5">
+                  <p class="font-medium text-on-surface text-sm">{cert.name || '—'}</p>
+                  <p class="text-xs text-on-surface-variant font-mono mt-0.5">{maskIIN(cert.iin)}</p>
+                </td>
+                <td class="px-6 py-5 text-sm text-on-surface-variant max-w-[200px] truncate">{cert.event_title || '—'}</td>
+                <td class="px-6 py-5"><StatusBadge status={cert.status || 'valid'} /></td>
+                <td class="px-6 py-5 text-sm text-on-surface-variant">{new Date(cert.created_at).toLocaleDateString()}</td>
+                <td class="px-6 py-5 text-right">
+                  <div class="flex items-center justify-end gap-3">
+                    <a href="/verify/{cert.code}" class="text-primary text-xs font-semibold hover:underline">{$t("verify.verify")}</a>
+                    {#if cert.status === 'valid'}
+                      <button onclick={() => revoke(cert)} class="text-error text-xs font-semibold hover:underline">{$t("staff.certs.revoke")}</button>
+                    {:else if cert.status === 'revoked'}
+                      <button onclick={() => unrevoke(cert)} class="text-emerald-600 text-xs font-semibold hover:underline">{$t("staff.certs.restore")}</button>
+                    {/if}
+                  </div>
+                </td>
+              </tr>
+            {/each}
+          {/if}
         </tbody>
       </table>
     </div>
-  </div>
-{/if}
+  </section>
+</div>
